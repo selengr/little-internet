@@ -1,16 +1,18 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
-const TILE_PX = 49
+const TILE_PX = 50
 const TILE_GAP = 8
-const COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
+/** Base wave pattern — tripled so one loop half is wider than any screen (no duplicate halves visible) */
+const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
+const COLUMN_COUNTS = [...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS]
 const TOTAL_SLOTS = COLUMN_COUNTS.reduce((sum, n) => sum + n, 0)
-/** At least this many unique shots before the same one can appear again in the strip */
-const MIN_REPEAT_GAP = 3
-const SECTION_MIN_H = 6 * TILE_PX + 5 * TILE_GAP + 48
+const MIN_REPEAT_GAP = 12
+const TRACK_H = 6 * TILE_PX + 5 * TILE_GAP
+const SECTION_H = TRACK_H + 48
 
 const SEARCH_QUERIES = [
   "psychology portrait",
@@ -23,11 +25,11 @@ const SEARCH_QUERIES = [
   "mindfulness",
 ]
 
-const INITIAL_PAGES = 2
+const INITIAL_PAGES = 3
 const FULL_PAGES = 5
 const PER_PAGE = 10
-const PRELOAD_COUNT = 36
-const PRELOAD_TIMEOUT_MS = 3500
+const PRELOAD_COUNT = 48
+const PRELOAD_TIMEOUT_MS = 4000
 
 type GridPhoto = {
   id: string
@@ -77,12 +79,30 @@ const FALLBACK_IDS = [
   "photo-1532619675605-1ede6c2ed2a0",
   "photo-1542744173-8e7e53415bb0",
   "photo-1553877522-43269d4ea984",
-]
+  "photo-1486312338219-ce68d2c6f44d",
+  "photo-1497633763763-c6bdd448e4a8",
+  "photo-1515378799144-a8d4e0f0b2a0",
+  "photo-1523240795612-9a054b0db644",
+  "photo-1524178232363-1fb2b0771059",
+  "photo-1532012198187-0a4c4c4c4c4c",
+  "photo-1543269664-56d6720b0e88",
+  "photo-1551836022-d5d88e9078ae",
+  "photo-1561070791-2526d30994b5",
+  "photo-1571019613454-1cb2f99b2d8b",
+  "photo-1580894732444-2643960f7d51",
+  "photo-1591115765373-5207764f72e7",
+  "photo-1606761568499-6d2451b23c66",
+  "photo-1618005182384-a83a8bd57fbe",
+  "photo-1629654299521-0c6e8e0c8c8c",
+  "photo-1633356122544-f134324a6cee",
+  "photo-1642378734583-6d782088cb59",
+  "photo-1655076123456-abcdef123456",
+].filter(id => !id.includes("abcdef"))
 
-const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map((id, i) => ({
+const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
   id: `fallback-${id}`,
   alt: "Curated photo",
-  tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=98&h=98&crop=top&q=85`,
+  tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=100&h=100&crop=top&q=85`,
   href: "https://unsplash.com",
 }))
 
@@ -113,36 +133,45 @@ function mergeUnique(primary: GridPhoto[], extra: GridPhoto[]) {
   return out
 }
 
-/** Spread repeats — same image won't appear within the next N slots */
-function buildSpacedSequence(photos: GridPhoto[], length: number, minGap = MIN_REPEAT_GAP) {
+function shufflePhotos(photos: GridPhoto[], seed: number) {
+  const arr = [...photos]
+  let s = seed
+  for (let i = arr.length - 1; i > 0; i--) {
+    s = (s * 16807 + 0) % 2147483647
+    const j = s % (i + 1)
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
+/** Same image cannot reappear within the next `minGap` slots (linear order) */
+function buildSpacedSequence(photos: GridPhoto[], length: number, minGap: number) {
   if (photos.length === 0) return []
 
-  let pool = photos
-  if (pool.length <= minGap) {
-    pool = mergeUnique(pool, FALLBACK_PHOTOS)
-  }
+  let pool =
+    photos.length > minGap ? photos : mergeUnique(photos, FALLBACK_PHOTOS)
+  pool = shufflePhotos(pool, length + pool.length)
 
   const sequence: GridPhoto[] = []
   const recent: string[] = []
-  let scan = 0
 
   for (let i = 0; i < length; i++) {
     let picked: GridPhoto | null = null
 
     for (let attempt = 0; attempt < pool.length; attempt++) {
-      const candidate = pool[(scan + attempt) % pool.length]
+      const candidate = pool[(i + attempt) % pool.length]
       if (!recent.slice(-minGap).includes(candidate.id)) {
         picked = candidate
-        scan = (scan + attempt + 1) % pool.length
         break
       }
     }
 
-    if (!picked) picked = pool[i % pool.length]
+    if (!picked) {
+      picked = pool.find(p => !recent.slice(-Math.min(3, minGap)).includes(p.id)) ?? pool[i % pool.length]
+    }
 
     sequence.push(picked)
     recent.push(picked.id)
-    if (recent.length > minGap * 2) recent.splice(0, recent.length - minGap * 2)
   }
 
   return sequence
@@ -159,6 +188,7 @@ function buildColumns(sequence: GridPhoto[]) {
 
 function preloadImage(src: string) {
   return new Promise<void>(resolve => {
+    if (!src) return resolve()
     const img = new Image()
     img.onload = () => resolve()
     img.onerror = () => resolve()
@@ -167,9 +197,8 @@ function preloadImage(src: string) {
 }
 
 async function preloadWithTimeout(photos: GridPhoto[], limit: number) {
-  const batch = photos.slice(0, limit).map(p => preloadImage(p.tileSrc))
   await Promise.race([
-    Promise.all(batch),
+    Promise.all(photos.slice(0, limit).map(p => preloadImage(p.tileSrc))),
     new Promise<void>(resolve => setTimeout(resolve, PRELOAD_TIMEOUT_MS)),
   ])
 }
@@ -212,44 +241,70 @@ async function fetchPages(maxPages: number) {
   return unique
 }
 
-function PhotoTile({ photo, priority }: { photo: GridPhoto; priority?: boolean }) {
+function PhotoTile({
+  photo,
+  priority,
+  loaded,
+}: {
+  photo: GridPhoto
+  priority?: boolean
+  loaded: boolean
+}) {
   return (
     <a
       href={photo.href}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group relative shrink-0 overflow-hidden rounded-[14px]",
-        "bg-[#141414] shadow-sm",
-        "transition-transform duration-300 hover:scale-[1.06]",
+        "group relative block shrink-0 overflow-hidden rounded-[14px] bg-[#141414]",
+        "hover:scale-[1.06] hover:transition-transform hover:duration-300",
       )}
-      style={{ width: TILE_PX, height: TILE_PX, minWidth: TILE_PX, minHeight: TILE_PX }}
+      style={{
+        width: TILE_PX,
+        height: TILE_PX,
+        minWidth: TILE_PX,
+        minHeight: TILE_PX,
+        maxWidth: TILE_PX,
+        maxHeight: TILE_PX,
+      }}
       title={photo.alt}
     >
-      <img
-        src={photo.tileSrc}
-        alt={photo.alt}
-        width={TILE_PX}
-        height={TILE_PX}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        draggable={false}
-        className="h-full w-full object-cover object-top opacity-90 transition-opacity group-hover:opacity-100"
-      />
+      {loaded && photo.tileSrc ? (
+        <img
+          src={photo.tileSrc}
+          alt={photo.alt}
+          width={TILE_PX}
+          height={TILE_PX}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          draggable={false}
+          className="block h-full w-full object-cover object-top"
+        />
+      ) : null}
     </a>
   )
 }
 
-function MarqueeTrack({ columns }: { columns: ReturnType<typeof buildColumns> }) {
+function MarqueeTrack({
+  columns,
+  loaded,
+}: {
+  columns: ReturnType<typeof buildColumns>
+  loaded: boolean
+}) {
   return (
-    <div className="flex items-center px-2" style={{ gap: TILE_GAP }}>
+    <div
+      className="flex shrink-0 items-center px-2"
+      style={{ gap: TILE_GAP, height: TRACK_H }}
+    >
       {columns.map(col => (
         <div key={col.id} className="flex flex-col" style={{ gap: TILE_GAP }}>
           {col.photos.map((photo, i) => (
             <PhotoTile
-              key={`${col.id}-${photo.id}-${i}`}
+              key={`${col.id}-${i}`}
               photo={photo}
-              priority={col.id < 6 && i < 3}
+              loaded={loaded}
+              priority={col.id < 4 && i < 2}
             />
           ))}
         </div>
@@ -259,41 +314,44 @@ function MarqueeTrack({ columns }: { columns: ReturnType<typeof buildColumns> })
 }
 
 export function BookCoverMarquee() {
-  const [photos, setPhotos] = useState<GridPhoto[]>(() => photoCache ?? [])
-  const [ready, setReady] = useState(() => Boolean(photoCache?.length))
+  const sequenceRef = useRef<GridPhoto[] | null>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  const placeholderSequence = useMemo(
+    () => buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP),
+    [],
+  )
 
   const columns = useMemo(() => {
-    const sequence = buildSpacedSequence(photos, TOTAL_SLOTS, MIN_REPEAT_GAP)
+    const sequence = sequenceRef.current ?? placeholderSequence
     return buildColumns(sequence)
-  }, [photos])
+  }, [placeholderSequence, loaded])
 
   useEffect(() => {
-    if (ready) return
-
     let cancelled = false
 
     async function prepare() {
       try {
         let pool = await fetchPages(INITIAL_PAGES)
         if (pool.length === 0) pool = FALLBACK_PHOTOS
-        else if (pool.length < 40) pool = mergeUnique(pool, FALLBACK_PHOTOS)
+        else pool = mergeUnique(pool, FALLBACK_PHOTOS)
 
-        await preloadWithTimeout(pool, PRELOAD_COUNT)
+        const sequence = buildSpacedSequence(pool, TOTAL_SLOTS, MIN_REPEAT_GAP)
+        await preloadWithTimeout(sequence, PRELOAD_COUNT)
         if (cancelled) return
 
+        sequenceRef.current = sequence
         photoCache = pool
-        setPhotos(pool)
-        setReady(true)
+        setLoaded(true)
 
-        const full = await fetchPages(FULL_PAGES)
-        if (cancelled || full.length <= pool.length) return
-        photoCache = full
-        setPhotos(full)
+        // Cache more for next visit — do not rebuild strip (prevents shift while moving)
+        fetchPages(FULL_PAGES).then(full => {
+          if (full.length > 0) photoCache = mergeUnique(full, FALLBACK_PHOTOS)
+        })
       } catch {
         if (cancelled) return
-        photoCache = FALLBACK_PHOTOS
-        setPhotos(FALLBACK_PHOTOS)
-        setReady(true)
+        sequenceRef.current = buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP)
+        setLoaded(true)
       }
     }
 
@@ -301,32 +359,30 @@ export function BookCoverMarquee() {
     return () => {
       cancelled = true
     }
-  }, [ready])
+  }, [])
 
   return (
     <section
-      className="relative overflow-hidden bg-transparent py-6"
-      style={{ minHeight: SECTION_MIN_H, maxHeight: 500 }}
-      aria-hidden={!ready}
+      className="relative overflow-hidden bg-transparent"
+      style={{ height: SECTION_H, maxHeight: 500 }}
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-background to-transparent md:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-background to-transparent md:w-24" />
 
       <div
-        className={cn(
-          "flex overflow-hidden motion-reduce:[&_*]:!animate-none transition-opacity duration-500",
-          ready ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
+        className="flex items-center overflow-hidden py-6 motion-reduce:[&_*]:!animate-none"
+        style={{ height: SECTION_H }}
       >
-        {ready && photos.length > 0 && (
-          <div
-            className="flex shrink-0 will-change-transform"
-            style={{ animation: "unsplashMarqueeLeft 50s linear infinite" }}
-          >
-            <MarqueeTrack columns={columns} />
-            <MarqueeTrack columns={columns} />
-          </div>
-        )}
+        <div
+          className="flex shrink-0 will-change-transform"
+          style={{
+            height: TRACK_H,
+            animation: "unsplashMarqueeLeft 90s linear infinite",
+          }}
+        >
+          <MarqueeTrack columns={columns} loaded={loaded} />
+          <MarqueeTrack columns={columns} loaded={loaded} />
+        </div>
       </div>
 
       <style>{`
