@@ -10,26 +10,43 @@ const TILE_GAP = 8
 const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
 const COLUMN_COUNTS = [...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS]
 const TOTAL_SLOTS = COLUMN_COUNTS.reduce((sum, n) => sum + n, 0)
-const MIN_REPEAT_GAP = 12
+const MIN_REPEAT_GAP = 18
 const TRACK_H = 6 * TILE_PX + 5 * TILE_GAP
 const SECTION_H = TRACK_H + 48
+const MIN_POOL_BEFORE_SHOW = 180
 
 const SEARCH_QUERIES = [
   "psychology portrait",
+  "mental health therapy",
+  "brain neuroscience",
   "programming developer",
-  "books reading",
-  "science laboratory",
-  "habits journal",
-  "english study",
-  "computer workspace",
-  "mindfulness",
+  "software coding laptop",
+  "computer technology desk",
+  "books reading library",
+  "study education student",
+  "science laboratory research",
+  "chemistry microscope",
+  "habits productivity journal",
+  "morning routine wellness",
+  "english language learning",
+  "writing notebook pen",
+  "data science analytics",
+  "startup office team",
+  "mindfulness meditation",
+  "yoga calm portrait",
+  "architecture minimal",
+  "nature forest portrait",
+  "coffee shop work",
+  "creative design studio",
+  "mathematics physics",
+  "robotics engineering",
 ]
 
-const INITIAL_PAGES = 3
-const FULL_PAGES = 5
-const PER_PAGE = 10
-const PRELOAD_COUNT = 48
-const PRELOAD_TIMEOUT_MS = 4000
+const FETCH_PAGES = 5
+const PER_PAGE = 30
+const LATEST_PAGES = 4
+const PRELOAD_COUNT = 64
+const PRELOAD_TIMEOUT_MS = 6000
 
 type GridPhoto = {
   id: string
@@ -79,6 +96,24 @@ const FALLBACK_IDS = [
   "photo-1532619675605-1ede6c2ed2a0",
   "photo-1542744173-8e7e53415bb0",
   "photo-1553877522-43269d4ea984",
+  "photo-1541961017774-22349e4a1262",
+  "photo-1577083288073-40892c0860a4",
+  "photo-1518998053901-5348d3961a04",
+  "photo-1536924940846-227afb31e2a5",
+  "photo-1550859492-d5da9d8e45f3",
+  "photo-1482160549825-59d1b23cb208",
+  "photo-1501472312651-726afe119ff1",
+  "photo-1516026672322-bc52d61a55d5",
+  "photo-1469474968028-56623f02e42e",
+  "photo-1476514525535-07fb3b4ae5f1",
+  "photo-1547981609-4b6bfe67ca0b",
+  "photo-1564507592333-c60657eea523",
+  "photo-1496442226666-8d4d0e62e6e9",
+  "photo-1537996194471-e657df975ab4",
+  "photo-1486406146926-c627a92ad1ab",
+  "photo-1621761191319-c6fb62004040",
+  "photo-1579621970795-87facc2f976d",
+  "photo-1454165804606-c3d57bc86b40",
 ]
 
 const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
@@ -126,30 +161,37 @@ function shufflePhotos(photos: GridPhoto[], seed: number) {
   return arr
 }
 
-/** Same image cannot reappear within the next `minGap` slots (linear order) */
+/** Prefer all-unique sequence when pool is large enough; otherwise maximize spacing */
 function buildSpacedSequence(photos: GridPhoto[], length: number, minGap: number) {
   if (photos.length === 0) return []
 
-  let pool =
-    photos.length > minGap ? photos : mergeUnique(photos, FALLBACK_PHOTOS)
-  pool = shufflePhotos(pool, length + pool.length)
+  const pool = shufflePhotos(mergeUnique(photos, FALLBACK_PHOTOS), length + pool.length)
 
+  if (pool.length >= length) {
+    return shufflePhotos(pool, length + 99).slice(0, length)
+  }
+
+  const gap = Math.max(minGap, Math.ceil(length / pool.length) + 4)
   const sequence: GridPhoto[] = []
   const recent: string[] = []
+  let scan = 0
 
   for (let i = 0; i < length; i++) {
     let picked: GridPhoto | null = null
 
     for (let attempt = 0; attempt < pool.length; attempt++) {
-      const candidate = pool[(i + attempt) % pool.length]
-      if (!recent.slice(-minGap).includes(candidate.id)) {
+      const candidate = pool[(scan + attempt) % pool.length]
+      if (!recent.slice(-gap).includes(candidate.id)) {
         picked = candidate
+        scan = (scan + attempt + 1) % pool.length
         break
       }
     }
 
     if (!picked) {
-      picked = pool.find(p => !recent.slice(-Math.min(3, minGap)).includes(p.id)) ?? pool[i % pool.length]
+      picked =
+        pool.find(p => !recent.slice(-Math.min(5, gap)).includes(p.id)) ??
+        pool[(i + scan) % pool.length]
     }
 
     sequence.push(picked)
