@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
-const TILE_PX = 44
+const TILE_PX = 48
 const TILE_GAP = 8
-const COLUMN_COUNTS = [5, 8, 6, 9, 7, 8, 5, 9, 6, 8, 7, 5, 8, 6, 9, 7, 8, 5, 6, 9, 7, 8, 5, 6]
+/** Max 6 → 5 → 4 tiles per column — matches reference wave grid */
+const COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
 
 const SEARCH_QUERIES = [
   "psychology portrait",
