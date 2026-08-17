@@ -165,7 +165,8 @@ function shufflePhotos(photos: GridPhoto[], seed: number) {
 function buildSpacedSequence(photos: GridPhoto[], length: number, minGap: number) {
   if (photos.length === 0) return []
 
-  const pool = shufflePhotos(mergeUnique(photos, FALLBACK_PHOTOS), length + pool.length)
+  const merged = mergeUnique(photos, FALLBACK_PHOTOS)
+  const pool = shufflePhotos(merged, length + merged.length)
 
   if (pool.length >= length) {
     return shufflePhotos(pool, length + 99).slice(0, length)
