@@ -4,35 +4,51 @@ import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
-/** Same squircle size per tile — wave comes from column height, like the reference */
 const TILE_PX = 44
 const TILE_GAP = 8
-
-/** Column lengths — uneven stacks create the top/bottom wave silhouette */
 const COLUMN_COUNTS = [5, 8, 6, 9, 7, 8, 5, 9, 6, 8, 7, 5, 8, 6, 9, 7, 8, 5, 6, 9, 7, 8, 5, 6]
 
 const SEARCH_QUERIES = [
-  "psychology brain",
-  "programming code",
-  "books reading",
+  "psychology portrait",
+  "programming developer",
+  "books reading standing",
   "science laboratory",
   "habits journal",
   "english study",
   "computer workspace",
-  "mindfulness",
+  "mindfulness meditation",
 ]
 
-/** How many API pages to prefetch per topic — then loop that pool in the marquee */
 const MAX_PAGES = 5
 const PER_PAGE = 10
+/** Warm first visible tiles in browser cache before we mount the strip */
+const PRELOAD_COUNT = 56
 
-type GridPhoto = UnsplashPhotoView & { squareSrc: string }
+type GridPhoto = UnsplashPhotoView & { tileSrc: string }
+
+let photoCache: GridPhoto[] | null = null
+let photoCachePromise: Promise<GridPhoto[]> | null = null
+
+function tileUrl(url: string, size: number) {
+  const base = url.split("?")[0]
+  // Portrait standing shots — square crop biased to top so subjects stay visible
+  return `${base}?auto=format&fit=crop&w=${size}&h=${size}&crop=top&q=85`
+}
+
+function preloadImage(src: string) {
+  return new Promise<void>(resolve => {
+    const img = new Image()
+    img.onload = () => resolve()
+    img.onerror = () => resolve()
+    img.src = src
+  })
+}
 
 async function fetchSearchPage(query: string, page: number) {
   const params = new URLSearchParams({
     action: "search",
     query,
-    orientation: "squarish",
+    orientation: "portrait",
     per_page: String(PER_PAGE),
     page: String(page),
     order_by: "relevant",
@@ -53,9 +69,36 @@ async function fetchQueryPages(query: string) {
   return pages
 }
 
-function squareUrl(url: string, size: number) {
-  const base = url.split("?")[0]
-  return `${base}?auto=format&fit=crop&w=${size}&h=${size}&q=80`
+async function fetchAllPhotos(): Promise<GridPhoto[]> {
+  if (photoCache) return photoCache
+
+  const results = await Promise.all(SEARCH_QUERIES.map(fetchQueryPages))
+  const seen = new Set<string>()
+  const unique: GridPhoto[] = []
+
+  for (const photo of results.flat()) {
+    if (seen.has(photo.id)) continue
+    seen.add(photo.id)
+    unique.push({
+      ...photo,
+      tileSrc: tileUrl(photo.urls.small, TILE_PX * 2),
+    })
+  }
+
+  photoCache = unique
+  return unique
+}
+
+function getPhotosPromise() {
+  if (!photoCachePromise) {
+    photoCachePromise = fetchAllPhotos()
+  }
+  return photoCachePromise
+}
+
+// Kick off API fetch as soon as this module loads in the browser
+if (typeof window !== "undefined") {
+  getPhotosPromise()
 }
 
 function PhotoTile({
@@ -65,8 +108,6 @@ function PhotoTile({
   photo: GridPhoto
   priority?: boolean
 }) {
-  const src = squareUrl(photo.urls.small, TILE_PX * 2)
-
   return (
     <a
       href={photo.links.html}
@@ -81,12 +122,12 @@ function PhotoTile({
       title={photo.alt}
     >
       <img
-        src={src}
+        src={photo.tileSrc}
         alt={photo.alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         draggable={false}
-        className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
+        className="h-full w-full object-cover object-top opacity-90 transition-opacity group-hover:opacity-100"
       />
     </a>
   )
@@ -107,62 +148,50 @@ function buildColumns(photos: GridPhoto[]) {
 }
 
 export function BookCoverMarquee() {
-  const [photos, setPhotos] = useState<GridPhoto[]>([])
-  const [loading, setLoading] = useState(true)
+  const [photos, setPhotos] = useState<GridPhoto[]>(() => photoCache ?? [])
+  const [ready, setReady] = useState(() => Boolean(photoCache?.length))
 
   const columns = useMemo(() => buildColumns(photos), [photos])
 
   useEffect(() => {
+    if (ready) return
+
     let cancelled = false
 
-    async function load() {
+    async function prepare() {
       try {
-        const results = await Promise.all(SEARCH_QUERIES.map(fetchQueryPages))
+        const pool = await getPhotosPromise()
+        if (cancelled || pool.length === 0) return
+
+        // Decode first visible frames before revealing the section
+        await Promise.all(pool.slice(0, PRELOAD_COUNT).map(p => preloadImage(p.tileSrc)))
 
         if (cancelled) return
-
-        const seen = new Set<string>()
-        const unique: GridPhoto[] = []
-
-        for (const photo of results.flat()) {
-          if (seen.has(photo.id)) continue
-          seen.add(photo.id)
-          unique.push({
-            ...photo,
-            squareSrc: squareUrl(photo.urls.small, 96),
-          })
-        }
-
-        setPhotos(unique)
+        setPhotos(pool)
+        setReady(true)
       } catch {
-        if (!cancelled) setPhotos([])
-      } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setReady(false)
       }
     }
 
-    load()
+    prepare()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [ready])
+
+  // No empty skeleton — section appears only when photos are warmed up
+  if (!ready || photos.length === 0) return null
 
   const track = (
-    <div
-      className="flex items-center gap-2 px-2"
-      style={{ gap: TILE_GAP }}
-    >
+    <div className="flex items-center gap-2 px-2" style={{ gap: TILE_GAP }}>
       {columns.map(col => (
-        <div
-          key={col.id}
-          className="flex flex-col"
-          style={{ gap: TILE_GAP }}
-        >
+        <div key={col.id} className="flex flex-col" style={{ gap: TILE_GAP }}>
           {col.photos.map((photo, i) => (
             <PhotoTile
               key={`${col.id}-${photo.id}-${i}`}
               photo={photo}
-              priority={col.id < 4 && i < 2}
+              priority={col.id < 6 && i < 3}
             />
           ))}
         </div>
@@ -175,35 +204,15 @@ export function BookCoverMarquee() {
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-background to-transparent md:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-background to-transparent md:w-24" />
 
-      {loading ? (
-        <div className="flex items-center gap-2 overflow-hidden px-4 opacity-25">
-          {Array.from({ length: 14 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex flex-col gap-2"
-              style={{ marginTop: (i % 3) * 12 }}
-            >
-              {Array.from({ length: 4 + (i % 5) }).map((_, j) => (
-                <div
-                  key={j}
-                  className="animate-pulse rounded-[14px] bg-muted"
-                  style={{ width: TILE_PX, height: TILE_PX }}
-                />
-              ))}
-            </div>
-          ))}
+      <div className="flex overflow-hidden motion-reduce:[&_*]:!animate-none">
+        <div
+          className="flex shrink-0 will-change-transform"
+          style={{ animation: "unsplashMarqueeLeft 50s linear infinite" }}
+        >
+          {track}
+          {track}
         </div>
-      ) : photos.length === 0 ? null : (
-        <div className="flex overflow-hidden motion-reduce:[&_*]:!animate-none">
-          <div
-            className="flex shrink-0 will-change-transform"
-            style={{ animation: "unsplashMarqueeLeft 50s linear infinite" }}
-          >
-            {track}
-            {track}
-          </div>
-        </div>
-      )}
+      </div>
 
       <style>{`
         @keyframes unsplashMarqueeLeft {
