@@ -79,25 +79,7 @@ const FALLBACK_IDS = [
   "photo-1532619675605-1ede6c2ed2a0",
   "photo-1542744173-8e7e53415bb0",
   "photo-1553877522-43269d4ea984",
-  "photo-1486312338219-ce68d2c6f44d",
-  "photo-1497633763763-c6bdd448e4a8",
-  "photo-1515378799144-a8d4e0f0b2a0",
-  "photo-1523240795612-9a054b0db644",
-  "photo-1524178232363-1fb2b0771059",
-  "photo-1532012198187-0a4c4c4c4c4c",
-  "photo-1543269664-56d6720b0e88",
-  "photo-1551836022-d5d88e9078ae",
-  "photo-1561070791-2526d30994b5",
-  "photo-1571019613454-1cb2f99b2d8b",
-  "photo-1580894732444-2643960f7d51",
-  "photo-1591115765373-5207764f72e7",
-  "photo-1606761568499-6d2451b23c66",
-  "photo-1618005182384-a83a8bd57fbe",
-  "photo-1629654299521-0c6e8e0c8c8c",
-  "photo-1633356122544-f134324a6cee",
-  "photo-1642378734583-6d782088cb59",
-  "photo-1655076123456-abcdef123456",
-].filter(id => !id.includes("abcdef"))
+]
 
 const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
   id: `fallback-${id}`,
