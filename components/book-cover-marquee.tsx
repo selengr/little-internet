@@ -111,7 +111,6 @@ const FALLBACK_IDS = [
   "photo-1496442226666-8d4d0e62e6e9",
   "photo-1537996194471-e657df975ab4",
   "photo-1486406146926-c627a92ad1ab",
-  "photo-1621761191319-c6fb62004040",
   "photo-1579621970795-87facc2f976d",
   "photo-1454165804606-c3d57bc86b40",
 ]
@@ -243,27 +242,46 @@ async function fetchSearchPage(query: string, page: number) {
   return (json.photos ?? []) as UnsplashPhotoView[]
 }
 
-async function fetchPages(maxPages: number) {
-  const batches = await Promise.all(
-    SEARCH_QUERIES.map(async query => {
-      const photos: UnsplashPhotoView[] = []
-      for (let page = 1; page <= maxPages; page++) {
-        const batch = await fetchSearchPage(query, page)
-        if (batch.length === 0) break
-        photos.push(...batch)
-      }
-      return photos
-    }),
-  )
+async function fetchLatestPage(page: number) {
+  const params = new URLSearchParams({
+    action: "latest",
+    per_page: String(PER_PAGE),
+    page: String(page),
+  })
+  const res = await fetch(`/api/unsplash?${params}`, { cache: "no-store" })
+  if (!res.ok) return [] as UnsplashPhotoView[]
+  const json = await res.json()
+  return (json.photos ?? []) as UnsplashPhotoView[]
+}
 
+async function fetchQueryPages(query: string, maxPages: number) {
+  const photos: UnsplashPhotoView[] = []
+  for (let page = 1; page <= maxPages; page++) {
+    const batch = await fetchSearchPage(query, page)
+    if (batch.length === 0) break
+    photos.push(...batch)
+  }
+  return photos
+}
+
+function dedupePhotos(photos: UnsplashPhotoView[]) {
   const seen = new Set<string>()
   const unique: GridPhoto[] = []
-  for (const photo of batches.flat()) {
+  for (const photo of photos) {
     if (seen.has(photo.id)) continue
     seen.add(photo.id)
     unique.push(mapPhoto(photo))
   }
   return unique
+}
+
+async function fetchAllPhotos() {
+  const [searchBatches, latestBatches] = await Promise.all([
+    Promise.all(SEARCH_QUERIES.map(q => fetchQueryPages(q, FETCH_PAGES))),
+    Promise.all(Array.from({ length: LATEST_PAGES }, (_, i) => fetchLatestPage(i + 1))),
+  ])
+
+  return dedupePhotos([...searchBatches.flat(), ...latestBatches.flat()])
 }
 
 function PhotoTile({
@@ -357,22 +375,26 @@ export function BookCoverMarquee() {
 
     async function prepare() {
       try {
-        let pool = await fetchPages(INITIAL_PAGES)
+        let pool = await fetchAllPhotos()
         if (pool.length === 0) pool = FALLBACK_PHOTOS
         else pool = mergeUnique(pool, FALLBACK_PHOTOS)
 
+        // Keep fetching if pool is still small (API may be slow / rate-limited)
+        if (pool.length < MIN_POOL_BEFORE_SHOW) {
+          await new Promise(r => setTimeout(r, 800))
+          pool = mergeUnique(await fetchAllPhotos(), pool)
+        }
+
         const sequence = buildSpacedSequence(pool, TOTAL_SLOTS, MIN_REPEAT_GAP)
-        await preloadWithTimeout(sequence, PRELOAD_COUNT)
+        await preloadWithTimeout(
+          sequence.filter(p => p.tileSrc),
+          PRELOAD_COUNT,
+        )
         if (cancelled) return
 
         sequenceRef.current = sequence
         photoCache = pool
         setLoaded(true)
-
-        // Cache more for next visit — do not rebuild strip (prevents shift while moving)
-        fetchPages(FULL_PAGES).then(full => {
-          if (full.length > 0) photoCache = mergeUnique(full, FALLBACK_PHOTOS)
-        })
       } catch {
         if (cancelled) return
         sequenceRef.current = buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP)
