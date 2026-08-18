@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
@@ -288,11 +288,11 @@ async function fetchAllPhotos() {
 function PhotoTile({
   photo,
   priority,
-  loaded,
+  showImage,
 }: {
   photo: GridPhoto
   priority?: boolean
-  loaded: boolean
+  showImage: boolean
 }) {
   return (
     <a
@@ -301,7 +301,7 @@ function PhotoTile({
       rel="noopener noreferrer"
       className={cn(
         "group relative block shrink-0 overflow-hidden rounded-[14px] bg-[#141414]",
-        "hover:scale-[1.06] hover:transition-transform hover:duration-300",
+        "md:hover:scale-[1.06] md:hover:transition-transform md:hover:duration-300",
       )}
       style={{
         width: TILE_PX,
@@ -310,44 +310,50 @@ function PhotoTile({
         minHeight: TILE_PX,
         maxWidth: TILE_PX,
         maxHeight: TILE_PX,
+        flex: `0 0 ${TILE_PX}px`,
       }}
       title={photo.alt}
     >
-      {loaded && photo.tileSrc ? (
-        <img
-          src={photo.tileSrc}
-          alt={photo.alt}
-          width={TILE_PX}
-          height={TILE_PX}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          draggable={false}
-          className="block h-full w-full object-cover object-top"
-        />
-      ) : null}
+      <img
+        src={photo.tileSrc}
+        alt={photo.alt}
+        width={TILE_PX}
+        height={TILE_PX}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        draggable={false}
+        className={cn(
+          "block h-full w-full object-cover object-top transition-opacity duration-300",
+          showImage && photo.tileSrc ? "opacity-100" : "opacity-0",
+        )}
+      />
     </a>
   )
 }
 
 function MarqueeTrack({
   columns,
-  loaded,
+  showImage,
 }: {
   columns: ReturnType<typeof buildColumns>
-  loaded: boolean
+  showImage: boolean
 }) {
   return (
     <div
       className="flex shrink-0 items-center px-2"
-      style={{ gap: TILE_GAP, height: TRACK_H }}
+      style={{ gap: TILE_GAP, height: TRACK_H, minHeight: TRACK_H, maxHeight: TRACK_H }}
     >
       {columns.map(col => (
-        <div key={col.id} className="flex flex-col" style={{ gap: TILE_GAP }}>
+        <div
+          key={col.id}
+          className="flex shrink-0 flex-col"
+          style={{ gap: TILE_GAP, width: TILE_PX }}
+        >
           {col.photos.map((photo, i) => (
             <PhotoTile
               key={`${col.id}-${i}`}
               photo={photo}
-              loaded={loaded}
+              showImage={showImage}
               priority={col.id < 4 && i < 2}
             />
           ))}
@@ -358,18 +364,12 @@ function MarqueeTrack({
 }
 
 export function BookCoverMarquee() {
-  const sequenceRef = useRef<GridPhoto[] | null>(null)
-  const [showImage, setShowImage] = useState(false)
-
-  const placeholderSequence = useMemo(
-    () => buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP),
-    [],
+  const [sequence, setSequence] = useState<GridPhoto[]>(() =>
+    buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP),
   )
+  const [showImage, setShowImage] = useState(true)
 
-  const columns = useMemo(() => {
-    const sequence = sequenceRef.current ?? placeholderSequence
-    return buildColumns(sequence)
-  }, [placeholderSequence, showImage])
+  const columns = useMemo(() => buildColumns(sequence), [sequence])
 
   useEffect(() => {
     let cancelled = false
@@ -385,19 +385,19 @@ export function BookCoverMarquee() {
           pool = mergeUnique(await fetchAllPhotos(), pool)
         }
 
-        const sequence = buildSpacedSequence(pool, TOTAL_SLOTS, MIN_REPEAT_GAP)
+        const next = buildSpacedSequence(pool, TOTAL_SLOTS, MIN_REPEAT_GAP)
         await preloadWithTimeout(
-          sequence.filter(p => p.tileSrc),
+          next.filter(p => p.tileSrc),
           PRELOAD_COUNT,
         )
         if (cancelled) return
 
-        sequenceRef.current = sequence
         photoCache = pool
+        setSequence(next)
         setShowImage(true)
       } catch {
         if (cancelled) return
-        sequenceRef.current = buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP)
+        setSequence(buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP))
         setShowImage(true)
       }
     }
