@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
-const TILE_PX = 54
+const TILE_PX = 51
 const TILE_GAP = 8
 const EXPANDED_PX = 168
 const SLOT_BLUE = "#2563eb"
