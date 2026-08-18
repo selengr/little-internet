@@ -329,7 +329,7 @@ function ExpandedPhotoOverlay({
   const targetTop = cy - EXPANDED_PX / 2
 
   return createPortal(
-    <AnimatePresence>
+    <>
       <motion.button
         type="button"
         aria-label="Close enlarged photo"
@@ -341,7 +341,6 @@ function ExpandedPhotoOverlay({
         onClick={onClose}
       />
       <motion.div
-        key={slot.key}
         className="fixed z-[200] overflow-hidden shadow-2xl ring-2 ring-white/25"
         style={{ transformOrigin: "center center" }}
         initial={{
@@ -377,7 +376,7 @@ function ExpandedPhotoOverlay({
           className="block h-full w-full select-none object-cover object-top"
         />
       </motion.div>
-    </AnimatePresence>,
+    </>,
     document.body,
   )
 }
@@ -562,7 +561,11 @@ export function BookCoverMarquee() {
         maxHeight: SECTION_H,
       }}
     >
-      {expanded && <ExpandedPhotoOverlay slot={expanded} onClose={handleClose} />}
+      {expanded && (
+        <AnimatePresence>
+          <ExpandedPhotoOverlay key={expanded.key} slot={expanded} onClose={handleClose} />
+        </AnimatePresence>
+      )}
 
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent sm:w-12 md:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent sm:w-12 md:w-24" />
