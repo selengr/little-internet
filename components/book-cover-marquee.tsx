@@ -359,7 +359,7 @@ function MarqueeTrack({
 
 export function BookCoverMarquee() {
   const sequenceRef = useRef<GridPhoto[] | null>(null)
-  const [loaded, setLoaded] = useState(false)
+  const [showImage, setShowImage] = useState(false)
 
   const placeholderSequence = useMemo(
     () => buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP),
@@ -369,7 +369,7 @@ export function BookCoverMarquee() {
   const columns = useMemo(() => {
     const sequence = sequenceRef.current ?? placeholderSequence
     return buildColumns(sequence)
-  }, [placeholderSequence, loaded])
+  }, [placeholderSequence, showImage])
 
   useEffect(() => {
     let cancelled = false
@@ -380,7 +380,6 @@ export function BookCoverMarquee() {
         if (pool.length === 0) pool = FALLBACK_PHOTOS
         else pool = mergeUnique(pool, FALLBACK_PHOTOS)
 
-        // Keep fetching if pool is still small (API may be slow / rate-limited)
         if (pool.length < MIN_POOL_BEFORE_SHOW) {
           await new Promise(r => setTimeout(r, 800))
           pool = mergeUnique(await fetchAllPhotos(), pool)
@@ -395,11 +394,11 @@ export function BookCoverMarquee() {
 
         sequenceRef.current = sequence
         photoCache = pool
-        setLoaded(true)
+        setShowImage(true)
       } catch {
         if (cancelled) return
         sequenceRef.current = buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP)
-        setLoaded(true)
+        setShowImage(true)
       }
     }
 
@@ -411,25 +410,31 @@ export function BookCoverMarquee() {
 
   return (
     <section
-      className="relative overflow-hidden bg-transparent"
-      style={{ height: SECTION_H, maxHeight: 500 }}
+      className="relative w-full max-w-full overflow-x-clip bg-transparent [contain:layout]"
+      style={{
+        height: SECTION_H,
+        minHeight: SECTION_H,
+        maxHeight: SECTION_H,
+      }}
     >
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-background to-transparent md:w-24" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-background to-transparent md:w-24" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent sm:w-12 md:w-24" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent sm:w-12 md:w-24" />
 
       <div
-        className="flex items-center overflow-hidden py-6 motion-reduce:[&_*]:!animate-none"
-        style={{ height: SECTION_H }}
+        className="box-border flex items-center overflow-hidden py-6 motion-reduce:[&_*]:!animate-none"
+        style={{ height: SECTION_H, minHeight: SECTION_H, maxHeight: SECTION_H }}
       >
         <div
           className="flex shrink-0 will-change-transform"
           style={{
             height: TRACK_H,
+            minHeight: TRACK_H,
+            maxHeight: TRACK_H,
             animation: "unsplashMarqueeLeft 90s linear infinite",
           }}
         >
-          <MarqueeTrack columns={columns} loaded={loaded} />
-          <MarqueeTrack columns={columns} loaded={loaded} />
+          <MarqueeTrack columns={columns} showImage={showImage} />
+          <MarqueeTrack columns={columns} showImage={showImage} />
         </div>
       </div>
 
