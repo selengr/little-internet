@@ -1,11 +1,15 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
+import { createPortal } from "react-dom"
+import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
 const TILE_PX = 54
 const TILE_GAP = 8
+const EXPANDED_PX = 168
+const SLOT_BLUE = "#2563eb"
 /** Base wave pattern — tripled so one loop half is wider than any screen (no duplicate halves visible) */
 const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
 const COLUMN_COUNTS = [...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS]
@@ -43,6 +47,22 @@ const SEARCH_QUERIES = [
   "robotics engineering",
 ]
 
+/** Extra portrait batches — ~50+ unique images after dedupe */
+const EXTRA_PORTRAIT_QUERIES = [
+  "standing portrait full body",
+  "editorial fashion portrait",
+  "cinematic portrait person",
+  "studio portrait professional",
+  "artistic portrait photography",
+  "dramatic portrait lighting",
+  "street portrait candid",
+  "minimal portrait aesthetic",
+  "portrait photography emotion",
+  "full length portrait standing",
+]
+
+const EXTRA_FETCH_PAGES = 2
+
 const FETCH_PAGES = 5
 const PER_PAGE = 30
 const LATEST_PAGES = 4
@@ -53,6 +73,7 @@ type GridPhoto = {
   id: string
   alt: string
   tileSrc: string
+  largeSrc: string
 }
 
 const FALLBACK_IDS = [
@@ -119,6 +140,7 @@ const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
   id: `fallback-${id}`,
   alt: "",
   tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${IMG_PX}&h=${IMG_PX}&crop=top&q=85`,
+  largeSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=400&h=400&crop=top&q=90`,
 }))
 
 let photoCache: GridPhoto[] | null = null
