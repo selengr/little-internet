@@ -155,6 +155,7 @@ function mapPhoto(photo: UnsplashPhotoView): GridPhoto {
     id: photo.id,
     alt: "",
     tileSrc: tileUrl(photo.urls.small, IMG_PX),
+    largeSrc: tileUrl(photo.urls.regular, 400),
   }
 }
 
@@ -296,26 +297,119 @@ function dedupePhotos(photos: UnsplashPhotoView[]) {
 }
 
 async function fetchAllPhotos() {
-  const [searchBatches, latestBatches] = await Promise.all([
+  const [searchBatches, latestBatches, extraBatches] = await Promise.all([
     Promise.all(SEARCH_QUERIES.map(q => fetchQueryPages(q, FETCH_PAGES))),
     Promise.all(Array.from({ length: LATEST_PAGES }, (_, i) => fetchLatestPage(i + 1))),
+    Promise.all(EXTRA_PORTRAIT_QUERIES.map(q => fetchQueryPages(q, EXTRA_FETCH_PAGES))),
   ])
 
-  return dedupePhotos([...searchBatches.flat(), ...latestBatches.flat()])
+  return dedupePhotos([
+    ...searchBatches.flat(),
+    ...latestBatches.flat(),
+    ...extraBatches.flat(),
+  ])
+}
+
+type ExpandedSlot = {
+  key: string
+  photo: GridPhoto
+  rect: { left: number; top: number; width: number; height: number }
+}
+
+function ExpandedPhotoOverlay({
+  slot,
+  onClose,
+}: {
+  slot: ExpandedSlot
+  onClose: () => void
+}) {
+  const cx = slot.rect.left + slot.rect.width / 2
+  const cy = slot.rect.top + slot.rect.height / 2
+  const targetLeft = cx - EXPANDED_PX / 2
+  const targetTop = cy - EXPANDED_PX / 2
+
+  return createPortal(
+    <AnimatePresence>
+      <motion.button
+        type="button"
+        aria-label="Close enlarged photo"
+        className="fixed inset-0 z-[190] cursor-default border-0 bg-transparent p-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={onClose}
+      />
+      <motion.div
+        key={slot.key}
+        className="fixed z-[200] overflow-hidden shadow-2xl ring-2 ring-white/25"
+        style={{ transformOrigin: "center center" }}
+        initial={{
+          left: slot.rect.left,
+          top: slot.rect.top,
+          width: slot.rect.width,
+          height: slot.rect.height,
+          borderRadius: 14,
+        }}
+        animate={{
+          left: targetLeft,
+          top: targetTop,
+          width: EXPANDED_PX,
+          height: EXPANDED_PX,
+          borderRadius: 18,
+        }}
+        exit={{
+          left: slot.rect.left,
+          top: slot.rect.top,
+          width: slot.rect.width,
+          height: slot.rect.height,
+          borderRadius: 14,
+        }}
+        transition={{ type: "spring", stiffness: 420, damping: 32, mass: 0.85 }}
+        onClick={e => e.stopPropagation()}
+      >
+        <img
+          src={slot.photo.largeSrc}
+          alt={slot.photo.alt}
+          width={EXPANDED_PX}
+          height={EXPANDED_PX}
+          draggable={false}
+          className="block h-full w-full select-none object-cover object-top"
+        />
+      </motion.div>
+    </AnimatePresence>,
+    document.body,
+  )
 }
 
 function PhotoTile({
   photo,
   priority,
   showImage,
+  slotKey,
+  isExpandedSlot,
+  onToggle,
 }: {
   photo: GridPhoto
   priority?: boolean
   showImage: boolean
+  slotKey: string
+  isExpandedSlot: boolean
+  onToggle: (slotKey: string, photo: GridPhoto, rect: DOMRect) => void
 }) {
   return (
-    <div
-      className="relative shrink-0 overflow-hidden rounded-[14px] bg-[#141414]"
+    <button
+      type="button"
+      aria-label={isExpandedSlot ? "Collapse photo" : "Enlarge photo"}
+      aria-pressed={isExpandedSlot}
+      onClick={e => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        onToggle(slotKey, photo, rect)
+      }}
+      className={cn(
+        "relative shrink-0 cursor-pointer overflow-hidden rounded-[14px] border-0 p-0 transition-[background-color,box-shadow] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]",
+        isExpandedSlot ? "z-[60] overflow-visible shadow-lg" : "z-0",
+      )}
       style={{
         width: TILE_PX,
         height: TILE_PX,
@@ -324,6 +418,7 @@ function PhotoTile({
         maxWidth: TILE_PX,
         maxHeight: TILE_PX,
         flex: `0 0 ${TILE_PX}px`,
+        backgroundColor: isExpandedSlot ? SLOT_BLUE : "#141414",
       }}
     >
       <img
@@ -335,20 +430,26 @@ function PhotoTile({
         decoding="async"
         draggable={false}
         className={cn(
-          "pointer-events-none block h-full w-full select-none object-cover object-top transition-opacity duration-300",
-          showImage && photo.tileSrc ? "opacity-100" : "opacity-0",
+          "block h-full w-full select-none object-cover object-top transition-opacity duration-300",
+          showImage && photo.tileSrc && !isExpandedSlot ? "opacity-100" : "opacity-0",
         )}
       />
-    </div>
+    </button>
   )
 }
 
 function MarqueeTrack({
   columns,
   showImage,
+  trackId,
+  expandedKey,
+  onToggle,
 }: {
   columns: ReturnType<typeof buildColumns>
   showImage: boolean
+  trackId: string
+  expandedKey: string | null
+  onToggle: (slotKey: string, photo: GridPhoto, rect: DOMRect) => void
 }) {
   return (
     <div
@@ -361,14 +462,20 @@ function MarqueeTrack({
           className="flex shrink-0 flex-col"
           style={{ gap: TILE_GAP, width: TILE_PX }}
         >
-          {col.photos.map((photo, i) => (
-            <PhotoTile
-              key={`${col.id}-${i}`}
-              photo={photo}
-              showImage={showImage}
-              priority={col.id < 4 && i < 2}
-            />
-          ))}
+          {col.photos.map((photo, i) => {
+            const slotKey = `${trackId}-${col.id}-${i}`
+            return (
+              <PhotoTile
+                key={slotKey}
+                slotKey={slotKey}
+                photo={photo}
+                showImage={showImage}
+                priority={col.id < 4 && i < 2}
+                isExpandedSlot={expandedKey === slotKey}
+                onToggle={onToggle}
+              />
+            )
+          })}
         </div>
       ))}
     </div>
@@ -380,8 +487,31 @@ export function BookCoverMarquee() {
     buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP),
   )
   const [showImage, setShowImage] = useState(true)
+  const [expanded, setExpanded] = useState<ExpandedSlot | null>(null)
 
   const columns = useMemo(() => buildColumns(sequence), [sequence])
+
+  const handleToggle = useCallback(
+    (slotKey: string, photo: GridPhoto, rect: DOMRect) => {
+      setExpanded(prev =>
+        prev?.key === slotKey
+          ? null
+          : { key: slotKey, photo, rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height } },
+      )
+    },
+    [],
+  )
+
+  const handleClose = useCallback(() => setExpanded(null), [])
+
+  useEffect(() => {
+    if (!expanded) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(null)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [expanded])
 
   useEffect(() => {
     let cancelled = false
@@ -422,18 +552,26 @@ export function BookCoverMarquee() {
 
   return (
     <section
-      className="relative w-full max-w-full overflow-x-clip bg-transparent [contain:layout]"
+      className={cn(
+        "relative w-full max-w-full bg-transparent [contain:layout]",
+        expanded ? "z-30 overflow-visible" : "overflow-x-clip",
+      )}
       style={{
         height: SECTION_H,
         minHeight: SECTION_H,
         maxHeight: SECTION_H,
       }}
     >
+      {expanded && <ExpandedPhotoOverlay slot={expanded} onClose={handleClose} />}
+
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent sm:w-12 md:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent sm:w-12 md:w-24" />
 
       <div
-        className="box-border flex items-center overflow-hidden py-6 motion-reduce:[&_*]:!animate-none"
+        className={cn(
+          "box-border flex items-center py-6 motion-reduce:[&_*]:!animate-none",
+          expanded ? "overflow-visible" : "overflow-hidden",
+        )}
         style={{ height: SECTION_H, minHeight: SECTION_H, maxHeight: SECTION_H }}
       >
         <div
@@ -443,10 +581,23 @@ export function BookCoverMarquee() {
             minHeight: TRACK_H,
             maxHeight: TRACK_H,
             animation: "unsplashMarqueeLeft 90s linear infinite",
+            animationPlayState: expanded ? "paused" : "running",
           }}
         >
-          <MarqueeTrack columns={columns} showImage={showImage} />
-          <MarqueeTrack columns={columns} showImage={showImage} />
+          <MarqueeTrack
+            trackId="a"
+            columns={columns}
+            showImage={showImage}
+            expandedKey={expanded?.key ?? null}
+            onToggle={handleToggle}
+          />
+          <MarqueeTrack
+            trackId="b"
+            columns={columns}
+            showImage={showImage}
+            expandedKey={expanded?.key ?? null}
+            onToggle={handleToggle}
+          />
         </div>
       </div>
 
