@@ -84,6 +84,7 @@ export default function RootLayout({
           storageKey="light-theme"
         >
           <FaviconSwitcher />
+          <HomeIntroSkipListener />
           {children}
         </ThemeProvider>
         <Analytics />
