@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
-const TILE_PX = 50
+const TILE_PX = 52
 const TILE_GAP = 8
 /** Base wave pattern — tripled so one loop half is wider than any screen (no duplicate halves visible) */
 const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
@@ -13,6 +13,7 @@ const TOTAL_SLOTS = COLUMN_COUNTS.reduce((sum, n) => sum + n, 0)
 const MIN_REPEAT_GAP = 18
 const TRACK_H = 6 * TILE_PX + 5 * TILE_GAP
 const SECTION_H = TRACK_H + 48
+const IMG_PX = TILE_PX * 2
 const MIN_POOL_BEFORE_SHOW = 180
 
 const SEARCH_QUERIES = [
@@ -118,7 +119,7 @@ const FALLBACK_IDS = [
 const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
   id: `fallback-${id}`,
   alt: "Curated photo",
-  tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=100&h=100&crop=top&q=85`,
+  tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${IMG_PX}&h=${IMG_PX}&crop=top&q=85`,
   href: "https://unsplash.com",
 }))
 
@@ -133,7 +134,7 @@ function mapPhoto(photo: UnsplashPhotoView): GridPhoto {
   return {
     id: photo.id,
     alt: photo.alt,
-    tileSrc: tileUrl(photo.urls.small, TILE_PX * 2),
+    tileSrc: tileUrl(photo.urls.small, IMG_PX),
     href: photo.links.html,
   }
 }
