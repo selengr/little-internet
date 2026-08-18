@@ -5,6 +5,7 @@ import { Courier_Prime } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FaviconSwitcher } from '@/components/favicon-switcher'
+import { HomeIntroSkipListener } from '@/components/intro-animation'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
