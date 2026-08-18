@@ -53,7 +53,6 @@ type GridPhoto = {
   id: string
   alt: string
   tileSrc: string
-  href: string
 }
 
 const FALLBACK_IDS = [
@@ -118,9 +117,8 @@ const FALLBACK_IDS = [
 
 const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
   id: `fallback-${id}`,
-  alt: "Curated photo",
+  alt: "",
   tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${IMG_PX}&h=${IMG_PX}&crop=top&q=85`,
-  href: "https://unsplash.com",
 }))
 
 let photoCache: GridPhoto[] | null = null
@@ -133,9 +131,8 @@ function tileUrl(url: string, size: number) {
 function mapPhoto(photo: UnsplashPhotoView): GridPhoto {
   return {
     id: photo.id,
-    alt: photo.alt,
+    alt: "",
     tileSrc: tileUrl(photo.urls.small, IMG_PX),
-    href: photo.links.html,
   }
 }
 
@@ -295,14 +292,8 @@ function PhotoTile({
   showImage: boolean
 }) {
   return (
-    <a
-      href={photo.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cn(
-        "group relative block shrink-0 overflow-hidden rounded-[14px] bg-[#141414]",
-        "md:hover:scale-[1.06] md:hover:transition-transform md:hover:duration-300",
-      )}
+    <div
+      className="relative shrink-0 overflow-hidden rounded-[14px] bg-[#141414]"
       style={{
         width: TILE_PX,
         height: TILE_PX,
@@ -312,7 +303,6 @@ function PhotoTile({
         maxHeight: TILE_PX,
         flex: `0 0 ${TILE_PX}px`,
       }}
-      title={photo.alt}
     >
       <img
         src={photo.tileSrc}
@@ -323,11 +313,11 @@ function PhotoTile({
         decoding="async"
         draggable={false}
         className={cn(
-          "block h-full w-full object-cover object-top transition-opacity duration-300",
+          "pointer-events-none block h-full w-full select-none object-cover object-top transition-opacity duration-300",
           showImage && photo.tileSrc ? "opacity-100" : "opacity-0",
         )}
       />
-    </a>
+    </div>
   )
 }
 
