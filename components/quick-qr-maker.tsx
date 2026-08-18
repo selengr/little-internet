@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Download } from 'lucide-react'
 import { generateQrPng, downloadDataUrl } from '@/lib/qr-barcode'
+import { cn } from '@/lib/utils'
 
 export function QuickQrMaker() {
   const [text, setText] = useState('')
   const [png, setPng] = useState<string | null>(null)
+  const [focused, setFocused] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const genIdRef = useRef(0)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const value = text.trim()
@@ -53,14 +56,38 @@ export function QuickQrMaker() {
         )}
       </div>
 
-      <input
-        type="text"
-        value={text}
-        onChange={e => setText(e.target.value)}
-        placeholder="paste a link or message"
-        className="w-full bg-transparent border-b border-foreground/15 focus:border-foreground pb-2 text-base font-light tracking-tight text-foreground outline-none placeholder:text-muted-foreground/40 transition-colors"
-        aria-label="QR content"
-      />
+      <div
+        className="relative cursor-text"
+        onClick={() => inputRef.current?.focus()}
+      >
+        {!text && !focused && (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute bottom-2 left-0 h-[1.05em] w-[2px] rounded-full bg-foreground/80 animate-[qrCaretBlink_1s_step-end_infinite]"
+          />
+        )}
+        <input
+          ref={inputRef}
+          type="text"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder="paste a link or message"
+          className={cn(
+            'w-full bg-transparent border-b pb-2 text-base font-light tracking-tight text-foreground outline-none transition-colors',
+            'caret-foreground placeholder:text-muted-foreground/55',
+            focused ? 'border-foreground/70' : 'border-foreground/30 hover:border-foreground/45',
+          )}
+          aria-label="QR content"
+        />
+        <style>{`
+          @keyframes qrCaretBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+          }
+        `}</style>
+      </div>
 
       <button
         type="button"
