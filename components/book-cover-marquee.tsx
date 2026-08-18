@@ -503,8 +503,13 @@ export function BookCoverMarquee() {
   )
   const [showImage, setShowImage] = useState(true)
   const [expanded, setExpanded] = useState<ExpandedSlot | null>(null)
+  const [portalReady, setPortalReady] = useState(false)
 
   const columns = useMemo(() => buildColumns(sequence), [sequence])
+
+  useEffect(() => {
+    setPortalReady(true)
+  }, [])
 
   const handleToggle = useCallback(
     (slotKey: string, photo: GridPhoto, rect: DOMRect) => {
@@ -577,11 +582,7 @@ export function BookCoverMarquee() {
         maxHeight: SECTION_H,
       }}
     >
-      {expanded && (
-        <AnimatePresence>
-          <ExpandedPhotoOverlay key={expanded.key} slot={expanded} onClose={handleClose} />
-        </AnimatePresence>
-      )}
+      {portalReady && <ExpandedPhotoPortal expanded={expanded} onClose={handleClose} />}
 
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent sm:w-12 md:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent sm:w-12 md:w-24" />
