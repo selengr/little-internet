@@ -24,12 +24,51 @@ export const HERO_REVEAL_MS = CURTAIN_DELAY + CURTAIN_DURATION - 150
 
 type Phase = "idle" | "in" | "out" | "done"
 
+const SKIP_INTRO_KEY = "skip-home-intro"
+
+function markSkipIntroOnBack() {
+  const path = window.location.pathname
+  if (path === "/" || path === "") {
+    sessionStorage.setItem(SKIP_INTRO_KEY, "1")
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("popstate", markSkipIntroOnBack)
+  window.addEventListener("pageshow", (e: PageTransitionEvent) => {
+    if (e.persisted) sessionStorage.setItem(SKIP_INTRO_KEY, "1")
+  })
+}
+
+function shouldSkipIntro(): boolean {
+  if (typeof window === "undefined") return false
+
+  try {
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
+    if (nav?.type === "back_forward") return true
+  } catch {
+    /* ignore */
+  }
+
+  if (sessionStorage.getItem(SKIP_INTRO_KEY) === "1") {
+    sessionStorage.removeItem(SKIP_INTRO_KEY)
+    return true
+  }
+
+  return false
+}
+
 export function IntroAnimation({ onDone }: { onDone: () => void }) {
-  const [phase, setPhase] = useState<Phase>("idle")
+  const [skip] = useState(() => shouldSkipIntro())
+  const [phase, setPhase] = useState<Phase>(skip ? "done" : "idle")
   const [curtainUp, setCurtainUp] = useState(false)
-  const [play, setPlay] = useState(true)
 
   useEffect(() => {
+    if (skip) {
+      onDone()
+      return
+    }
+
     // Tiny delay so the browser has painted before we start transitioning
     const t0 = setTimeout(() => setPhase("in"), 80)
     const t1 = setTimeout(() => setPhase("out"), LETTERS_IN_TOTAL)
@@ -44,9 +83,9 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
       clearTimeout(t3)
       clearTimeout(t4)
     }
-  }, [onDone])
+  }, [onDone, skip])
 
-  if (phase === "done") return null
+  if (skip || phase === "done") return null
 
   return (
     <div className="fixed inset-0 z-[100] pointer-events-none" aria-hidden="true">
