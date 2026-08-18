@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
-const TILE_PX = 52
+const TILE_PX = 54
 const TILE_GAP = 8
 /** Base wave pattern — tripled so one loop half is wider than any screen (no duplicate halves visible) */
 const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
