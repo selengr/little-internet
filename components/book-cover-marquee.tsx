@@ -316,7 +316,24 @@ type ExpandedSlot = {
   rect: { left: number; top: number; width: number; height: number }
 }
 
-function ExpandedPhotoOverlay({
+function ExpandedPhotoPortal({
+  expanded,
+  onClose,
+}: {
+  expanded: ExpandedSlot | null
+  onClose: () => void
+}) {
+  return createPortal(
+    <AnimatePresence>
+      {expanded ? (
+        <ExpandedPhotoLayer key={expanded.key} slot={expanded} onClose={onClose} />
+      ) : null}
+    </AnimatePresence>,
+    document.body,
+  )
+}
+
+function ExpandedPhotoLayer({
   slot,
   onClose,
 }: {
@@ -328,7 +345,7 @@ function ExpandedPhotoOverlay({
   const targetLeft = cx - EXPANDED_PX / 2
   const targetTop = cy - EXPANDED_PX / 2
 
-  return createPortal(
+  return (
     <>
       <motion.button
         type="button"
@@ -376,8 +393,7 @@ function ExpandedPhotoOverlay({
           className="block h-full w-full select-none object-cover object-top"
         />
       </motion.div>
-    </>,
-    document.body,
+    </>
   )
 }
 
