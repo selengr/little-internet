@@ -45,6 +45,7 @@ export function getUnsplashClient() {
 }
 
 export function unsplashError(error: unknown): string {
+  if (typeof error === 'string' && error.trim()) return error.trim()
   if (error && typeof error === 'object' && 'errors' in error) {
     const errors = (error as { errors?: string[] }).errors
     if (errors?.length) return errors.join(', ')

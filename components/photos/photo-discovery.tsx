@@ -90,19 +90,47 @@ export function PhotoDiscovery() {
     setLoadingHero(true)
     setLoadError(null)
     try {
-      const [heroJson, dailyJson, collectionsJson, latestJson, trendingJson] = await Promise.all([
+      const results = await Promise.allSettled([
         fetchUnsplash<{ photo: UnsplashPhotoView }>({ action: 'hero', orientation: 'landscape' }),
         fetchUnsplash<{ photo: UnsplashPhotoView }>({ action: 'random', query: 'inspiration' }),
         fetchUnsplash<{ collections: UnsplashCollectionView[] }>({ action: 'collections', per_page: '5' }),
         fetchUnsplash<{ photos: UnsplashPhotoView[] }>({ action: 'latest', per_page: '12' }),
         fetchUnsplash<{ photos: UnsplashPhotoView[] }>({ action: 'trending', per_page: '8' }),
       ])
-      setHero(heroJson.photo)
-      setDaily(dailyJson.photo)
-      setCollections(collectionsJson.collections)
-      setLatest(latestJson.photos)
-      setTrending(trendingJson.photos)
-      setGallery(latestJson.photos)
+
+      const [heroRes, dailyRes, collectionsRes, latestRes, trendingRes] = results
+
+      if (heroRes.status === 'fulfilled') setHero(heroRes.value.photo)
+      if (dailyRes.status === 'fulfilled') setDaily(dailyRes.value.photo)
+      if (collectionsRes.status === 'fulfilled') setCollections(collectionsRes.value.collections)
+      if (latestRes.status === 'fulfilled') {
+        setLatest(latestRes.value.photos)
+        setGallery(latestRes.value.photos)
+      }
+      if (trendingRes.status === 'fulfilled') setTrending(trendingRes.value.photos)
+
+      const failures = results.filter(
+        (r): r is PromiseRejectedResult => r.status === 'rejected',
+      )
+      const hasGallery = latestRes.status === 'fulfilled' && latestRes.value.photos.length > 0
+      const hasHero = heroRes.status === 'fulfilled'
+
+      if (!hasGallery && !hasHero) {
+        const message =
+          failures[0]?.reason instanceof Error
+            ? failures[0].reason.message
+            : 'Could not load photos'
+        setLoadError(message)
+        setGallery([])
+      } else if (failures.length > 0) {
+        const message =
+          failures[0]?.reason instanceof Error ? failures[0].reason.message : ''
+        if (message.toLowerCase().includes('rate limit')) {
+          setLoadError(
+            'Unsplash rate limit reached — showing what loaded. Try again in about an hour, or browse after the homepage photo strip finishes loading.',
+          )
+        }
+      }
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Could not load photos'
       setLoadError(message)
@@ -371,9 +399,27 @@ export function PhotoDiscovery() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-20 -mt-6">
         {loadError && (
-          <div className="rounded-2xl border border-red-500/25 bg-red-500/10 px-5 py-4 text-sm text-red-200">
-            <p className="font-medium">Could not load Unsplash photos</p>
-            <p className="mt-1 text-red-200/70">{loadError}</p>
+          <div
+            className={cn(
+              'rounded-2xl border px-5 py-4 text-sm',
+              loadError.toLowerCase().includes('rate limit')
+                ? 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+                : 'border-red-500/25 bg-red-500/10 text-red-200',
+            )}
+          >
+            <p className="font-medium">
+              {loadError.toLowerCase().includes('rate limit')
+                ? 'Unsplash is temporarily limited'
+                : 'Could not load Unsplash photos'}
+            </p>
+            <p
+              className={cn(
+                'mt-1',
+                loadError.toLowerCase().includes('rate limit') ? 'text-amber-100/75' : 'text-red-200/70',
+              )}
+            >
+              {loadError}
+            </p>
             {loadError.includes('UNSPLASH_ACCESS_KEY') && (
               <p className="mt-2 text-red-200/60 text-xs">
                 Add <code className="rounded bg-black/30 px-1">UNSPLASH_ACCESS_KEY</code> to{' '}
