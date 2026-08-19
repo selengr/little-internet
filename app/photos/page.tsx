@@ -8,7 +8,7 @@ import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 function PhotoDiscoveryFallback() {
   return (
     <div className="pb-24">
-      <div className="relative min-h-[72vh] bg-gradient-to-br from-stone-900 to-black animate-pulse" />
+      <div className="relative h-[52vh] min-h-[320px] max-h-[560px] bg-gradient-to-br from-stone-900 to-black animate-pulse" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 space-y-4">
         <div className="h-8 w-64 rounded-lg bg-white/10 animate-pulse" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
