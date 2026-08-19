@@ -122,14 +122,6 @@ export function PhotoDiscovery() {
             : 'Could not load photos'
         setLoadError(message)
         setGallery([])
-      } else if (failures.length > 0) {
-        const message =
-          failures[0]?.reason instanceof Error ? failures[0].reason.message : ''
-        if (message.toLowerCase().includes('rate limit')) {
-          setLoadError(
-            'Unsplash rate limit reached — showing what loaded. Try again in about an hour, or browse after the homepage photo strip finishes loading.',
-          )
-        }
       }
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Could not load photos'
