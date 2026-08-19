@@ -370,7 +370,7 @@ function ExpandedPhotoLayer({
         onClick={onClose}
       />
       <motion.div
-        className="fixed z-[200] overflow-hidden shadow-2xl ring-2 ring-white/25 will-change-transform"
+        className="fixed z-[200] overflow-hidden rounded-[14px] shadow-2xl ring-2 ring-white/25 will-change-transform"
         style={{
           left: cx,
           top: cy,
@@ -438,6 +438,12 @@ function PhotoTile({
       onClick={e => {
         const rect = e.currentTarget.getBoundingClientRect()
         onToggle(slotKey, photo, rect)
+      }}
+      onMouseEnter={() => {
+        if (photo.largeSrc !== photo.tileSrc) {
+          const img = new Image()
+          img.src = photo.largeSrc
+        }
       }}
       className={cn(
         "relative shrink-0 cursor-pointer overflow-hidden rounded-[14px] border-0 p-0 transition-[background-color,box-shadow] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]",
