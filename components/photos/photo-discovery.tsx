@@ -334,8 +334,8 @@ export function PhotoDiscovery() {
 
   return (
     <div className="pb-24">
-      {/* Hero */}
-      <section className="relative min-h-[72vh] flex items-end overflow-hidden">
+      {/* Hero — image banner only */}
+      <section className="relative h-[52vh] min-h-[320px] max-h-[560px] overflow-hidden">
         {hero && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -345,10 +345,8 @@ export function PhotoDiscovery() {
               className="absolute inset-0 h-full w-full object-cover scale-105"
             />
             <div
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(to top, #0a0a0b 0%, rgba(10,10,11,0.55) 45%, rgba(10,10,11,0.25) 100%), linear-gradient(135deg, ${hero.color}33 0%, transparent 50%)`,
-              }}
+              className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35"
+              aria-hidden
             />
           </>
         )}
@@ -369,32 +367,6 @@ export function PhotoDiscovery() {
             {siteShared ? 'Link copied' : 'Share gallery'}
           </motion.button>
         )}
-
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16 pt-32">
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-[10px] uppercase tracking-[0.3em] text-white/45 mb-4"
-          >
-            Unsplash
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-white leading-[1.02] max-w-3xl"
-          >
-            Discover beautiful images
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mt-4 text-base sm:text-lg text-white/55 max-w-xl leading-relaxed"
-          >
-            Millions of high-quality photos from creators around the world
-          </motion.p>
-        </div>
       </section>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-20 -mt-6">
