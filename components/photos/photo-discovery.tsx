@@ -75,6 +75,7 @@ export function PhotoDiscovery() {
   const [loadingGallery, setLoadingGallery] = useState(false)
   const [loadingProfile, setLoadingProfile] = useState(false)
   const [loadingSurprise, setLoadingSurprise] = useState(false)
+  const [siteShared, setSiteShared] = useState(false)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
 
@@ -277,6 +278,23 @@ export function PhotoDiscovery() {
       await navigator.share({ title: photo.alt, url }).catch(() => {})
     } else {
       await navigator.clipboard.writeText(url)
+    }
+  }
+
+  const handleShareSite = async () => {
+    const url = window.location.href
+    const title = 'Photo Discovery — Reza Karbakhsh'
+    const text = 'Discover beautiful images on my live photo gallery.'
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+        setSiteShared(true)
+        setTimeout(() => setSiteShared(false), 2000)
+      }
+    } catch {
+      /* user dismissed share sheet */
     }
   }
 
