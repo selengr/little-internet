@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
-import { formatPhotoCount } from "@/lib/unsplash"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
 interface ShowcaseCategory {
