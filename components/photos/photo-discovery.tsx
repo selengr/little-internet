@@ -356,6 +356,20 @@ export function PhotoDiscovery() {
           <div className="absolute inset-0 bg-gradient-to-br from-stone-900 to-black animate-pulse" />
         )}
 
+        {hero && (
+          <motion.button
+            type="button"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            onClick={() => void handleShareSite()}
+            className="absolute top-6 right-4 sm:right-6 z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-2 text-xs text-white/70 backdrop-blur-md hover:bg-black/45 transition-colors"
+          >
+            <Share2 className="size-3.5" />
+            {siteShared ? 'Link copied' : 'Share gallery'}
+          </motion.button>
+        )}
+
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16 pt-32">
           <motion.p
             initial={{ opacity: 0, y: 8 }}
@@ -380,21 +394,6 @@ export function PhotoDiscovery() {
           >
             Millions of high-quality photos from creators around the world
           </motion.p>
-          {hero && (
-            <motion.button
-              type="button"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              onClick={() => openPhotographer(hero.photographer)}
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-2 text-xs text-white/70 backdrop-blur-md hover:bg-black/45"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={hero.photographer.avatar} alt="" className="size-5 rounded-full" />
-              Photo by {hero.photographer.name}
-              <ChevronRight className="size-3 opacity-50" />
-            </motion.button>
-          )}
         </div>
       </section>
 
