@@ -229,12 +229,6 @@ export function PhotoShowcaseStack() {
                   <div className="flex items-end gap-8 pt-6 border-t border-black/[0.06]">
                     <div>
                       <div className="text-2xl font-light tabular-nums">
-                        {photo ? formatPhotoCount(photo.likes) : "—"}
-                      </div>
-                      <div className="text-[11px] text-black/35 tracking-widest mt-0.5">downloads</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-light tabular-nums">
                         {photo ? new Date(photo.createdAt).getFullYear() : "—"}
                       </div>
                       <div className="text-[11px] text-black/35 tracking-widest mt-0.5">captured</div>
