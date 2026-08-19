@@ -672,7 +672,16 @@ export default function AgenticPage() {
         </div>
         <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-border/60">
           <span className="text-xs text-muted-foreground/60">
-             2026. made with love 💕 by @selengr.
+            2026. made with love 💕 by{" "}
+            <a
+              href="https://github.com/selengr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground/80 hover:text-foreground transition-colors underline underline-offset-2 decoration-foreground/25 hover:decoration-foreground/60"
+            >
+              @selengr
+            </a>
+            .
           </span>
         </div>
       </footer>
