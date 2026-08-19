@@ -342,8 +342,20 @@ function ExpandedPhotoLayer({
 }) {
   const cx = slot.rect.left + slot.rect.width / 2
   const cy = slot.rect.top + slot.rect.height / 2
-  const targetLeft = cx - EXPANDED_PX / 2
-  const targetTop = cy - EXPANDED_PX / 2
+  const scaleFrom = slot.rect.width / EXPANDED_PX
+  const [hdLoaded, setHdLoaded] = useState(false)
+
+  useEffect(() => {
+    setHdLoaded(false)
+    if (slot.photo.largeSrc === slot.photo.tileSrc) {
+      setHdLoaded(true)
+      return
+    }
+    const img = new Image()
+    img.onload = () => setHdLoaded(true)
+    img.onerror = () => setHdLoaded(true)
+    img.src = slot.photo.largeSrc
+  }, [slot.photo.largeSrc, slot.photo.tileSrc])
 
   return (
     <>
@@ -354,43 +366,49 @@ function ExpandedPhotoLayer({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.18 }}
         onClick={onClose}
       />
       <motion.div
-        className="fixed z-[200] overflow-hidden shadow-2xl ring-2 ring-white/25"
-        style={{ transformOrigin: "center center" }}
-        initial={{
-          left: slot.rect.left,
-          top: slot.rect.top,
-          width: slot.rect.width,
-          height: slot.rect.height,
-          borderRadius: 14,
-        }}
-        animate={{
-          left: targetLeft,
-          top: targetTop,
+        className="fixed z-[200] overflow-hidden shadow-2xl ring-2 ring-white/25 will-change-transform"
+        style={{
+          left: cx,
+          top: cy,
           width: EXPANDED_PX,
           height: EXPANDED_PX,
-          borderRadius: 18,
+          marginLeft: -EXPANDED_PX / 2,
+          marginTop: -EXPANDED_PX / 2,
+          transformOrigin: "center center",
         }}
-        exit={{
-          left: slot.rect.left,
-          top: slot.rect.top,
-          width: slot.rect.width,
-          height: slot.rect.height,
-          borderRadius: 14,
-        }}
-        transition={{ type: "spring", stiffness: 420, damping: 32, mass: 0.85 }}
+        initial={{ scale: scaleFrom }}
+        animate={{ scale: 1 }}
+        exit={{ scale: scaleFrom }}
+        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
         onClick={e => e.stopPropagation()}
       >
+        {/* Cached tile — visible immediately while zooming */}
         <img
-          src={slot.photo.largeSrc}
+          src={slot.photo.tileSrc}
           alt={slot.photo.alt}
           width={EXPANDED_PX}
           height={EXPANDED_PX}
           draggable={false}
-          className="block h-full w-full select-none object-cover object-top"
+          className={cn(
+            "absolute inset-0 block h-full w-full select-none object-cover object-top transition-opacity duration-200",
+            hdLoaded ? "opacity-0" : "opacity-100",
+          )}
+        />
+        <img
+          src={slot.photo.largeSrc}
+          alt=""
+          aria-hidden
+          width={EXPANDED_PX}
+          height={EXPANDED_PX}
+          draggable={false}
+          className={cn(
+            "absolute inset-0 block h-full w-full select-none object-cover object-top transition-opacity duration-200",
+            hdLoaded ? "opacity-100" : "opacity-0",
+          )}
         />
       </motion.div>
     </>
