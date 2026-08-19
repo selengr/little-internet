@@ -10,7 +10,7 @@ import {
   Camera,
   Shuffle,
   Loader2,
-  ChevronRight,
+  Share2,
 } from 'lucide-react'
 import { PhotoMasonry } from '@/components/photos/photo-masonry'
 import { PhotoDetailModal, PhotographerPanel } from '@/components/photos/photo-detail-modal'
