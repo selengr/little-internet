@@ -548,9 +548,7 @@ export function PhotoDiscovery() {
           </div>
           <PhotoMasonry
             photos={latest.slice(0, 8)}
-            savedIds={savedIds}
             onPhotoClick={setSelectedPhoto}
-            onSave={p => handleSave(p)}
             onDownload={p => void handleDownload(p)}
           />
         </section>
@@ -774,9 +772,7 @@ export function PhotoDiscovery() {
           <PhotoMasonry
             photos={gallery}
             loading={loadingGallery}
-            savedIds={savedIds}
             onPhotoClick={setSelectedPhoto}
-            onSave={p => handleSave(p)}
             onDownload={p => void handleDownload(p)}
           />
           <div ref={loadMoreRef} className="h-8 mt-4 flex items-center justify-center">

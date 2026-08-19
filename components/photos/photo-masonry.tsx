@@ -22,9 +22,7 @@ function MasonrySkeleton() {
 interface PhotoMasonryProps {
   photos: UnsplashPhotoView[]
   loading?: boolean
-  savedIds?: Set<string>
   onPhotoClick: (photo: UnsplashPhotoView) => void
-  onSave?: (photo: UnsplashPhotoView) => void
   onDownload?: (photo: UnsplashPhotoView) => void
   className?: string
 }
@@ -32,9 +30,7 @@ interface PhotoMasonryProps {
 export function PhotoMasonry({
   photos,
   loading,
-  savedIds,
   onPhotoClick,
-  onSave,
   onDownload,
   className,
 }: PhotoMasonryProps) {
@@ -54,7 +50,6 @@ export function PhotoMasonry({
     <div className={cn('columns-2 md:columns-3 lg:columns-4 gap-3', className)}>
       {photos.map(photo => {
         const ratio = photo.height / photo.width
-        const saved = savedIds?.has(photo.id)
         return (
           <article
             key={photo.id}
@@ -89,24 +84,6 @@ export function PhotoMasonry({
                 <p className="truncate text-xs font-medium text-white">{photo.photographer.name}</p>
               </button>
               <div className="flex items-center gap-1.5 pointer-events-auto">
-                {onSave && (
-                  <button
-                    type="button"
-                    onClick={e => {
-                      e.stopPropagation()
-                      onSave(photo)
-                    }}
-                    className={cn(
-                      'rounded-full border px-2.5 py-1.5 text-[11px] backdrop-blur-md transition-colors',
-                      saved
-                        ? 'border-rose-400/40 bg-rose-500/20 text-rose-200'
-                        : 'border-white/15 bg-black/40 text-white/80 hover:bg-white/10',
-                    )}
-                    aria-label={saved ? 'Unsave photo' : 'Save photo'}
-                  >
-                    {saved ? '♥ Saved' : '♡ Save'}
-                  </button>
-                )}
                 {onDownload && (
                   <button
                     type="button"
