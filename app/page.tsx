@@ -174,6 +174,7 @@ export default function AgenticPage() {
               "linear-gradient(to top, black 0%, transparent 100%)",
           }}
         />
+        
         <div
           className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
           style={{
