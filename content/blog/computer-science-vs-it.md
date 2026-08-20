@@ -21,6 +21,8 @@ For example, you might design a faster algorithm, build a new application, or wo
 
 Computer Science is generally more focused on **programming, problem-solving, mathematics, and theory**.
 
+![Developer working on software at a laptop](https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1600&q=85&fit=crop)
+
 ## What Is Information Technology?
 
 Information Technology (IT) is more focused on using technology to help people and organizations work effectively.
@@ -43,6 +45,8 @@ For example, if employees cannot access their company systems, an IT professiona
 
 IT is generally more focused on **systems, infrastructure, security, support, and daily operations**.
 
+![IT professional monitoring servers and cloud infrastructure](https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&q=85&fit=crop)
+
 ## Computer Science vs IT
 
 | Area | Computer Science | IT |
@@ -58,6 +62,8 @@ IT is generally more focused on **systems, infrastructure, security, support, an
 | Cybersecurity | Possible | Common |
 | Typical work | Software, systems, AI, research | Networks, cloud, support, security |
 
+![Technology professionals collaborating in a modern office](https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&q=85&fit=crop)
+
 ## Where Do They Overlap?
 
 The difference is not always clear.
@@ -67,6 +73,8 @@ A software engineer may work with cloud infrastructure and deployment. An IT eng
 Cybersecurity is another good example. It can involve programming and algorithms, but it also involves managing systems, permissions, monitoring, and security policies.
 
 So, these fields are different, but they often **work together**.
+
+![Professional standing in a modern workspace](https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&q=85&fit=crop)
 
 ## Which One Should You Choose?
 

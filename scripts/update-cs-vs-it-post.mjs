@@ -66,7 +66,7 @@ async function main() {
         Conclusion: {
           rich_text: [{ type: 'text', text: { content: conclusion } }],
         },
-        'Reading Minutes': { number: 6 },
+        'Reading Minutes': { number: 7 },
         Tags: {
           multi_select: ['Engineering', 'Career', 'Technology', 'Computer Science', 'IT'].map(
             name => ({ name }),

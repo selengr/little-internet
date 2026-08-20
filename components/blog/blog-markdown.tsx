@@ -17,6 +17,7 @@ export function BlogMarkdown({ markdown }: { markdown: string }) {
 type Block =
   | { type: 'h'; level: number; text: string }
   | { type: 'p'; text: string }
+  | { type: 'img'; alt: string; src: string }
   | { type: 'ul'; items: string[] }
   | { type: 'ol'; items: string[] }
   | { type: 'code'; lang: string; code: string }
@@ -165,6 +166,13 @@ function splitBlocks(src: string): Block[] {
       continue
     }
 
+    const imageOnly = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/)
+    if (imageOnly) {
+      out.push({ type: 'img', alt: imageOnly[1], src: imageOnly[2] })
+      i++
+      continue
+    }
+
     const parts: string[] = [line]
     i++
     while (
@@ -201,6 +209,16 @@ function Block({ block }: { block: Block }) {
     }
     case 'p':
       return <p>{inline(block.text)}</p>
+    case 'img':
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={block.src}
+          alt={block.alt}
+          className="my-8 w-full rounded-2xl border border-border/40 object-cover shadow-sm aspect-[16/10]"
+          loading="lazy"
+        />
+      )
     case 'ul':
       return (
         <ul className="list-disc pl-5 space-y-1.5">
