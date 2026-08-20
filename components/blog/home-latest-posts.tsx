@@ -103,7 +103,13 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
 
         <div className="absolute inset-x-0 bottom-0 z-10 p-6 sm:p-8">
           <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tracking-wide text-white/55">
-            {date && <time dateTime={post.date ?? undefined}>{date}</time>}
+            <span className="font-medium text-white/75">{post.authorName}</span>
+            {date && (
+              <>
+                <span aria-hidden>·</span>
+                <time dateTime={post.date ?? undefined}>{date}</time>
+              </>
+            )}
             {post.readingMinutes != null && (
               <>
                 <span aria-hidden>·</span>
@@ -123,7 +129,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
             </div>
           )}
           <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium tracking-[0.14em] uppercase text-white/80 transition-colors group-hover:text-white">
-            Read essay
+            View blog
             <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
@@ -139,7 +145,7 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
   return (
     <motion.article variants={item}>
       <Link
-        href={`/blog/${post.slug}`}
+        href="/blog"
         className="group flex gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 transition-all duration-500 hover:border-foreground/15 hover:bg-card hover:shadow-lg hover:shadow-black/[0.04]"
       >
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl sm:h-[96px] sm:w-[96px]">
@@ -165,7 +171,7 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
             {post.title}
           </h3>
           <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors group-hover:text-foreground">
-            Open
+            View blog
             <ArrowUpRight className="size-3 opacity-60 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
