@@ -25,7 +25,6 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
           sizes="(max-width: 712px) 100vw, 48vw"
           unoptimized={banner.startsWith('http')}
         />
-        {post.featured && <span className={styles.featured}>Featured</span>}
       </div>
 
       <section className={styles.body}>
