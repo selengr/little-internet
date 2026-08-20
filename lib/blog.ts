@@ -3,6 +3,7 @@ import {
   BLOG_AUTHOR_IMAGE,
   BLOG_AUTHOR_NAME,
   resolveAuthorImage,
+  resolveBannerImage,
 } from '@/lib/blog-author'
 import {
   NOTION_VERSION,
@@ -180,7 +181,8 @@ export function mapNotionPageToMeta(page: {
   const authorImage = resolveAuthorImage(authorFromProp)
   const bannerFromProp = parseUrl(bannerProp)
   const coverUrl = parseCover(page)
-  const bannerImage = bannerFromProp || coverUrl || DEFAULT_BANNER
+  const bannerImage =
+    resolveBannerImage(bannerFromProp) || resolveBannerImage(coverUrl) || DEFAULT_BANNER
 
   const views = parseNumber(viewsProp) ?? 0
   const readingMinutes = parseNumber(readingProp)

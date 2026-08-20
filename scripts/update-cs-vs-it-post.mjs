@@ -73,6 +73,11 @@ async function main() {
             name => ({ name }),
           ),
         },
+        'Banner Image': { url: BANNER_IMAGE },
+      },
+      cover: {
+        type: 'external',
+        external: { url: BANNER_IMAGE },
       },
     }),
   })
