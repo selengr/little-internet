@@ -78,7 +78,7 @@ export default async function BlogPage() {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
-      <CustomScrollbar />
+      <CustomScrollbar mobileOnly />
       <BlogListNav />
 
       <section className="relative">
