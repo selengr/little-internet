@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { getBlogConfigStatus, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
-import { BlogHeroBanner } from '@/components/blog/blog-hero-banner'
+import Banner from '@/components/views/banner/banner'
 import { BlogCard } from '@/components/blog/blog-card'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
 export const metadata = {
-  title: 'Field notes',
-  description: 'Essays and notes on code, tools, and building in public — by Reza Karbakhsh.',
+  title: 'Blog',
+  description: 'Notes and essays — Notion-backed blog by Reza Karbakhsh',
 }
 
 export const dynamic = 'force-dynamic'
@@ -79,12 +79,20 @@ export default async function BlogPage() {
       <BlogListNav />
 
       <section className="relative">
-        <BlogHeroBanner
-          title="Field notes"
-          subtitle="Essays, release notes, and rabbit holes from the playground — written while the APIs are still warm."
-          bannerImage="/images/banners/fikeus-west-2.avif"
-          authorImage={BLOG_AUTHOR_IMAGE}
-        />
+        <Banner
+          banner="/images/banners/fikeus-west-2.avif"
+          user={BLOG_AUTHOR_IMAGE}
+          blog
+          title="Blog"
+          videoReady
+        >
+          <p
+            className="text-center text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em]"
+            dir="ltr"
+          >
+            Notes, builds, and ideas from the playground.
+          </p>
+        </Banner>
       </section>
 
       <section className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 pt-10 sm:pt-14 pb-28">
