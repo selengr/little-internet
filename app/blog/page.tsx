@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { getBlogConfigStatus, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
-import Banner from '@/components/views/banner/banner'
+import { BlogHeroBanner } from '@/components/blog/blog-hero-banner'
 import { BlogCard } from '@/components/blog/blog-card'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
@@ -79,21 +79,12 @@ export default async function BlogPage() {
       <BlogListNav />
 
       <section className="relative">
-        <Banner
-          banner="/images/banners/fikeus-west-2.avif"
-          user={BLOG_AUTHOR_IMAGE}
-          blog
+        <BlogHeroBanner
           title="Field notes"
-          videoReady
-        >
-          <p
-            className="text-center text-[17px] sm:text-[19px] leading-[1.55] text-muted-foreground tracking-[-0.01em] max-w-xl mx-auto"
-            dir="ltr"
-          >
-            Essays, release notes, and rabbit holes from the playground — written while the APIs
-            are still warm.
-          </p>
-        </Banner>
+          subtitle="Essays, release notes, and rabbit holes from the playground — written while the APIs are still warm."
+          bannerImage="/images/banners/fikeus-west-2.avif"
+          authorImage={BLOG_AUTHOR_IMAGE}
+        />
       </section>
 
       <section className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 pt-10 sm:pt-14 pb-28">
