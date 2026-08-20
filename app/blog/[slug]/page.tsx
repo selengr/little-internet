@@ -117,9 +117,7 @@ export default async function BlogPostPage({ params }: Props) {
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
               Introduction
             </h2>
-            <p className="text-[17px] sm:text-[18px] leading-[1.65] tracking-[-0.01em]">
-              {post.introduction}
-            </p>
+            <BlogMarkdown markdown={post.introduction} />
           </section>
         )}
 
@@ -132,9 +130,7 @@ export default async function BlogPostPage({ params }: Props) {
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
               Conclusion
             </h2>
-            <p className="text-[17px] sm:text-[18px] leading-[1.65] tracking-[-0.01em]">
-              {post.conclusion}
-            </p>
+            <BlogMarkdown markdown={post.conclusion} />
           </section>
         )}
 
