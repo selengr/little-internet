@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 
 const LATEST_COUNT = 5
 
-function Tag({ children }: { children: React.ReactNode }) {
+function Tag({ children }: { children: ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] tracking-widest font-sans text-muted-foreground bg-muted">
       {children}
