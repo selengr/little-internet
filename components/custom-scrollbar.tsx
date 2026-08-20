@@ -22,7 +22,7 @@ export function CustomScrollbar() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed bottom-[100px] z-40 h-[174px] w-[3px] left-10 rounded-full bg-border sm:left-2 md:left-3 lg:left-10"
+      className="pointer-events-none fixed bottom-[100px] left-8 z-40 h-[174px] w-[3px] rounded-full bg-border md:left-10 lg:left-12 2xl:left-20"
     >
       <div
         className="absolute bottom-0 w-full rounded-full bg-foreground/75 transition-all duration-150 ease-out dark:bg-foreground/85"
