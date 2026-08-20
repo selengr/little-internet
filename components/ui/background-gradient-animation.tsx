@@ -112,19 +112,19 @@ export function BackgroundGradientAnimation({
           'max-[999px]:[filter:blur(56px)]',
         )}
       >
-        <div className="gradient-blob gradient-blob-1 absolute opacity-90" />
-        <div className="gradient-blob gradient-blob-2 absolute opacity-85" />
-        <div className="gradient-blob gradient-blob-3 absolute opacity-80" />
-        <div className="gradient-blob gradient-blob-4 absolute opacity-60" />
-        <div className="gradient-blob gradient-blob-5 absolute opacity-75" />
+        <div className="gradient-blob gradient-blob-1 absolute opacity-75" />
+        <div className="gradient-blob gradient-blob-2 absolute opacity-70" />
+        <div className="gradient-blob gradient-blob-3 absolute opacity-65" />
+        <div className="gradient-blob gradient-blob-4 absolute opacity-55" />
+        <div className="gradient-blob gradient-blob-5 absolute opacity-60" />
 
         {interactive && (
           <div
             ref={interactiveRef}
-            className="absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 opacity-60 will-change-transform"
+            className="absolute left-1/2 top-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2 opacity-75 will-change-transform"
             style={{
               background:
-                'radial-gradient(circle at center, rgba(var(--pointer-color), 0.75) 0, rgba(var(--pointer-color), 0) 55%)',
+                'radial-gradient(circle at center, rgba(var(--pointer-color), 0.85) 0, rgba(var(--pointer-color), 0) 58%)',
               mixBlendMode: 'var(--blending-value)' as CSSProperties['mixBlendMode'],
             }}
           />

@@ -316,11 +316,18 @@ html {
   animation: gradient-blob-5 24s ease-in-out infinite;
 }
 
+@keyframes blog-hero-shimmer {
+  0%, 100% { opacity: 0.35; transform: translateX(-12%) skewX(-12deg); }
+  50% { opacity: 0.65; transform: translateX(12%) skewX(-12deg); }
+}
+
+.blog-hero-shimmer {
+  animation: blog-hero-shimmer 9s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .gradient-blob {
-    animation: none !important;
-  }
-  .gradient-blobs [style*='will-change'] {
-    transform: none !important;
+  .blog-hero-shimmer {
+    animation: none;
+    opacity: 0.4;
   }
 }

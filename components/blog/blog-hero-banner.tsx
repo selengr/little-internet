@@ -47,6 +47,7 @@ export function BlogHeroBanner({
           />
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-100/10 via-transparent to-stone-900/25 mix-blend-soft-light" />
+          <div className="pointer-events-none absolute -inset-y-8 -left-1/4 w-1/2 blog-hero-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent blur-2xl" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-stone-950/45 via-stone-900/10 to-transparent" />
           <div className="pointer-events-none absolute inset-0 rounded-none sm:rounded-[24px] ring-1 ring-inset ring-white/15" />
