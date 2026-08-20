@@ -8,3 +8,16 @@ export const BLOG_AUTHOR_IMAGE_ORIGINAL = '/images/authors/reza-original.jpg'
 export function resolveAuthorImage(_fromNotion?: string | null) {
   return BLOG_AUTHOR_IMAGE
 }
+
+/** Prefer local `/images/...` paths when Notion stores a full site URL. */
+export function resolveBannerImage(fromNotion?: string | null) {
+  if (!fromNotion) return null
+  if (fromNotion.startsWith('/')) return fromNotion
+  try {
+    const { pathname } = new URL(fromNotion)
+    if (pathname.startsWith('/images/')) return pathname
+  } catch {
+    // keep raw value
+  }
+  return fromNotion
+}

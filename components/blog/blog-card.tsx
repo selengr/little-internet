@@ -1,38 +1,12 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import type { BlogPostMeta } from '@/types/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import { formatBlogDate } from '@/lib/blog-date'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import styles from './blog-card.module.css'
 
-const STRIPE_BARS = [
-  { weight: 2.45, tone: 'light' as const },
-  { weight: 0.4, tone: 'light' as const },
-  { weight: 1.55, tone: 'light' as const },
-  { weight: 2.5, tone: 'light' as const },
-  { weight: 0.5, tone: 'light' as const },
-  { weight: 1.3, tone: 'light' as const },
-  { weight: 1.9, tone: 'light' as const },
-  { weight: 1.4, tone: 'light' as const },
-  { weight: 0.5, tone: 'deep' as const },
-  { weight: 1.9, tone: 'deep' as const },
-  { weight: 1.05, tone: 'deep' as const },
-  { weight: 1.8, tone: 'deep' as const },
-  { weight: 0.75, tone: 'deep' as const },
-  { weight: 0.9, tone: 'deep' as const },
-  { weight: 2.4, tone: 'deep' as const },
-  { weight: 1.8, tone: 'deep' as const },
-]
-
-const STRIPE_TOTAL = STRIPE_BARS.reduce((sum, bar) => sum + bar.weight, 0)
-
 export function BlogCard({ post }: { post: BlogPostMeta }) {
-  const [hovered, setHovered] = useState(false)
   const banner = post.bannerImage || post.coverUrl || '/images/banners/https___west.avif'
   const date = formatBlogDate(post.date)
 
@@ -40,10 +14,7 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
     <Link
       href={`/blog/${post.slug}`}
       className={styles.card}
-      data-hovered={hovered ? 'true' : 'false'}
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       <div className={styles.imageWrap}>
         <Image
@@ -54,25 +25,6 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
           sizes="(max-width: 712px) 100vw, 48vw"
           unoptimized={banner.startsWith('http')}
         />
-
-        <div className={styles.stripeOverlay} aria-hidden>
-          <div className={styles.stripeStage}>
-            {STRIPE_BARS.map((bar, i) => (
-              <motion.span
-                key={i}
-                className={bar.tone === 'light' ? styles.stripeBarLight : styles.stripeBarDeep}
-                style={{ width: `${(bar.weight / STRIPE_TOTAL) * 100}%` }}
-                initial={false}
-                animate={{ scaleX: hovered ? 1 : 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: hovered ? i * 0.03 : (STRIPE_BARS.length - 1 - i) * 0.018,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              />
-            ))}
-          </div>
-        </div>
       </div>
 
       <section className={styles.body}>

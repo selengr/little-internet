@@ -7,6 +7,7 @@ config({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../.env.local')
 
 const PAGE_ID = '3b39bb33-3bcb-8169-b449-d080af3f7462'
 const NOTION_VERSION = '2026-03-11'
+const BANNER_IMAGE = 'https://rezakarbakhsh.ir/images/banners/https2F%2Fs3-us-west-2.avif'
 const key = process.env.NOTION_API_KEY?.trim()
 
 if (!key) {

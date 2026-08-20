@@ -4,19 +4,15 @@
   border-radius: 1rem;
   text-decoration: none;
   color: inherit;
-  transition:
-    background-color 200ms ease,
-    box-shadow 400ms ease;
+  transition: background-color 150ms linear;
 }
 
-.card[data-hovered='true'] {
-  background-color: rgba(0, 0, 0, 0.02);
-  box-shadow: 0 16px 36px rgba(18, 103, 130, 0.14);
+.card:hover {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
-:global(.dark) .card[data-hovered='true'] {
-  background-color: rgba(255, 255, 255, 0.03);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+:global(.dark) .card:hover {
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .card:focus-visible {
@@ -30,63 +26,16 @@
   height: 198px;
   overflow: hidden;
   border-radius: 1rem;
-  isolation: isolate;
 }
 
 .image {
   object-fit: cover;
-  transition: filter 400ms ease, transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: filter 150ms linear, transform 450ms ease;
 }
 
-.card[data-hovered='true'] .image {
-  filter: brightness(1.08);
-  transform: scale(1.03);
-}
-
-.stripeOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 280ms ease;
-}
-
-.card[data-hovered='true'] .stripeOverlay {
-  opacity: 1;
-}
-
-.stripeStage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  width: 200%;
-  height: 100%;
-  transform: translate(-50%, -50%) rotate(20deg);
-  transform-origin: center center;
-  mix-blend-mode: luminosity;
-  opacity: 0.45;
-}
-
-.stripeBarLight,
-.stripeBarDeep {
-  display: block;
-  height: 100%;
-  flex: none;
-  transform-origin: left center;
-  will-change: transform;
-}
-
-.stripeBarLight {
-  background: rgb(18, 103, 130);
-}
-
-.stripeBarDeep {
-  background: rgb(2, 48, 71);
+.card:hover .image {
+  filter: brightness(1.12);
+  transform: scale(1.02);
 }
 
 .body {
