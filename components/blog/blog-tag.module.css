@@ -1,0 +1,55 @@
+.post-blog-property-map-opt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+  justify-content: center;
+}
+
+.post-blog-property-map-opt--start {
+  justify-content: flex-start;
+}
+
+.post-blog-property-map-opt span {
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  border-radius: 3px;
+  height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 120%;
+  font-size: 12px;
+  margin-bottom: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  color: inherit;
+}
+
+.post-blog-property-map-opt span:nth-child(1) {
+  background-color: rgba(0, 120, 223, 0.2);
+}
+
+.post-blog-property-map-opt span:nth-child(2) {
+  background-color: rgba(233, 168, 0, 0.2);
+}
+
+.post-blog-property-map-opt span:nth-child(3) {
+  background-color: rgba(0, 120, 223, 0.2);
+}
+
+.post-blog-property-map-opt span:nth-child(4) {
+  background-color: rgba(245, 93, 0, 0.2);
+}
+
+.post-blog-property-map-opt span:nth-child(5) {
+  background-color: rgba(0, 135, 107, 0.2);
+}
+
+.post-blog-property-map-opt span:nth-child(6) {
+  background-color: rgba(103, 36, 222, 0.2);
+}
+
+.post-blog-property-map-opt span:nth-child(n + 7) {
+  background-color: rgba(0, 120, 223, 0.2);
+}

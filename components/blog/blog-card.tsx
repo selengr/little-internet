@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { BlogPostMeta } from '@/types/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
-import { BlogTag } from '@/components/blog/blog-tag'
+import { BlogTagList } from '@/components/blog/blog-tag'
 
 function formatDate(iso: string | null) {
   if (!iso) return null
