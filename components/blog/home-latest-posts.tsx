@@ -70,11 +70,6 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
           <span className="rounded-full border border-white/25 bg-black/45 px-2.5 py-1 text-[10px] font-medium tracking-[0.22em] text-white backdrop-blur-md">
             {String(index + 1).padStart(2, '0')}
           </span>
-          {post.featured && (
-            <span className="rounded-full border border-white/20 bg-white/15 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-white backdrop-blur-md">
-              Featured
-            </span>
-          )}
         </div>
 
         <div className="absolute right-5 top-5 z-20 flex items-center gap-3">

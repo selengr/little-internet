@@ -2,25 +2,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { BlogPostMeta } from '@/types/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
+import { formatBlogDate } from '@/lib/blog-date'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import styles from './blog-card.module.css'
 
-function formatDate(iso: string | null) {
-  if (!iso) return null
-  try {
-    return new Intl.DateTimeFormat('en', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
-
 export function BlogCard({ post }: { post: BlogPostMeta }) {
   const banner = post.bannerImage || post.coverUrl || '/images/banners/https___west.avif'
-  const date = formatDate(post.date)
+  const date = formatBlogDate(post.date)
 
   return (
     <Link
