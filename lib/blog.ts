@@ -18,6 +18,13 @@ const DEFAULT_AUTHOR = BLOG_AUTHOR_NAME
 const DEFAULT_AUTHOR_IMAGE = BLOG_AUTHOR_IMAGE
 const DEFAULT_BANNER = '/images/banners/https___west.avif'
 
+/** Slugs hidden from the public blog (e.g. setup seed posts). */
+const EXCLUDED_BLOG_SLUGS = new Set(['welcome'])
+
+function isPublicBlogPost(meta: BlogPostMeta) {
+  return meta.status === 'Published' && !EXCLUDED_BLOG_SLUGS.has(meta.slug)
+}
+
 function getDatabaseId() {
   return process.env.NOTION_BLOG_DATABASE_ID?.trim() || null
 }
@@ -351,7 +358,7 @@ async function queryDataSource(body: Record<string, unknown>) {
     method: 'POST',
     headers: notionHeaders(),
     body: JSON.stringify(body),
-    next: { revalidate: 30 },
+    cache: 'no-store',
   })
   const json = await res.json()
   return { res, json }
@@ -379,10 +386,10 @@ export async function listPublishedPosts(limit = 48): Promise<BlogPostMeta[]> {
     }
     return (retry.json.results ?? [])
       .map(mapNotionPageToMeta)
-      .filter((p: BlogPostMeta) => p.status === 'Published')
+      .filter(isPublicBlogPost)
   }
 
-  return (json.results ?? []).map(mapNotionPageToMeta)
+  return (json.results ?? []).map(mapNotionPageToMeta).filter(isPublicBlogPost)
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -399,12 +406,13 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!res.ok || !json.results?.length) {
     const all = await listPublishedPosts(100)
     const meta = all.find(p => p.slug === slug)
-    if (!meta) return null
+    if (!meta || !isPublicBlogPost(meta)) return null
     const markdown = await getPageMarkdown(meta.id)
     return { ...meta, markdown }
   }
 
   const meta = mapNotionPageToMeta(json.results[0])
+  if (!isPublicBlogPost(meta)) return null
   const markdown = await getPageMarkdown(meta.id)
   return { ...meta, markdown }
 }
