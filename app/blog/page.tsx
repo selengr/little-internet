@@ -8,8 +8,8 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
 export const metadata = {
-  title: 'Blog',
-  description: 'Notes and essays — Notion-backed blog by Reza Karbakhsh',
+  title: 'Field notes',
+  description: 'Essays and notes on code, tools, and building in public — by Reza Karbakhsh.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -83,14 +83,15 @@ export default async function BlogPage() {
           banner="/images/banners/fikeus-west-2.avif"
           user={BLOG_AUTHOR_IMAGE}
           blog
-          title="Blog"
+          title="Field notes"
           videoReady
         >
           <p
-            className="text-center text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em]"
+            className="text-center text-[17px] sm:text-[19px] leading-[1.55] text-muted-foreground tracking-[-0.01em] max-w-xl mx-auto"
             dir="ltr"
           >
-            Notes, builds, and ideas from the playground.
+            Essays, release notes, and rabbit holes from the playground — written while the APIs
+            are still warm.
           </p>
         </Banner>
       </section>
