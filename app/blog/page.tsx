@@ -80,7 +80,7 @@ export default async function BlogPage() {
 
       <section className="relative">
         <Banner
-          banner="/images/banners/https___west.avif"
+          banner="/images/banners/fikeus-west-2.avif"
           user={BLOG_AUTHOR_IMAGE}
           blog
           title="Blog"
