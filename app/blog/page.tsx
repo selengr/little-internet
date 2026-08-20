@@ -9,7 +9,7 @@ import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
 export const metadata = {
   title: 'Blog',
-  description: 'Notes and essays — Notion-backed blog by Reza Karbakhsh',
+  description: 'Personal writing by Reza Karbakhsh — notes on building, learning, and ideas worth keeping.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -83,14 +83,15 @@ export default async function BlogPage() {
           banner="/images/banners/fikeus-west-2.avif"
           user={BLOG_AUTHOR_IMAGE}
           blog
-          title="Blog"
+          title="Writing"
           videoReady
         >
           <p
             className="text-center text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em]"
             dir="ltr"
           >
-            Notes, builds, and ideas from the playground.
+            Hi, I&apos;m Reza. I write here about what I&apos;m building, what I&apos;m learning,
+            and the ideas I want to keep.
           </p>
         </Banner>
       </section>
