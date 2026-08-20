@@ -292,7 +292,7 @@ export default function AgenticPage() {
             <div className="relative w-full h-[240px] md:h-[440px] shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/banners/https___west.avif"
+                src="/images/banners/fikeus-west-2.avif"
                 alt="Quick tools"
                 className="absolute inset-0 w-full h-full object-cover object-center"
               />
