@@ -288,20 +288,23 @@ export default function AgenticPage() {
 
           {/* Full-width banner with tool cards */}
           <div
-            className="rounded-2xl overflow-hidden border border-border flex flex-col md:block md:relative"
+            className="relative min-h-[560px] overflow-hidden rounded-2xl border border-border md:h-[440px] md:min-h-0"
             onMouseMove={handleMouse}
           >
-            <div className="relative w-full h-[240px] md:h-[440px] shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/banners/fikeus-west-2.avif"
-                alt="Quick tools"
-                className="absolute inset-0 w-full h-full object-cover object-center"
-              />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/banners/fikeus-west-2.avif"
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/10 to-background/45 md:from-transparent md:via-transparent md:to-background/15"
+            />
 
-            <div className="flex flex-col md:flex-row-reverse gap-3 p-4 md:absolute md:bottom-4 md:right-4 md:p-0 md:w-auto">
-              <article className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-xl p-6 md:w-72 flex flex-col">
+            <div className="relative z-10 flex min-h-[560px] flex-col justify-end gap-3 p-4 md:absolute md:inset-auto md:bottom-4 md:right-4 md:min-h-0 md:w-auto md:flex-row-reverse md:p-0">
+              <article className="flex flex-col rounded-xl border border-border/50 bg-card/70 p-6 backdrop-blur-xl md:w-72">
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <h3 className="text-lg font-light">Convert a file</h3>
                   <Link
@@ -315,7 +318,7 @@ export default function AgenticPage() {
                 <QuickFileConverter />
               </article>
 
-              <article className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-xl p-6 md:w-72 flex flex-col">
+              <article className="flex flex-col rounded-xl border border-border/50 bg-card/70 p-6 backdrop-blur-xl md:w-72">
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <h3 className="text-lg font-light">Make a QR</h3>
                   <Link
