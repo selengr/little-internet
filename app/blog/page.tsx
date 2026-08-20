@@ -76,7 +76,7 @@ export default async function BlogPage() {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
-      <BlogListNav />
+      {/* <BlogListNav /> */}
 
       <section className="relative">
         <Banner
@@ -95,7 +95,7 @@ export default async function BlogPage() {
           </p>
         </Banner>
       </section>
-      
+
       <section className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 pt-10 sm:pt-14 pb-28">
         {error ? (
           <p className="text-sm text-red-500 text-center">{error}</p>
