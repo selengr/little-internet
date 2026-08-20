@@ -21,7 +21,8 @@ export async function GET(request: Request) {
           { status: 503 },
         )
       }
-      const posts = await listPublishedPosts(24)
+      const limit = Math.min(Math.max(Number(searchParams.get('limit') ?? '24') || 24, 1), 48)
+      const posts = await listPublishedPosts(limit)
       return NextResponse.json({ posts, count: posts.length })
     }
 

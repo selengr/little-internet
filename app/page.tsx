@@ -24,6 +24,7 @@ import { QuickQrMaker } from "@/components/quick-qr-maker";
 import { QuickFileConverter } from "@/components/quick-file-converter";
 import { BookCoverMarquee } from "@/components/book-cover-marquee";
 import { CountriesShowcase } from "@/components/countries-showcase";
+import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
 
 // ─── Intersection Observer hook ──────────────────────────────────────────────
 function useInView(threshold = 0.15) {
@@ -174,7 +175,7 @@ export default function AgenticPage() {
               "linear-gradient(to top, black 0%, transparent 100%)",
           }}
         />
-        
+
         <div
           className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
           style={{
@@ -188,9 +189,7 @@ export default function AgenticPage() {
         />
       </section>
 
-
-      //here
-
+      <HomeLatestPosts />
 
       <section className="relative min-h-[520px] h-[55vh] w-full overflow-x-clip border-y border-border">
         <ArtGallerySlider variant="books" />
