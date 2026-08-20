@@ -90,7 +90,7 @@ export default async function BlogPage() {
             className="text-center text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em]"
             dir="ltr"
           >
-            Hi, I&apos;m Reza. I write here about what I&apos;m building, what I&apos;m learning,
+            Hi, I write here about what I&apos;m building, what I&apos;m learning,
             and the ideas I want to keep.
           </p>
         </Banner>
