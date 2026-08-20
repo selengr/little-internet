@@ -104,9 +104,11 @@ export default async function BlogPage() {
             No published posts yet.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 sm:gap-7 xl:gap-8">
+          <div className="flex flex-wrap justify-between items-stretch gap-y-12 gap-x-[4%] mt-4">
             {posts.map(post => (
-              <BlogCard key={post.id} post={post} />
+              <div key={post.id} className="w-full min-[712px]:w-[48%]">
+                <BlogCard post={post} />
+              </div>
             ))}
           </div>
         )}

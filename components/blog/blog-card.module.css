@@ -126,8 +126,8 @@
 .authorName {
   font-size: 13px;
   color: var(--muted-foreground, rgba(0, 0, 0, 0.5));
-  truncate: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
