@@ -71,11 +71,7 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
         )}
 
         {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-0.5">
-            {post.tags.slice(0, 3).map(tag => (
-              <BlogTag key={tag} tag={tag} size="sm" />
-            ))}
-          </div>
+          <BlogTagList tags={post.tags.slice(0, 3)} align="start" />
         )}
 
         <div className="mt-auto flex items-center gap-2.5 pt-2">

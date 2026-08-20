@@ -100,13 +100,7 @@ export default async function BlogPostPage({ params }: Props) {
               <ViewCounter pageId={post.id} initial={post.views} />
             </div>
 
-            {post.tags.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2">
-                {post.tags.map(tag => (
-                  <BlogTag key={tag} tag={tag} />
-                ))}
-              </div>
-            )}
+            {post.tags.length > 0 && <BlogTagList tags={post.tags} />}
 
             {post.summary && (
               <p className="max-w-[640px] text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em] text-balance">
