@@ -149,6 +149,7 @@ export default function AgenticPage() {
 
   return (
     <div className="bg-background text-foreground min-h-screen font-sans antialiased overflow-x-clip">
+      <CustomScrollbar />
       {/* ── INTRO ANIMATION ───────────────────────────────────────────────── */}
       <IntroAnimation onDone={handleIntroDone} />
 
