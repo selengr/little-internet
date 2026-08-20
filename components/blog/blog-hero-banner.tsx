@@ -20,7 +20,7 @@ export function BlogHeroBanner({
   return (
     <div className={styles['landing-main']}>
       <div className="relative mx-auto w-full max-w-[1200px]">
-        <div className="relative h-[32vh] min-h-[260px] max-h-[420px] overflow-hidden rounded-[24px] shadow-[0_24px_80px_-28px_rgba(88,28,135,0.45)] ring-1 ring-black/[0.06] dark:ring-white/[0.08]">
+        <div className="relative h-[32vh] min-h-[260px] max-h-[420px] overflow-hidden rounded-none sm:rounded-[24px] shadow-[0_24px_80px_-28px_rgba(88,28,135,0.45)] ring-1 ring-black/[0.06] dark:ring-white/[0.08] max-sm:w-screen max-sm:relative max-sm:left-1/2 max-sm:-translate-x-1/2">
           <BackgroundGradientAnimation
             interactive
             containerClassName="absolute inset-0 h-full w-full"
@@ -46,7 +46,7 @@ export function BlogHeroBanner({
           />
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 rounded-[24px] ring-1 ring-inset ring-white/10" />
+          <div className="pointer-events-none absolute inset-0 rounded-none sm:rounded-[24px] ring-1 ring-inset ring-white/10" />
         </div>
 
         <div
