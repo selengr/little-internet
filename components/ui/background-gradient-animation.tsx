@@ -59,8 +59,8 @@ export function BackgroundGradientAnimation({
 
     const tick = () => {
       const p = pointerRef.current
-      p.x += (p.tx - p.x) / 16
-      p.y += (p.ty - p.y) / 16
+      p.x += (p.tx - p.x) / 14
+      p.y += (p.ty - p.y) / 14
       if (interactiveRef.current) {
         interactiveRef.current.style.transform = `translate(${Math.round(p.x)}px, ${Math.round(p.y)}px)`
       }
@@ -72,8 +72,8 @@ export function BackgroundGradientAnimation({
   }, [interactive])
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!interactiveRef.current) return
-    const rect = interactiveRef.current.getBoundingClientRect()
+    if (!rootRef.current) return
+    const rect = rootRef.current.getBoundingClientRect()
     pointerRef.current.tx = event.clientX - rect.left - rect.width / 2
     pointerRef.current.ty = event.clientY - rect.top - rect.height / 2
   }
