@@ -102,7 +102,7 @@ export function BackgroundGradientAnimation({
   useEffect(() => {
     if (!interactive) return
 
-    const tick = (now: number) => {
+    const tick = () => {
       const p = pointerRef.current
       p.x += (p.tx - p.x) / 20
       p.y += (p.ty - p.y) / 20

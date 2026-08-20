@@ -288,32 +288,32 @@ html {
 }
 
 .gradient-blob-1 {
-  background: radial-gradient(circle at center, rgba(var(--first-color), 0.95) 0, rgba(var(--first-color), 0) 52%);
-  animation: gradient-blob-1 26s ease-in-out infinite;
+  background: radial-gradient(circle at center, rgba(var(--first-color), 0.88) 0, rgba(var(--first-color), 0) 54%);
+  animation: gradient-blob-1 38s ease-in-out infinite;
 }
 
 .gradient-blob-2 {
-  background: radial-gradient(circle at center, rgba(var(--second-color), 0.85) 0, rgba(var(--second-color), 0) 50%);
-  transform-origin: calc(50% - 320px) calc(50% + 80px);
-  animation: gradient-blob-2 22s ease-in-out infinite reverse;
+  background: radial-gradient(circle at center, rgba(var(--second-color), 0.82) 0, rgba(var(--second-color), 0) 52%);
+  transform-origin: calc(50% - 280px) calc(50% + 60px);
+  animation: gradient-blob-2 44s ease-in-out infinite reverse;
 }
 
 .gradient-blob-3 {
-  background: radial-gradient(circle at center, rgba(var(--third-color), 0.8) 0, rgba(var(--third-color), 0) 50%);
-  transform-origin: calc(50% + 280px) calc(50% - 60px);
-  animation: gradient-blob-3 32s linear infinite;
+  background: radial-gradient(circle at center, rgba(var(--third-color), 0.78) 0, rgba(var(--third-color), 0) 52%);
+  transform-origin: calc(50% + 240px) calc(50% - 40px);
+  animation: gradient-blob-3 52s linear infinite;
 }
 
 .gradient-blob-4 {
-  background: radial-gradient(circle at center, rgba(var(--fourth-color), 0.75) 0, rgba(var(--fourth-color), 0) 48%);
-  transform-origin: calc(50% - 180px) calc(50% + 120px);
-  animation: gradient-blob-4 28s ease-in-out infinite;
+  background: radial-gradient(circle at center, rgba(var(--fourth-color), 0.72) 0, rgba(var(--fourth-color), 0) 50%);
+  transform-origin: calc(50% - 160px) calc(50% + 100px);
+  animation: gradient-blob-4 46s ease-in-out infinite;
 }
 
 .gradient-blob-5 {
-  background: radial-gradient(circle at center, rgba(var(--fifth-color), 0.7) 0, rgba(var(--fifth-color), 0) 50%);
-  transform-origin: calc(50% + 400px) calc(50% + 200px);
-  animation: gradient-blob-5 24s ease-in-out infinite;
+  background: radial-gradient(circle at center, rgba(var(--fifth-color), 0.68) 0, rgba(var(--fifth-color), 0) 52%);
+  transform-origin: calc(50% + 360px) calc(50% + 180px);
+  animation: gradient-blob-5 40s ease-in-out infinite;
 }
 
 @keyframes blog-hero-shimmer {
