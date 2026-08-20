@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import type { BlogPostMeta } from '@/types/blog'
+import { BLOG_AUTHOR_IMAGE, resolveAuthorImage } from '@/lib/blog-author'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import { PixelIcon } from '@/components/pixel-icon'
 import { RevealText } from '@/components/reveal-text'
@@ -57,11 +58,12 @@ const item = {
 function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
   const banner = postBanner(post)
   const date = formatDate(post.date)
+  const authorImage = resolveAuthorImage(post.authorImage)
 
   return (
     <motion.article variants={item} className="h-full">
       <Link
-        href={`/blog/${post.slug}`}
+        href="/blog"
         className="group relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.35rem] border border-border/70 bg-card shadow-sm transition-shadow duration-500 hover:shadow-xl hover:shadow-black/[0.06]"
       >
         <div className="absolute left-5 top-5 z-20 flex items-center gap-2">
@@ -73,6 +75,18 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
               Featured
             </span>
           )}
+        </div>
+
+        <div className="absolute right-5 top-5 z-20 flex items-center gap-3">
+          <div className="relative size-12 overflow-hidden rounded-full border-2 border-white/80 bg-white/10 shadow-lg ring-2 ring-black/10 sm:size-14">
+            <Image
+              src={authorImage || BLOG_AUTHOR_IMAGE}
+              alt={post.authorName}
+              fill
+              className="object-cover object-[center_20%]"
+              unoptimized
+            />
+          </div>
         </div>
 
         <div className="relative flex-1 overflow-hidden">
