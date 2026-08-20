@@ -25,6 +25,7 @@ import { QuickFileConverter } from "@/components/quick-file-converter";
 import { BookCoverMarquee } from "@/components/book-cover-marquee";
 import { CountriesShowcase } from "@/components/countries-showcase";
 import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
+import { CustomScrollbar } from "@/components/custom-scrollbar";
 
 // ─── Intersection Observer hook ──────────────────────────────────────────────
 function useInView(threshold = 0.15) {
