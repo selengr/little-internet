@@ -74,7 +74,7 @@ Cybersecurity is another good example. It can involve programming and algorithms
 
 So, these fields are different, but they often **work together**.
 
-![Professional standing in a modern workspace](https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&q=85&fit=crop)
+![Engineering professional standing in a technology workspace](https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1600&q=85&fit=crop&crop=top)
 
 ## Which One Should You Choose?
 
