@@ -20,21 +20,27 @@ export function BlogHeroBanner({
   return (
     <div className={styles['landing-main']}>
       <div className="relative mx-auto w-full max-w-[1200px]">
-        <div className="relative h-[32vh] min-h-[260px] max-h-[420px] overflow-hidden rounded-none sm:rounded-[24px] shadow-[0_28px_70px_-24px_rgba(62,42,24,0.55)] ring-1 ring-black/[0.08] dark:ring-white/[0.1] max-sm:w-screen max-sm:relative max-sm:left-1/2 max-sm:-translate-x-1/2">
+        <div className="relative h-[32vh] min-h-[260px] max-h-[420px] overflow-hidden rounded-none sm:rounded-[24px] shadow-[0_32px_80px_-32px_rgba(0,0,0,0.65)] ring-1 ring-white/[0.06] max-sm:w-screen max-sm:relative max-sm:left-1/2 max-sm:-translate-x-1/2">
           <BackgroundGradientAnimation
             interactive
             containerClassName="absolute inset-0 h-full w-full"
-            gradientBackgroundStart="rgb(38, 32, 26)"
-            gradientBackgroundEnd="rgb(62, 48, 36)"
-            firstColor="210, 165, 95"
-            secondColor="138, 158, 118"
-            thirdColor="125, 168, 198"
-            fourthColor="186, 98, 58"
-            fifthColor="228, 196, 138"
-            pointerColor="240, 200, 140"
-            size="92%"
+            gradientBackgroundStart="rgb(14, 12, 10)"
+            gradientBackgroundEnd="rgb(28, 22, 18)"
+            firstColor="148, 112, 68"
+            secondColor="78, 96, 76"
+            thirdColor="62, 86, 104"
+            fourthColor="120, 62, 42"
+            fifthColor="98, 82, 66"
+            pointerColor="168, 138, 92"
+            dropColors={[
+              '168, 138, 92',
+              '148, 112, 68',
+              '62, 86, 104',
+              '120, 62, 42',
+              '78, 96, 76',
+            ]}
+            size="90%"
             blendingValue="soft-light"
-            className="opacity-25"
           />
 
           <Image
@@ -42,20 +48,19 @@ export function BlogHeroBanner({
             alt=""
             fill
             priority
-            className="pointer-events-none object-cover object-center opacity-[0.72] saturate-[1.08] contrast-[1.04]"
+            className="pointer-events-none object-cover object-center opacity-[0.52] saturate-[0.92] contrast-[1.08] brightness-[0.88]"
             sizes="(max-width: 1200px) 100vw, 1200px"
           />
 
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-100/10 via-transparent to-stone-900/25 mix-blend-soft-light" />
-          <div className="pointer-events-none absolute -inset-y-8 -left-1/4 w-1/2 blog-hero-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent blur-2xl" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-stone-950/45 via-stone-900/10 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 rounded-none sm:rounded-[24px] ring-1 ring-inset ring-white/15" />
+          <div className="pointer-events-none absolute inset-0 bg-stone-950/25 mix-blend-multiply" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-stone-950/55 via-stone-950/15 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 rounded-none sm:rounded-[24px] ring-1 ring-inset ring-white/[0.08]" />
         </div>
 
         <div className="relative z-10 flex justify-center">
           <div
-            className={`${styles['landing-div-rounded']} bg-[#f7f6f3] overflow-hidden ring-2 ring-white/80 dark:ring-white/20`}
+            className={`${styles['landing-div-rounded']} bg-[#f7f6f3] overflow-hidden ring-2 ring-white/70 dark:ring-white/15 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.45)]`}
           >
             <Image
               src={authorImage}
