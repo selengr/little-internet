@@ -326,6 +326,12 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .gradient-blob {
+    animation: none !important;
+  }
+  .gradient-blobs [style*='will-change'] {
+    transform: none !important;
+  }
   .blog-hero-shimmer {
     animation: none;
     opacity: 0.4;
