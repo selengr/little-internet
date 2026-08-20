@@ -45,7 +45,7 @@ export default async function BlogPage() {
   if (!status.ready) {
     return (
       <main className="relative min-h-screen bg-background text-foreground">
-        <CustomScrollbar />
+        <CustomScrollbar mobileOnly />
         <BlogListNav />
         <div
           className="mx-auto max-w-lg px-6 pt-36 pb-20 text-center"

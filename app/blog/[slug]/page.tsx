@@ -72,7 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
-      <CustomScrollbar />
+      <CustomScrollbar mobileOnly />
       <BlogNav label="POST" />
 
       <section className="relative">

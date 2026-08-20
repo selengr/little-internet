@@ -1,8 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { cn } from '@/lib/utils'
 
-export function CustomScrollbar() {
+type CustomScrollbarProps = {
+  /** Blog pages: visible on mobile only, positioned at left-5. */
+  mobileOnly?: boolean
+}
+
+export function CustomScrollbar({ mobileOnly = false }: CustomScrollbarProps) {
   const [scrollPercentage, setScrollPercentage] = useState(0)
 
   useEffect(() => {
@@ -22,7 +28,12 @@ export function CustomScrollbar() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed bottom-[42px] lg:bottom-[100px] left-6 z-40 h-[124px] lg:h-[174px] w-[3px] rounded-full bg-border md:left-10 lg:left-12 2xl:left-20"
+      className={cn(
+        'pointer-events-none fixed z-40 w-[3px] rounded-full bg-border',
+        mobileOnly
+          ? 'left-5 bottom-[42px] h-[124px] md:hidden'
+          : 'bottom-[42px] left-6 h-[124px] md:left-10 lg:bottom-[100px] lg:left-12 lg:h-[174px] 2xl:left-20',
+      )}
     >
       <div
         className="absolute bottom-0 w-full rounded-full bg-foreground/75 transition-all duration-150 ease-out dark:bg-foreground/85"
