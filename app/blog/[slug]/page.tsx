@@ -5,6 +5,7 @@ import { BlogMarkdown } from '@/components/blog/blog-markdown'
 import { BlogNav } from '@/components/blog/blog-nav'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import { ViewCounter } from '@/components/blog/view-counter'
+import { CustomScrollbar } from '@/components/custom-scrollbar'
 import { getPostBySlug, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 
@@ -71,6 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
+      <CustomScrollbar />
       <BlogNav label="POST" />
 
       <section className="relative">

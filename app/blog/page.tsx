@@ -4,6 +4,7 @@ import { getBlogConfigStatus, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import Banner from '@/components/views/banner/banner'
 import { BlogCard } from '@/components/blog/blog-card'
+import { CustomScrollbar } from '@/components/custom-scrollbar'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
@@ -44,6 +45,7 @@ export default async function BlogPage() {
   if (!status.ready) {
     return (
       <main className="relative min-h-screen bg-background text-foreground">
+        <CustomScrollbar />
         <BlogListNav />
         <div
           className="mx-auto max-w-lg px-6 pt-36 pb-20 text-center"
@@ -76,6 +78,7 @@ export default async function BlogPage() {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
+      <CustomScrollbar />
       <BlogListNav />
 
       <section className="relative">
