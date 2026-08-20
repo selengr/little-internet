@@ -3,14 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import type { BlogPostMeta } from '@/types/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import { formatBlogDate } from '@/lib/blog-date'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import styles from './blog-card.module.css'
 
-/** Stripe weights — mirrors the original Lottie bar rhythm. */
 const STRIPE_BARS = [
   { weight: 2.45, tone: 'light' as const },
   { weight: 0.4, tone: 'light' as const },
@@ -30,27 +29,7 @@ const STRIPE_BARS = [
   { weight: 1.8, tone: 'deep' as const },
 ]
 
-function BlogCardStripes() {
-  return (
-    <div className={styles.stripeStage} aria-hidden>
-      {STRIPE_BARS.map((bar, i) => (
-        <motion.span
-          key={i}
-          className={bar.tone === 'light' ? styles.stripeBarLight : styles.stripeBarDeep}
-          style={{ flexGrow: bar.weight }}
-          initial={{ scaleX: 0, opacity: 0.6 }}
-          animate={{ scaleX: 1, opacity: 1 }}
-          exit={{ scaleX: 0, opacity: 0 }}
-          transition={{
-            duration: 0.62,
-            delay: i * 0.028,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        />
-      ))}
-    </div>
-  )
-}
+const STRIPE_TOTAL = STRIPE_BARS.reduce((sum, bar) => sum + bar.weight, 0)
 
 export function BlogCard({ post }: { post: BlogPostMeta }) {
   const [hovered, setHovered] = useState(false)
@@ -61,11 +40,10 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
     <Link
       href={`/blog/${post.slug}`}
       className={styles.card}
+      data-hovered={hovered ? 'true' : 'false'}
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
     >
       <div className={styles.imageWrap}>
         <Image
@@ -77,27 +55,24 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
           unoptimized={banner.startsWith('http')}
         />
 
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              className={styles.stripeOverlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.28, ease: 'easeOut' }}
-            >
-              <BlogCardStripes />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <motion.div
-          className={styles.imageSheen}
-          aria-hidden
-          initial={false}
-          animate={{ opacity: hovered ? 1 : 0, x: hovered ? '120%' : '-30%' }}
-          transition={{ duration: hovered ? 0.85 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-        />
+        <div className={styles.stripeOverlay} aria-hidden>
+          <div className={styles.stripeStage}>
+            {STRIPE_BARS.map((bar, i) => (
+              <motion.span
+                key={i}
+                className={bar.tone === 'light' ? styles.stripeBarLight : styles.stripeBarDeep}
+                style={{ width: `${(bar.weight / STRIPE_TOTAL) * 100}%` }}
+                initial={false}
+                animate={{ scaleX: hovered ? 1 : 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: hovered ? i * 0.03 : (STRIPE_BARS.length - 1 - i) * 0.018,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       <section className={styles.body}>

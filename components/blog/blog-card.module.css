@@ -6,23 +6,17 @@
   color: inherit;
   transition:
     background-color 200ms ease,
-    box-shadow 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow 400ms ease;
 }
 
-.card:hover {
+.card[data-hovered='true'] {
   background-color: rgba(0, 0, 0, 0.02);
-  box-shadow:
-    0 4px 6px rgba(18, 103, 130, 0.04),
-    0 18px 42px rgba(18, 103, 130, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(18, 103, 130, 0.14);
 }
 
-:global(.dark) .card:hover {
+:global(.dark) .card[data-hovered='true'] {
   background-color: rgba(255, 255, 255, 0.03);
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.12),
-    0 22px 48px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
 }
 
 .card:focus-visible {
@@ -36,18 +30,17 @@
   height: 198px;
   overflow: hidden;
   border-radius: 1rem;
+  isolation: isolate;
 }
 
 .image {
   object-fit: cover;
-  transition:
-    filter 550ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: filter 400ms ease, transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.card:hover .image {
-  filter: brightness(1.1) saturate(1.08);
-  transform: scale(1.045);
+.card[data-hovered='true'] .image {
+  filter: brightness(1.08);
+  transform: scale(1.03);
 }
 
 .stripeOverlay {
@@ -56,7 +49,12 @@
   z-index: 2;
   overflow: hidden;
   pointer-events: none;
-  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.card[data-hovered='true'] .stripeOverlay {
+  opacity: 1;
 }
 
 .stripeStage {
@@ -64,50 +62,31 @@
   top: 50%;
   left: 50%;
   display: flex;
-  width: 220%;
-  height: 140%;
+  flex-direction: row;
+  align-items: stretch;
+  width: 200%;
+  height: 100%;
   transform: translate(-50%, -50%) rotate(20deg);
-  transform-origin: center;
+  transform-origin: center center;
+  mix-blend-mode: luminosity;
+  opacity: 0.45;
 }
 
 .stripeBarLight,
 .stripeBarDeep {
+  display: block;
   height: 100%;
-  flex-shrink: 0;
+  flex: none;
   transform-origin: left center;
   will-change: transform;
 }
 
 .stripeBarLight {
-  background: linear-gradient(
-    180deg,
-    rgba(18, 103, 130, 0.55) 0%,
-    rgba(18, 103, 130, 0.82) 50%,
-    rgba(18, 103, 130, 0.55) 100%
-  );
+  background: rgb(18, 103, 130);
 }
 
 .stripeBarDeep {
-  background: linear-gradient(
-    180deg,
-    rgba(2, 48, 71, 0.45) 0%,
-    rgba(2, 48, 71, 0.78) 50%,
-    rgba(2, 48, 71, 0.45) 100%
-  );
-}
-
-.imageSheen {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    rgba(255, 255, 255, 0.22) 50%,
-    transparent 65%
-  );
-  mix-blend-mode: overlay;
+  background: rgb(2, 48, 71);
 }
 
 .body {
