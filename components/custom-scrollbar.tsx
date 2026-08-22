@@ -31,8 +31,8 @@ export function CustomScrollbar({ mobileOnly = false }: CustomScrollbarProps) {
       className={cn(
         'pointer-events-none fixed z-40 w-[3px] rounded-full bg-border',
         mobileOnly
-          ? 'left-5 bottom-[42px] h-[124px] md:hidden'
-          : 'bottom-[42px] left-6 h-[124px] md:left-10 lg:bottom-[100px] lg:left-12 lg:h-[174px] 2xl:left-20',
+          ? 'left-5 bottom-[35px] h-[124px] md:hidden'
+          : 'bottom-[35px] left-6 h-[124px] md:left-10 lg:bottom-[100px] lg:left-12 lg:h-[174px] 2xl:left-20',
       )}
     >
       <div
