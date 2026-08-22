@@ -23,7 +23,8 @@ export function CustomScrollbar({ mobileOnly = false }: CustomScrollbarProps) {
 
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-  sdfklha  return (
+
+  return (
     <div
       aria-hidden
       className={cn(
