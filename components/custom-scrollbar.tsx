@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 type CustomScrollbarProps = {
-  /** Blog pages: visible on mobile only, positioned at left-5. */
   mobileOnly?: boolean
 }
 
