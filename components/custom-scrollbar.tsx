@@ -9,7 +9,7 @@ type CustomScrollbarProps = {
 
 export function CustomScrollbar({ mobileOnly = false }: CustomScrollbarProps) {
   const [scrollPercentage, setScrollPercentage] = useState(0)
-
+// testuntuk
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY
