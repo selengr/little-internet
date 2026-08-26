@@ -25,6 +25,7 @@ import { QuickFileConverter } from "@/components/quick-file-converter";
 import { BookCoverMarquee } from "@/components/book-cover-marquee";
 import { CountriesShowcase } from "@/components/countries-showcase";
 import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
+import { HomeLocationStrip } from "@/components/home-location-strip";
 import { CustomScrollbar } from "@/components/custom-scrollbar";
 
 // ─── Intersection Observer hook ──────────────────────────────────────────────
@@ -634,6 +635,8 @@ export default function AgenticPage() {
           )} */}
         </div>
       </section>
+
+      <HomeLocationStrip />
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
       <footer className="py-10 px-6 md:px-12 lg:px-20 border-t border-border">
