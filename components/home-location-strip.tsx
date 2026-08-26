@@ -1,81 +1,22 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
 import type { IpstackData } from '@/types/ipstack'
 
-const DIGITS = '0123456789'
-
-/** Decodes the address left-to-right so it lands like a signal locking on. */
-function ScrambledIp({ value }: { value: string }) {
-  const [display, setDisplay] = useState(() => value.replace(/[0-9a-f]/gi, '0'))
-
-  useEffect(() => {
-    let tick = 0
-    const id = setInterval(() => {
-      tick += 1
-      const settled = Math.floor(tick / 2)
-      setDisplay(
-        value
-          .split('')
-          .map((ch, i) =>
-            i < settled || ch === '.' || ch === ':'
-              ? ch
-              : DIGITS[Math.floor(Math.random() * DIGITS.length)],
-          )
-          .join(''),
-      )
-      if (settled >= value.length) clearInterval(id)
-    }, 45)
-
-    return () => clearInterval(id)
-  }, [value])
-
-  return <span className="tabular-nums">{display}</span>
-}
-
-function Radar() {
-  return (
-    <div className="relative grid size-40 place-items-center md:size-52" aria-hidden>
-      {[0, 1, 2].map(i => (
-        <motion.span
-          key={i}
-          className="absolute rounded-full border border-foreground/15"
-          initial={{ width: 40, height: 40, opacity: 0 }}
-          animate={{ width: 208, height: 208, opacity: [0, 0.55, 0] }}
-          transition={{
-            duration: 3.6,
-            delay: i * 1.2,
-            repeat: Infinity,
-            ease: 'easeOut',
-          }}
-        />
-      ))}
-      <span className="absolute size-24 rounded-full border border-dashed border-foreground/10 md:size-32" />
-      <span className="relative size-2.5 rounded-full bg-emerald-500 shadow-[0_0_0_6px_rgba(16,185,129,0.14)]" />
-    </div>
-  )
-}
-
 export function HomeLocationStrip() {
-  const [data, setData] = useState<IpstackData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [ip, setIp] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setFailed(false)
     try {
       const res = await fetch(`/api/location?t=${Date.now()}`, { cache: 'no-store' })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'lookup failed')
-      setData(json as IpstackData)
+      if (!res.ok || !json.ip) throw new Error('lookup failed')
+      setIp((json as IpstackData).ip)
     } catch {
       setFailed(true)
-    } finally {
-      setLoading(false)
     }
   }, [])
 
@@ -85,56 +26,32 @@ export function HomeLocationStrip() {
 
   if (failed) return null
 
-  const place = data
-    ? [data.city, data.country_name].filter(Boolean).join(', ')
-    : ''
-
   return (
-    <section className="border-t border-border px-6 py-24 md:px-12 lg:px-20">
-      <div className="mx-auto flex max-w-6xl flex-col-reverse items-start gap-12 md:flex-row md:items-center md:justify-between">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="min-w-0"
+    <section className="border-t border-border px-6 py-20 md:px-12 lg:px-20">
+      <div className="mx-auto max-w-6xl">
+        <Link
+          href="/location"
+          className="group relative block h-[300px] overflow-hidden rounded-2xl border border-border md:h-[420px]"
         >
-          <span className="font-pixel text-[10px] tracking-[0.3em] text-muted-foreground/70">
-            YOU ARE HERE
-          </span>
+          <Image
+            src="/images/banners/about-me.avif"
+            alt=""
+            fill
+            priority={false}
+            sizes="(max-width: 1024px) 100vw, 1200px"
+            className="object-cover object-center transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-          <h2 className="mt-5 text-4xl font-light leading-[1.05] tracking-tight md:text-5xl">
-            {loading || !data ? (
-              <span className="text-muted-foreground/40">Locating…</span>
-            ) : (
-              <>
-                Hello,{' '}
-                <span className="text-muted-foreground">{place}</span>
-                {data.location.country_flag_emoji && (
-                  <span className="ml-2">{data.location.country_flag_emoji}</span>
-                )}
-              </>
-            )}
-          </h2>
-
-          <p className="mt-6 font-mono text-sm text-muted-foreground/80">
-            {loading || !data ? (
-              <span className="text-muted-foreground/40">····</span>
-            ) : (
-              <ScrambledIp value={data.ip} />
-            )}
-          </p>
-
-          <Link
-            href="/location"
-            className="mt-8 inline-flex items-center gap-2 text-xs tracking-widest text-muted-foreground transition-colors hover:text-foreground"
-          >
-            SEE THE FULL TRACE
-            <ArrowUpRight className="size-3.5" />
-          </Link>
-        </motion.div>
-
-        <Radar />
+          <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
+            <p className="text-[10px] uppercase tracking-[0.32em] text-white/55">
+              Your IP address
+            </p>
+            <p className="mt-3 font-mono text-3xl tracking-tight text-white md:text-5xl">
+              {ip ?? <span className="text-white/30">···.···.···.···</span>}
+            </p>
+          </div>
+        </Link>
       </div>
     </section>
   )
