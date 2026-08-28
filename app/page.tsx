@@ -563,7 +563,7 @@ export default function AgenticPage() {
       </section> */}
 
       <CountriesShowcase />
-
+{/* // test commit */}
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
@@ -628,6 +628,7 @@ export default function AgenticPage() {
               </button>
             </form>
           ) : (
+        
             <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-emerald-600/20 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-500/20 dark:text-emerald-300 text-emerald-700 text-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               {"You're on the list. See you tomorrow."}
