@@ -17,7 +17,7 @@ export function CustomScrollbar({ mobileOnly = false }: CustomScrollbarProps) {
       const percentage = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0
       setScrollPercentage(percentage)
     }
-
+// test git 
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
 
