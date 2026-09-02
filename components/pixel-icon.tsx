@@ -12,7 +12,6 @@ interface PixelIconProps {
   size?: number  // rendered px size (default 40)
 }
 
-// ── Platform icon: rotating gear / node graph ────────────────────────────────
 function drawPlatform(ctx: CanvasRenderingContext2D, W: number, t: number) {
   const cx = W / 2, cy = W / 2
   const r  = W * 0.36
@@ -46,7 +45,6 @@ function drawPlatform(ctx: CanvasRenderingContext2D, W: number, t: number) {
   }
 }
 
-// ── Agents icon: humanoid pixel figure running ───────────────────────────────
 // Frames as 8×8 pixel masks (row-major, 1=lit)
 const AGENT_FRAMES: number[][][] = [
   // Frame 0 — stand
@@ -118,7 +116,6 @@ function drawAgents(ctx: CanvasRenderingContext2D, W: number, t: number) {
   })
 }
 
-// ── Workflow icon: hourglass shape — top half fills, drains to bottom ─────────
 function drawWorkflow(ctx: CanvasRenderingContext2D, W: number, t: number) {
   const ps   = Math.floor(W / 12)
   const cx   = W / 2
@@ -176,7 +173,6 @@ function drawWorkflow(ctx: CanvasRenderingContext2D, W: number, t: number) {
   })
 }
 
-// ── Integrations icon: pixel grid of tiles that light up in sequence ──────────
 function drawIntegrations(ctx: CanvasRenderingContext2D, W: number, t: number) {
   const cols = 5, rows = 4
   const ps   = Math.floor(W / (cols + 1))
@@ -200,7 +196,6 @@ function drawIntegrations(ctx: CanvasRenderingContext2D, W: number, t: number) {
   }
 }
 
-// ── Pricing icon: stacked bar chart growing ───────────────────────────────────
 function drawPricing(ctx: CanvasRenderingContext2D, W: number, t: number) {
   const ps    = Math.floor(W / 12)
   const bars  = 3
@@ -230,7 +225,6 @@ function drawPricing(ctx: CanvasRenderingContext2D, W: number, t: number) {
   })
 }
 
-// ── Canvas wrapper ────────────────────────────────────────────────────────────
 export function PixelIcon({ type, size = 40 }: PixelIconProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef    = useRef<number>(0)

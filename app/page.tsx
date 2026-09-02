@@ -28,7 +28,6 @@ import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
 import { HomeLocationStrip } from "@/components/home-location-strip";
 import { CustomScrollbar } from "@/components/custom-scrollbar";
 
-// ─── Intersection Observer hook ──────────────────────────────────────────────
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -47,7 +46,6 @@ function useInView(threshold = 0.15) {
   return { ref, inView };
 }
 
-// ─── Animated counter ────────────────────────────────────────────────────────
 function Counter({ end, suffix = "" }: { end: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   const { ref, inView } = useInView();
@@ -74,7 +72,6 @@ function Counter({ end, suffix = "" }: { end: number; suffix?: string }) {
   );
 }
 
-// ─── Bento card ──────────────────────────────────────────────────────────────
 function BentoCard({
   children,
   className = "",
@@ -106,7 +103,6 @@ function BentoCard({
   );
 }
 
-// ─── Pill tag ─────────────────────────────────────────────────────────────────
 function Tag({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] tracking-widest font-sans text-muted-foreground bg-muted">
@@ -115,7 +111,6 @@ function Tag({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
 export default function AgenticPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -151,13 +146,10 @@ export default function AgenticPage() {
   return (
     <div className="bg-background text-foreground min-h-screen font-sans antialiased overflow-x-clip">
       <CustomScrollbar />
-      {/* ── INTRO ANIMATION ───────────────────────────────────────────────── */}
       <IntroAnimation onDone={handleIntroDone} />
 
-      {/* ── STICKY NAV ────────────────────────────────────────────────────── */}
       <MobileNav />
 
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen overflow-hidden">
         <Banner
           banner="/images/banners/https___west.avif"
@@ -198,7 +190,6 @@ export default function AgenticPage() {
         <ArtGallerySlider variant="books" />
       </section>
     
-      {/* ── TIME MACHINE ──────────────────────────────────────────────────── */}
       {/* <section
         id="time-machine"
         className="w-full border-t border-border bg-background py-12 px-6 md:px-12 flex items-center justify-center"
@@ -236,7 +227,6 @@ export default function AgenticPage() {
         </div>
       </section>
 
-      {/* ── PHOTO DISCOVERY (4 cards, live from Unsplash) ─────────────────── */}
       <section
         id="photos"
         className="py-32 px-6 md:px-12 lg:px-20 border-t border-border"
@@ -271,7 +261,6 @@ export default function AgenticPage() {
 
       <EnglishSuiteSection />
 
-      {/* ── QUICK TOOLS ───────────────────────────────────────────────────── */}
       <section
         id="tools"
         className="py-32 px-6 md:px-12 lg:px-20 border-t border-border"
@@ -337,7 +326,6 @@ export default function AgenticPage() {
         </div>
       </section>
 
-      {/* ── SECURITY & OBSERVABILITY ──────────────────────────────────��──── */}
       {/* <section
         id="security"
         className="py-32 px-6 md:px-12 lg:px-20 border-t border-border"
@@ -460,10 +448,8 @@ export default function AgenticPage() {
 
       <BookCoverMarquee />
 
-      {/* ── DEVELOPER EXPERIENCE ──────────────────────────────────────────── */}
       <DevExSection />
 
-      {/* ── MARQUEE CAPABILITIES ──────────────────────────────────────────── */}
       <section className="py-0 border-t border-border overflow-hidden select-none">
         <div
           className="flex border-b border-border"
@@ -529,7 +515,6 @@ export default function AgenticPage() {
         </div>
       </section>
 
-      {/* ── LIVE AGENTS ��──────────────────────────────────────────────────── */}
       {/* <section
         id="live"
         className="py-32 px-6 md:px-12 lg:px-20 border-t border-border"
@@ -564,7 +549,6 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 {/* // test commit */}
-      {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
         <img
@@ -639,7 +623,6 @@ export default function AgenticPage() {
 
       <HomeLocationStrip />
 
-      {/* ── FOOTER ────────────────────────────────────────────────────────── */}
       <footer className="py-10 px-6 md:px-12 lg:px-20 border-t border-border">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <span className="font-pixel text-xs tracking-[0.25em] text-muted-foreground/70">

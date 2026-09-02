@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { GitPullRequest, GitMerge, MessageSquare, CheckCircle2, Clock, AlertCircle, Zap, GitCommit, Eye, Terminal } from "lucide-react"
 
-// ── Data ─────────────────────────────────────────────────────────────────────
 
 const ALL_PRS = [
   { id: 145, title: "feat: multi-agent orchestration v2",      agent: "orchestrator",    status: "review",  comments: 2,  additions: 57,  deletions: 4,  branch: "feat/orchestration-v2", time: "Just now" },
@@ -51,7 +50,6 @@ const ACTIVITY_SEED = [
   0, 2, 4, 1, 0, 3, 1, 4, 0, 2, 3, 3, 0, 1, 3, 0, 0, 4, 1, 1, 0, 0, 0, 1, 2, 3, 0, 0, 1, 0, 0, 2, 0, 4, 2,
 ].map(level => ({ level }))
 
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 // Smooth 60fps bar chart — canvas fills full container width
 function MiniBarGraph({ seed }: { seed: number }) {
@@ -362,7 +360,6 @@ function ReviewLine({ item, delay }: { item: typeof REVIEW_LINES[0]; delay: numb
   )
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
 
 
 

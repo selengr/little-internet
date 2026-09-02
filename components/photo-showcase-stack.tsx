@@ -167,7 +167,6 @@ export function PhotoShowcaseStack() {
                 onClick={() => router.push(`/photos?category=${cat.id}`)}
                 className="group relative block w-full text-left bg-[#faf9f7] rounded-2xl border border-black/[0.07] overflow-hidden cursor-pointer"
               >
-                {/* ── MOBILE: image top, fades out at bottom ── */}
                 <div className="relative w-full h-56 pointer-events-none md:hidden overflow-hidden bg-stone-200/60">
                   <AnimatePresence>
                     {photo && (
@@ -187,7 +186,6 @@ export function PhotoShowcaseStack() {
                   {!photo && <div className="absolute inset-0 animate-pulse bg-stone-300/50" />}
                 </div>
 
-                {/* ── DESKTOP: image right, visible mid-card then dissolving before the edge ── */}
                 <div className="hidden md:block absolute inset-y-0 right-0 w-[58%] overflow-hidden pointer-events-none">
                   <AnimatePresence>
                     {photo && (

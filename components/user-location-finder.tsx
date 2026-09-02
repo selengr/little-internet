@@ -285,7 +285,6 @@ export function UserLocationFinder() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-10">
-      {/* ── HERO COMPOSITION ─────────────────────────────────────────────── */}
       <section className="relative min-h-[min(78vh,820px)] flex flex-col">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -441,7 +440,6 @@ export function UserLocationFinder() {
         </div>
       </section>
 
-      {/* ── MAP INSTRUMENT ───────────────────────────────────────────────── */}
       <motion.section
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -608,7 +606,6 @@ export function UserLocationFinder() {
         </div>
       </motion.section>
 
-      {/* ── TELEMETRY STRIP ──────────────────────────────────────────────── */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
