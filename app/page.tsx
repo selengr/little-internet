@@ -25,6 +25,7 @@ import { QuickFileConverter } from "@/components/quick-file-converter";
 import { BookCoverMarquee } from "@/components/book-cover-marquee";
 import { CountriesShowcase } from "@/components/countries-showcase";
 import { SpaceStation } from "@/components/space-station";
+import { SpaceTracker } from "@/components/space-tracker";
 import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
 import { HomeLocationStrip } from "@/components/home-location-strip";
 import { CustomScrollbar } from "@/components/custom-scrollbar";
@@ -450,6 +451,8 @@ export default function AgenticPage() {
       <BookCoverMarquee />
 
       <SpaceStation />
+
+      <SpaceTracker />
 
       <DevExSection />
 
