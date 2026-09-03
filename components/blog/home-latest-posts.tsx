@@ -240,10 +240,10 @@ export function HomeLatestPosts() {
           <div>
             <PixelIcon type="platform" size={40} />
             <div className="mt-4">
-              <Tag>LATEST WRITING</Tag>
+              <Tag>BLOG</Tag>
             </div>
             <RevealText className="mt-5 text-4xl md:text-5xl font-light tracking-tight leading-[1.05]">
-              {'Fresh essays,\nstraight from the blog.'}
+              {'My writing.'}
             </RevealText>
           </div>
           <Link
