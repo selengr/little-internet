@@ -26,33 +26,57 @@ type Phase = "idle" | "in" | "out" | "done"
 
 const SKIP_INTRO_KEY = "skip-home-intro"
 
-function markSkipIntroOnBack() {
-  const path = window.location.pathname
-  if (path === "/" || path === "") {
+// Sticky for the lifetime of the document: once the user has gone back or
+// forward, every later mount of the intro is a client-side navigation.
+let usedHistoryNavigation = false
+
+function markHistoryNavigation() {
+  usedHistoryNavigation = true
+  try {
     sessionStorage.setItem(SKIP_INTRO_KEY, "1")
+  } catch {
+    /* ignore */
   }
 }
 
-if (typeof window !== "undefined") {
-  window.addEventListener("popstate", markSkipIntroOnBack)
+function registerHistoryListeners() {
+  if (typeof window === "undefined") return
+
+  const w = window as Window & { __introHistoryHooked?: boolean }
+  if (w.__introHistoryHooked) return
+  w.__introHistoryHooked = true
+
+  window.addEventListener("popstate", markHistoryNavigation)
   window.addEventListener("pageshow", (e: PageTransitionEvent) => {
-    if (e.persisted) sessionStorage.setItem(SKIP_INTRO_KEY, "1")
+    if (e.persisted) markHistoryNavigation()
   })
 }
+
+registerHistoryListeners()
 
 function shouldSkipIntro(): boolean {
   if (typeof window === "undefined") return false
 
+  if (usedHistoryNavigation) return true
+
   try {
     const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
-    if (nav?.type === "back_forward") return true
+    if (nav?.type === "back_forward") {
+      usedHistoryNavigation = true
+      return true
+    }
   } catch {
     /* ignore */
   }
 
-  if (sessionStorage.getItem(SKIP_INTRO_KEY) === "1") {
-    sessionStorage.removeItem(SKIP_INTRO_KEY)
-    return true
+  try {
+    if (sessionStorage.getItem(SKIP_INTRO_KEY) === "1") {
+      sessionStorage.removeItem(SKIP_INTRO_KEY)
+      usedHistoryNavigation = true
+      return true
+    }
+  } catch {
+    /* ignore */
   }
 
   return false
