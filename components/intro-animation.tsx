@@ -62,19 +62,31 @@ registerHistoryListeners()
 function shouldSkipIntro(): boolean {
   if (typeof window === "undefined") return false
 
+  // Client-side navigation inside the current document.
   if (usedHistoryNavigation || visitedSubroute) return true
 
+  let navType: string | undefined
   try {
-    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
-    if (nav?.type === "back_forward") {
-      usedHistoryNavigation = true
-      return true
-    }
+    navType = (
+      performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
+    )?.type
   } catch {
     /* ignore */
   }
 
+  if (navType === "back_forward") {
+    usedHistoryNavigation = true
+    return true
+  }
+
   try {
+    // A reload or a fresh visit should always play the intro, so drop any
+    // flag left behind by an earlier subroute in this tab.
+    if (navType === "reload" || navType === "navigate") {
+      sessionStorage.removeItem(SKIP_INTRO_KEY)
+      return false
+    }
+
     if (sessionStorage.getItem(SKIP_INTRO_KEY) === "1") {
       sessionStorage.removeItem(SKIP_INTRO_KEY)
       usedHistoryNavigation = true
@@ -182,9 +194,22 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
 
 /** Mount in root layout so back-navigation listeners stay active on subpages. */
 export function HomeIntroSkipListener() {
+  const pathname = usePathname()
+
   useEffect(() => {
     registerHistoryListeners()
   }, [])
+
+  useEffect(() => {
+    if (pathname && pathname !== "/") {
+      visitedSubroute = true
+      try {
+        sessionStorage.setItem(SKIP_INTRO_KEY, "1")
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [pathname])
 
   return null
 }
