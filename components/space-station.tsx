@@ -460,19 +460,34 @@ export function SpaceStation() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-baseline justify-between gap-x-10 gap-y-4 border-t border-white/10 pt-6">
-          {crew?.craft.map(craft => (
-            <div key={craft.name} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-[10px] uppercase tracking-[0.28em] text-white/35">
-                {craft.name}
-              </span>
-              <span className="text-xs font-light text-white/55">
-                {craft.people.join(' · ')}
-              </span>
-            </div>
-          ))}
+        <div className="mt-10 border-t border-white/10 pt-6">
+          <div className="text-[10px] uppercase tracking-[0.28em] text-white/35">
+            Who is up there
+          </div>
 
-      
+          <div className="mt-4 flex flex-wrap gap-x-12 gap-y-5">
+            {crew?.craft.map(craft => (
+              <div key={craft.name}>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm font-light text-white/80">{craft.name}</span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+                    {craft.people.length} aboard
+                  </span>
+                </div>
+
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {craft.people.map(name => (
+                    <span
+                      key={name}
+                      className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-light text-white/60"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
