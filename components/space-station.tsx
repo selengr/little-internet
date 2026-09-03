@@ -475,14 +475,7 @@ export function SpaceStation() {
             </div>
           ))}
 
-          <a
-            href="http://open-notify.org"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="text-[10px] uppercase tracking-[0.28em] text-white/25 transition-colors hover:text-white/50"
-          >
-            {failed && !data ? 'Signal lost' : 'Open Notify'}
-          </a>
+      
         </div>
       </div>
     </section>
