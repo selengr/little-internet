@@ -437,39 +437,13 @@ export function SpaceTracker() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
 
       <div className="relative mx-auto max-w-6xl px-6 py-12 md:px-12 md:py-14 lg:px-20">
-        <div className="grid items-end gap-8 md:grid-cols-12 md:gap-12">
-          <div className="md:col-span-7">
-            <span className="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-sky-200/60">
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-70" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-sky-400" />
-              </span>
-              Live from orbit
-            </span>
-
-            <h2 className="mt-5 text-4xl font-light leading-[1.05] tracking-tight text-sky-50 md:text-5xl">
-              {crew ? crew.count : '—'} people are
-              <br />
-              off the planet
-              <br />
-              right now.
-            </h2>
-          </div>
-
-          <div className="flex flex-wrap gap-x-10 gap-y-5 md:col-span-5">
-            <Stat value="420 km" label="Altitude" />
-            <Stat value="27,600" label="km / hour" />
-            <Stat value="16" label="Sunrises a day" />
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.24em] text-sky-200/45">
+        <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.24em] text-sky-200/45">
           <span className="flex items-center gap-2">
             <span className="relative flex size-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-70" />
               <span className="relative inline-flex size-1.5 rounded-full bg-sky-400" />
             </span>
-            Tracking · ISS Zarya
+            Live from orbit
           </span>
           <span className="flex items-center gap-5">
             <span>
@@ -484,15 +458,30 @@ export function SpaceTracker() {
           </span>
         </div>
 
-        <div className="mt-5 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]">
+        <h2 className="mt-8 max-w-3xl text-left text-[2.75rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-5xl md:text-6xl">
+          {crew ? crew.count : '—'} people are
+          <br />
+          off the planet
+          <br />
+          right now.
+        </h2>
+
+        <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]">
           <div className="aspect-[168/64] w-full">
             <TrackerMap position={position} active={active} />
           </div>
         </div>
 
-        <p className="mt-5 text-right text-xs font-light leading-relaxed text-sky-200/40">
-          Sixteen sunrises a day. You get one. Nobody said it was fair.
-        </p>
+        <div className="mt-8 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+          <div className="flex flex-wrap gap-x-12 gap-y-5">
+            <Stat value="420 km" label="Altitude" />
+            <Stat value="27,600" label="km / hour" />
+            <Stat value="16" label="Sunrises a day" />
+          </div>
+          <p className="max-w-xs text-xs font-light leading-relaxed text-sky-200/40">
+            Sixteen sunrises a day. You get one. Nobody said it was fair.
+          </p>
+        </div>
       </div>
     </section>
   )
