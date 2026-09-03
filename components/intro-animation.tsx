@@ -177,5 +177,9 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
 
 /** Mount in root layout so back-navigation listeners stay active on subpages. */
 export function HomeIntroSkipListener() {
+  useEffect(() => {
+    registerHistoryListeners()
+  }, [])
+
   return null
 }
