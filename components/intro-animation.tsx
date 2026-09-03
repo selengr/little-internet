@@ -5,43 +5,35 @@ import { usePathname } from "next/navigation"
 
 const LETTERS = ["R", "E", "Z", "A", "K", "A", "R", "B", "K", "H" , "S", "H"]
 
-const LETTER_IN_STAGGER  = 90    // ms between each letter appearing
-const LETTER_IN_DUR      = 700   // duration of each letter appear transition
-const HOLD_DURATION      = 300   // hold fully visible before exit
+const LETTER_IN_STAGGER  = 90
+const LETTER_IN_DUR      = 700
+const HOLD_DURATION      = 300
 const LETTERS_IN_TOTAL   = LETTER_IN_STAGGER * (LETTERS.length - 1) + LETTER_IN_DUR + HOLD_DURATION
 
-const LETTER_OUT_STAGGER = 55    // ms between each letter disappearing
-const LETTER_OUT_DUR     = 450   // duration of each letter fade out
+const LETTER_OUT_STAGGER = 55
+const LETTER_OUT_DUR     = 450
 const LETTERS_OUT_TOTAL  = LETTER_OUT_STAGGER * (LETTERS.length - 1) + LETTER_OUT_DUR
 
 const CURTAIN_DELAY      = LETTERS_IN_TOTAL + 100
-const CURTAIN_DURATION   = 1300  // matches the CSS transition on the curtain div
+const CURTAIN_DURATION   = 1300
 const ANIM_TOTAL         = CURTAIN_DELAY + LETTERS_OUT_TOTAL + 1400
 
-// Exported: moment the curtain finishes retracting — when the bg is fully visible
 export const INTRO_DURATION_MS = CURTAIN_DELAY + CURTAIN_DURATION
-// Exported: ms before curtain fully done to start hero animations (overlap for smoothness)
 export const HERO_REVEAL_MS = CURTAIN_DELAY + CURTAIN_DURATION - 150
 
 type Phase = "idle" | "in" | "out" | "done"
 
 const SKIP_INTRO_KEY = "skip-home-intro"
 
-// Sticky for the lifetime of the document: once the user has gone back or
-// forward, every later mount of the intro is a client-side navigation.
 let usedHistoryNavigation = false
 
-// Set as soon as a subroute is seen. Returning home after that — browser back
-// button or an in-app "Back home" link — must not replay the intro.
 let visitedSubroute = false
 
 function markHistoryNavigation() {
   usedHistoryNavigation = true
   try {
     sessionStorage.setItem(SKIP_INTRO_KEY, "1")
-  } catch {
-    /* ignore */
-  }
+  } catch {}
 }
 
 function registerHistoryListeners() {
@@ -62,7 +54,6 @@ registerHistoryListeners()
 function shouldSkipIntro(): boolean {
   if (typeof window === "undefined") return false
 
-  // Client-side navigation inside the current document.
   if (usedHistoryNavigation || visitedSubroute) return true
 
   let navType: string | undefined
@@ -70,9 +61,7 @@ function shouldSkipIntro(): boolean {
     navType = (
       performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
     )?.type
-  } catch {
-    /* ignore */
-  }
+  } catch {}
 
   if (navType === "back_forward") {
     usedHistoryNavigation = true
@@ -80,8 +69,6 @@ function shouldSkipIntro(): boolean {
   }
 
   try {
-    // A reload or a fresh visit should always play the intro, so drop any
-    // flag left behind by an earlier subroute in this tab.
     if (navType === "reload" || navType === "navigate") {
       sessionStorage.removeItem(SKIP_INTRO_KEY)
       return false
@@ -92,9 +79,7 @@ function shouldSkipIntro(): boolean {
       usedHistoryNavigation = true
       return true
     }
-  } catch {
-    /* ignore */
-  }
+  } catch {}
 
   return false
 }
@@ -110,7 +95,6 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
       return
     }
 
-    // Tiny delay so the browser has painted before we start transitioning
     const t0 = setTimeout(() => setPhase("in"), 80)
     const t1 = setTimeout(() => setPhase("out"), LETTERS_IN_TOTAL)
     const t2 = setTimeout(() => setCurtainUp(true), CURTAIN_DELAY)
@@ -131,7 +115,6 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
   return (
     <div className="fixed inset-0 z-[100] pointer-events-none" aria-hidden="true">
 
-      {/* Gradient curtain — retracts upward, revealing mountains from bottom */}
       <div
         className="absolute inset-x-0 top-0"
         style={{
@@ -141,14 +124,12 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
         }}
       />
 
-      {/* AGENTIC letters */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex" style={{ gap: "0.06em" }}>
           {LETTERS.map((letter, i) => {
             const inDelay  = i * LETTER_IN_STAGGER
             const outDelay = i * LETTER_OUT_STAGGER
 
-            // idle → invisible starting position
             const isIdle = phase === "idle"
             const isIn   = phase === "in"
             const isOut  = phase === "out"
@@ -192,7 +173,6 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
   )
 }
 
-/** Mount in root layout so back-navigation listeners stay active on subpages. */
 export function HomeIntroSkipListener() {
   const pathname = usePathname()
 
@@ -205,9 +185,7 @@ export function HomeIntroSkipListener() {
       visitedSubroute = true
       try {
         sessionStorage.setItem(SKIP_INTRO_KEY, "1")
-      } catch {
-        /* ignore */
-      }
+      } catch {}
     }
   }, [pathname])
 
