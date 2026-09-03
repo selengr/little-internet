@@ -6,7 +6,7 @@ const ABSOLUTE: Intl.DateTimeFormatOptions = {
 
 const relativeFormatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
 
-/** Blog listing dates: relative within 30 days, absolute after that. */
+/** Blog dates: relative within 60 days, absolute after that. */
 export function formatBlogDate(iso: string | null): string | null {
   if (!iso) return null
   try {
@@ -16,7 +16,7 @@ export function formatBlogDate(iso: string | null): string | null {
     const diffMs = Date.now() - date.getTime()
     if (diffMs >= 0) {
       const diffDays = Math.floor(diffMs / 86_400_000)
-      if (diffDays <= 30) {
+      if (diffDays <= 60) {
         if (diffDays > 0) return relativeFormatter.format(-diffDays, 'day')
         const diffHours = Math.floor(diffMs / 3_600_000)
         if (diffHours > 0) return relativeFormatter.format(-diffHours, 'hour')

@@ -8,6 +8,7 @@ import { ViewCounter } from '@/components/blog/view-counter'
 import { CustomScrollbar } from '@/components/custom-scrollbar'
 import { getPostBySlug, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
+import { formatBlogDate } from '@/lib/blog-date'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,19 +40,6 @@ export async function generateStaticParams() {
   }
 }
 
-function formatDate(iso: string | null) {
-  if (!iso) return null
-  try {
-    return new Intl.DateTimeFormat('en', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
-
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   let post
@@ -62,7 +50,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
   if (!post || post.status !== 'Published') notFound()
 
-  const date = formatDate(post.date)
+  const date = formatBlogDate(post.date)
   const banner = post.bannerImage || '/images/banners/https___west.avif'
   const author = post.authorImage || BLOG_AUTHOR_IMAGE
 

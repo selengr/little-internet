@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import type { BlogPostMeta } from '@/types/blog'
 import { BLOG_AUTHOR_IMAGE, resolveAuthorImage } from '@/lib/blog-author'
+import { formatBlogDate } from '@/lib/blog-date'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import { PixelIcon } from '@/components/pixel-icon'
 import { RevealText } from '@/components/reveal-text'
@@ -20,17 +21,6 @@ function Tag({ children }: { children: ReactNode }) {
       {children}
     </span>
   )
-}
-
-function formatDate(iso: string | null) {
-  if (!iso) return null
-  try {
-    return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(
-      new Date(iso),
-    )
-  } catch {
-    return iso
-  }
 }
 
 function postBanner(post: BlogPostMeta) {
@@ -57,7 +47,7 @@ const item = {
 
 function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
   const banner = postBanner(post)
-  const date = formatDate(post.date)
+  const date = formatBlogDate(post.date)
   const authorImage = resolveAuthorImage(post.authorImage)
 
   return (
@@ -135,7 +125,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
 
 function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
   const banner = postBanner(post)
-  const date = formatDate(post.date)
+  const date = formatBlogDate(post.date)
 
   return (
     <motion.article variants={item}>
