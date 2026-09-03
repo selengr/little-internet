@@ -238,7 +238,7 @@ export function HomeLatestPosts() {
       <div className="relative mx-auto max-w-6xl">
         <div className="mb-14 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <PixelIcon type="platform" size={40} />
+            <PixelIcon type="writing" size={40} />
             <div className="mt-4">
               <Tag>BLOG</Tag>
             </div>

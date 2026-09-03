@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react"
 // Each icon is a 12×12 pixel grid animated at 60fps with RAF
 // Colors are black at varying opacity to match the light theme
 
-type IconType = "platform" | "agents" | "workflow" | "integrations" | "pricing"
+type IconType = "platform" | "agents" | "workflow" | "integrations" | "pricing" | "writing"
 
 interface PixelIconProps {
   type: IconType
@@ -225,6 +225,61 @@ function drawPricing(ctx: CanvasRenderingContext2D, W: number, t: number) {
   })
 }
 
+// A paragraph that types itself out, then clears and starts over
+function drawWriting(ctx: CanvasRenderingContext2D, W: number, t: number) {
+  const ps      = Math.max(2, Math.floor(W / 12))
+  const charW   = ps + 1
+  const rowGap  = ps * 3
+  const lines   = [9, 7, 8, 5]  // characters per line
+  const longest = Math.max(...lines)
+
+  const blockH = (lines.length - 1) * rowGap + ps
+  const offX   = Math.floor((W - longest * charW) / 2)
+  const offY   = Math.floor((W - blockH) / 2)
+
+  const CHAR_MS   = 90
+  const totalChars = lines.reduce((a, b) => a + b, 0)
+  const cycle      = (totalChars + 10) * CHAR_MS  // trailing pause before restart
+  const typed      = Math.floor((t % cycle) / CHAR_MS)
+
+  let remaining = typed
+  const visible = lines.map((len) => {
+    const v = Math.min(len, Math.max(0, remaining))
+    remaining -= len
+    return v
+  })
+
+  // Caret sits on the first unfinished line, or parks at the end when done
+  let caretRow = lines.length - 1
+  let caretCol = lines[caretRow]
+  for (let i = 0; i < lines.length; i++) {
+    if (visible[i] < lines[i]) {
+      caretRow = i
+      caretCol = visible[i]
+      break
+    }
+  }
+
+  lines.forEach((len, r) => {
+    const y = offY + r * rowGap
+    for (let c = 0; c < len; c++) {
+      const isTyped = c < visible[r]
+      const alpha = isTyped ? 0.3 + 0.45 * (1 - r / lines.length) : 0.07
+      ctx.fillStyle = `rgba(0,0,0,${alpha})`
+      ctx.fillRect(offX + c * charW, y, ps, ps)
+    }
+  })
+
+  const blink = Math.sin(t * 0.008) > -0.2 ? 0.9 : 0.12
+  ctx.fillStyle = `rgba(0,0,0,${blink})`
+  ctx.fillRect(
+    offX + caretCol * charW,
+    offY + caretRow * rowGap - Math.floor(ps * 0.4),
+    Math.max(1, Math.floor(ps * 0.6)),
+    ps * 2,
+  )
+}
+
 export function PixelIcon({ type, size = 40 }: PixelIconProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef    = useRef<number>(0)
@@ -250,6 +305,7 @@ export function PixelIcon({ type, size = 40 }: PixelIconProps) {
         case "workflow":      drawWorkflow(ctx, size, t);      break
         case "integrations":  drawIntegrations(ctx, size, t);  break
         case "pricing":       drawPricing(ctx, size, t);       break
+        case "writing":       drawWriting(ctx, size, t);       break
       }
 
       rafRef.current = requestAnimationFrame(draw)
