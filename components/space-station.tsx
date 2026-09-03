@@ -409,7 +409,7 @@ export function SpaceStation() {
     <section
       ref={sectionRef}
       id="orbit"
-      className="relative overflow-hidden border-t border-border bg-[#05070e] text-white"
+      className="relative overflow-hidden border-y border-white/10 bg-[#05070e] text-white"
     >
       <div className="pointer-events-none absolute -left-40 top-[-30%] h-[420px] w-[420px] rounded-full bg-sky-500/[0.07] blur-3xl" />
       <div className="pointer-events-none absolute -right-32 bottom-[-40%] h-[420px] w-[420px] rounded-full bg-indigo-500/[0.08] blur-3xl" />
@@ -463,7 +463,7 @@ export function SpaceStation() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-wrap items-baseline justify-between gap-x-10 gap-y-4 border-t border-white/10 pt-6">
+        <div className="mt-10 flex flex-wrap items-baseline justify-between gap-x-10 gap-y-4 border-t border-white/10 pt-6">
           {crew?.craft.map(craft => (
             <div key={craft.name} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-[10px] uppercase tracking-[0.28em] text-white/35">
