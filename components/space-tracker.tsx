@@ -164,14 +164,12 @@ function buildBaseMap(w: number, h: number, dpr: number) {
           ),
         ) / DEG
 
-      const daylight = Math.max(0, Math.min(1, (elevation + 6) / 12))
+      const daylight = Math.max(0, Math.min(1, (elevation + 8) / 16))
 
-      let alpha: number
-      if (isLand) alpha = 0.14 + daylight * 0.34
-      else alpha = 0.035 + daylight * 0.045
+      const alpha = isLand ? 0.1 + daylight * 0.52 : 0.03 + daylight * 0.075
 
       ctx.fillStyle = isLand
-        ? `rgba(${Math.round(150 + daylight * 60)},${Math.round(190 + daylight * 45)},255,${alpha})`
+        ? `rgba(${Math.round(132 + daylight * 92)},${Math.round(180 + daylight * 62)},255,${alpha})`
         : `rgba(120,150,200,${alpha})`
 
       ctx.beginPath()
@@ -273,15 +271,15 @@ function TrackerMap({ position, active }: { position: Position | null; active: b
       for (let a = 0; a <= 200; a += 2) ahead.push(trackPoint(p, heading, a))
 
       ctx.save()
-      ctx.lineWidth = 1
-      ctx.setLineDash([3, 4])
-      ctx.strokeStyle = 'rgba(125,211,252,0.28)'
+      ctx.lineWidth = 1.2
+      ctx.setLineDash([4, 4])
+      ctx.strokeStyle = 'rgba(125,211,252,0.55)'
       drawPolyline(ctx, ahead, w, h)
       ctx.restore()
 
       ctx.save()
-      ctx.lineWidth = 1.6
-      ctx.strokeStyle = 'rgba(186,230,253,0.75)'
+      ctx.lineWidth = 1.8
+      ctx.strokeStyle = 'rgba(224,242,254,0.9)'
       drawPolyline(ctx, past, w, h)
       ctx.restore()
 
