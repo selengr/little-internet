@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 
 const LETTERS = ["R", "E", "Z", "A", "K", "A", "R", "B", "K", "H" , "S", "H"]
 
@@ -30,6 +31,10 @@ const SKIP_INTRO_KEY = "skip-home-intro"
 // forward, every later mount of the intro is a client-side navigation.
 let usedHistoryNavigation = false
 
+// Set as soon as a subroute is seen. Returning home after that — browser back
+// button or an in-app "Back home" link — must not replay the intro.
+let visitedSubroute = false
+
 function markHistoryNavigation() {
   usedHistoryNavigation = true
   try {
@@ -57,7 +62,7 @@ registerHistoryListeners()
 function shouldSkipIntro(): boolean {
   if (typeof window === "undefined") return false
 
-  if (usedHistoryNavigation) return true
+  if (usedHistoryNavigation || visitedSubroute) return true
 
   try {
     const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
