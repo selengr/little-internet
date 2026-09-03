@@ -24,6 +24,7 @@ import { QuickQrMaker } from "@/components/quick-qr-maker";
 import { QuickFileConverter } from "@/components/quick-file-converter";
 import { BookCoverMarquee } from "@/components/book-cover-marquee";
 import { CountriesShowcase } from "@/components/countries-showcase";
+import { SpaceStation } from "@/components/space-station";
 import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
 import { HomeLocationStrip } from "@/components/home-location-strip";
 import { CustomScrollbar } from "@/components/custom-scrollbar";
@@ -447,8 +448,8 @@ export default function AgenticPage() {
       </section> */}
 
       <BookCoverMarquee />
-      
-{/* here  */}
+
+      <SpaceStation />
 
       <DevExSection />
 
