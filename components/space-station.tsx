@@ -425,15 +425,12 @@ export function SpaceStation() {
               Live from orbit
             </span>
 
-            <h2 className="mt-5 text-4xl font-light leading-[1.05] tracking-tight md:text-5xl">
-              {crew ? crew.count : '—'} people are
-              <br />
-              off the planet.
+            <h2 className="mt-5 max-w-[9ch] text-balance text-4xl font-light leading-[1.05] tracking-tight md:text-5xl">
+              {crew ? crew.count : '—'} people are off the planet right now.
             </h2>
 
             <p className="mt-4 max-w-sm text-sm font-light leading-relaxed text-white/45">
-              The station laps the Earth every 90 minutes at 28,000 km/h. This is
-              where it is right now.
+              The station laps the Earth every 90 minutes at 28,000 km/h.
             </p>
 
             <div className="mt-8 flex gap-10">
