@@ -553,14 +553,14 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section className="relative pt-32 pb-12 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
+      <section className="relative pt-3 pb-6 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
         <img
           src="/images/banners/https___west.avif"
           alt=""
           aria-hidden="true"
           className="absolute bottom-0 left-0 w-full object-cover object-bottom pointer-events-none select-none"
-          style={{ opacity: 0.85 }}
+          style={{ opacity: 0.90 }}
         />
         {/* Progressive blur from bottom — blends into site bg */}
         <div
