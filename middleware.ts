@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { readSessionFromRequest, SESSION_COOKIE } from '@/lib/auth-session'
+import { readSessionFromRequest, SESSION_COOKIE } from '@/lib/auth-token'
 
 const PROTECTED_PREFIXES = ['/account']
 
