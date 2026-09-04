@@ -588,7 +588,7 @@ export default function AgenticPage() {
             <br />
             Something new lands daily.
           </h2>
-          <div className="mb-10 flex justify-center">
+          <div className="flex justify-center">
             <YearCalendar />
           </div>
           {/* {!submitted ? (
