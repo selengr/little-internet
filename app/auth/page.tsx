@@ -1,12 +1,15 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthCard } from "@/components/auth/auth-card";
 
-export default function AuthPage() {
+function AuthPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -15,8 +18,15 @@ export default function AuthPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const { toast } = useToast();
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const nextPath = searchParams.get("next") || "/";
+
+  const validateEmail = (value: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  const goAfterAuth = () => {
+    router.replace(nextPath.startsWith("/") ? nextPath : "/");
+    router.refresh();
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -31,6 +41,15 @@ export default function AuthPage() {
       return;
     }
 
+    if (!password) {
+      toast({
+        title: "Password required",
+        description: "Please enter your password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -39,35 +58,56 @@ export default function AuthPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           email,
           password,
+          rememberMe,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || "Could not sign in");
       }
-      setIsLoading(false);
+
       toast({
         title: "Signed in successfully!",
-        description: "Welcome back to your account.",
+        description: `Welcome back${data.user?.firstName ? `, ${data.user.firstName}` : ""}.`,
       });
-    } catch (error : any) {
-      setIsLoading(false);
+      goAfterAuth();
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
-        variant: "default",
+        description: error instanceof Error ? error.message : "Could not sign in",
+        variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!firstName.trim() || !lastName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your first and last name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (password.length < 6) {
       toast({
@@ -77,6 +117,7 @@ export default function AuthPage() {
       });
       return;
     }
+
     setIsLoading(true);
 
     try {
@@ -85,45 +126,49 @@ export default function AuthPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           firstName,
           lastName,
           email,
           password,
+          rememberMe,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || "Could not create account");
       }
-      setIsLoading(false);
+
       toast({
         title: "Account created!",
-        description: "Your account has been created successfully.",
+        description: "You are signed in and ready to go.",
       });
-    } catch (error : any) {
-      setIsLoading(false);
+      goAfterAuth();
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message,
-        variant: "default",
+        description: error instanceof Error ? error.message : "Could not create account",
+        variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider: string) => {
     toast({
       title: `${provider} login`,
-      description: `Redirecting to ${provider}...`,
+      description: `${provider} login is not available yet.`,
     });
   };
 
   const handleForgotPassword = () => {
     toast({
-      title: "Reset link sent",
-      description: "Check your email for password reset instructions.",
+      title: "Coming soon",
+      description: "Password reset will be available after the database is connected.",
     });
   };
 
@@ -156,5 +201,19 @@ export default function AuthPage() {
       />
       <Toaster />
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-black text-white/60">
+          Loading…
+        </div>
+      }
+    >
+      <AuthPageContent />
+    </Suspense>
   );
 }
