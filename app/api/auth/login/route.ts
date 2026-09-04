@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       user: publicUser,
     })
 
-    return attachSessionCookie(response, publicUser, rememberMe)
+    return await attachSessionCookie(response, publicUser, rememberMe)
   } catch (error) {
     console.error('[auth/login]', error)
     return NextResponse.json({ message: 'Could not sign in' }, { status: 500 })
