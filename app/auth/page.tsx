@@ -173,32 +173,35 @@ function AuthPageContent() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        backgroundImage: "url('/bg.jpeg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <AuthCard
-        isLoading={isLoading}
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        firstName={firstName}
-        setFirstName={setFirstName}
-        lastName={lastName}
-        setLastName={setLastName}
-        rememberMe={rememberMe}
-        setRememberMe={setRememberMe}
-        onSignIn={handleSignIn}
-        onSignUp={handleSignUp}
-        onSocialLogin={handleSocialLogin}
-        onForgotPassword={handleForgotPassword}
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden p-4">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/bg.jpeg"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       />
+      <div className="pointer-events-none absolute inset-0 bg-black/35" />
+
+      <div className="relative z-10 w-full">
+        <AuthCard
+          isLoading={isLoading}
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          firstName={firstName}
+          setFirstName={setFirstName}
+          lastName={lastName}
+          setLastName={setLastName}
+          rememberMe={rememberMe}
+          setRememberMe={setRememberMe}
+          onSignIn={handleSignIn}
+          onSignUp={handleSignUp}
+          onSocialLogin={handleSocialLogin}
+          onForgotPassword={handleForgotPassword}
+        />
+      </div>
       <Toaster />
     </div>
   );
