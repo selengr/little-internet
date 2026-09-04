@@ -553,10 +553,6 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section id="year" className="border-t border-border">
-        <YearCalendar />
-      </section>
-
       <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
         <img
@@ -586,7 +582,7 @@ export default function AgenticPage() {
           }}
         />
         <div className="absolute inset-0 pointer-events-none hidden dark:block bg-gradient-to-t from-background from-0% via-background/55 via-35% to-transparent to-55%" />
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
+        <div className="relative z-10 mx-auto max-w-2xl text-center">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05] mb-6">
             Come back tomorrow.
             <br />
@@ -596,36 +592,8 @@ export default function AgenticPage() {
             Markets, poems, jokes, tools, and more — this site gets fresh updates
             every day.
           </p>
-          {/* {!submitted ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (email) setSubmitted(true);
-              }}
-              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-ring transition-colors"
-              />
-              <button
-                type="submit"
-                className="px-8 py-3 bg-primary text-primary-foreground text-sm rounded-xl hover:bg-primary/90 transition-colors tracking-widest font-medium"
-              >
-                NOTIFY ME
-              </button>
-            </form>
-          ) : (
-        
-            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-emerald-600/20 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-500/20 dark:text-emerald-300 text-emerald-700 text-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {"You're on the list. See you tomorrow."}
-            </div>
-          )} */}
+
+          <YearCalendar className="bg-transparent dark:bg-transparent px-0 py-0" />
         </div>
       </section>
 
