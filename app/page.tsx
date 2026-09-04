@@ -25,6 +25,7 @@ import { QuickFileConverter } from "@/components/quick-file-converter";
 import { BookCoverMarquee } from "@/components/book-cover-marquee";
 import { CountriesShowcase } from "@/components/countries-showcase";
 import { SpaceTracker } from "@/components/space-tracker";
+import { YearCalendar } from "@/components/year-calendar";
 import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
 import { HomeLocationStrip } from "@/components/home-location-strip";
 import { CustomScrollbar } from "@/components/custom-scrollbar";
@@ -551,7 +552,11 @@ export default function AgenticPage() {
       </section> */}
 
       <CountriesShowcase />
-{/* // test commit */}
+
+      <section id="year" className="border-t border-border">
+        <YearCalendar />
+      </section>
+
       <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
         <img
