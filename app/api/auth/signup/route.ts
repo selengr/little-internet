@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       user: publicUser,
     })
 
-    return attachSessionCookie(response, publicUser, rememberMe)
+    return await attachSessionCookie(response, publicUser, rememberMe)
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EXISTS') {
       return NextResponse.json({ message: 'User already exists' }, { status: 400 })
