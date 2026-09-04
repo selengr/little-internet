@@ -1,5 +1,9 @@
 import mongoose from "mongoose"
 
+// NOTE: Auth currently uses the file store in lib/users-file.ts.
+// Keep this helper for when Mongo is running again; login/signup routes
+// still contain the commented Mongo path ready to re-enable.
+
 type MongooseCache = {
   conn: typeof mongoose | null
   promise: Promise<typeof mongoose> | null
