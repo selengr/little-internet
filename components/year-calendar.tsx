@@ -101,12 +101,7 @@ export function YearCalendar({ className }: { className?: string }) {
   const dynamicShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.4), ${shadowX * 0.5}px ${shadowY * 0.5}px ${shadowBlur * 0.6}px rgba(0, 0, 0, 0.25)`
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-center px-6 py-20 md:py-28 bg-[rgba(240,238,233,1)] dark:bg-[#0a0a0b]",
-        className,
-      )}
-    >
+    <div className={cn("flex items-center justify-center", className)}>
       <Tilt
         rotationFactor={8}
         springOptions={{ stiffness: 300, damping: 20 }}
