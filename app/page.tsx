@@ -553,14 +553,14 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section className="relative overflow-hidden border-t border-border px-6 pt-16 pb-20 md:px-12 md:pt-24 md:pb-28 lg:px-20">
-        {/* Banner image — same as hero; must fill the section on mobile */}
+      <section className="relative overflow-hidden border-t border-border px-6 py-24 md:px-12 md:py-32 lg:px-20">
+        {/* Banner — bottom-anchored like before so mountains read on mobile */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/banners/https___west.avif"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[center_70%] md:object-bottom"
+          className="pointer-events-none absolute bottom-0 left-0 h-[42%] w-full select-none object-cover object-bottom sm:h-[50%] md:h-[62%]"
           style={{ opacity: 0.85 }}
         />
         {/* Progressive blur from bottom — blends into site bg */}
@@ -574,15 +574,15 @@ export default function AgenticPage() {
             WebkitBackdropFilter: "blur(18px)",
           }}
         />
-        {/* Colour fade — lighter on mobile so the mountains still read */}
+        {/* Colour fade from bottom to site bg — light mode */}
         <div
           className="pointer-events-none absolute inset-0 dark:hidden"
           style={{
             background:
-              "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.75) 12%, rgba(245,244,240,0.35) 28%, transparent 52%)",
+              "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.92) 18%, rgba(245,244,240,0.55) 35%, transparent 55%)",
           }}
         />
-        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-background from-0% via-background/40 via-30% to-transparent to-55% dark:block" />
+        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-background from-0% via-background/55 via-35% to-transparent to-55% dark:block" />
         <div className="relative z-10 mx-auto max-w-2xl text-center">
           <h2 className="mb-6 text-4xl font-light leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
             Come back tomorrow.
