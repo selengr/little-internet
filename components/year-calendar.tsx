@@ -151,7 +151,7 @@ export function YearCalendar({ className }: { className?: string }) {
             }}
           >
             <div
-              className="w-[360px] max-w-[calc(100vw-3rem)] px-4 py-6 bg-foreground flex flex-col my-0 gap-4 border-0 rounded-xl transition-shadow duration-200"
+              className="w-[360px] max-w-[calc(100vw-3rem)] px-4 py-6 bg-foreground flex flex-col my-0 gap-4 border-0 rounded-xl transition-shadow duration-200 overflow-hidden"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
@@ -218,48 +218,48 @@ export function YearCalendar({ className }: { className?: string }) {
             </div>
 
             <div
-              className="absolute inset-0 w-[360px] max-w-[calc(100vw-3rem)] px-5 py-5 bg-foreground flex flex-col justify-between gap-4 border-0 rounded-xl"
+              className="absolute inset-0 px-5 py-5 bg-foreground flex flex-col justify-between gap-3 border-0 rounded-xl overflow-hidden"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
                 transform: "rotateY(180deg)",
               }}
             >
-              <div className="space-y-3 text-left">
+              <div className="space-y-3 text-left min-w-0">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-background/45 font-mono">
                   Today’s move
                 </p>
                 <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
 
                 <div className="grid grid-cols-3 gap-2 pt-1">
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2">
+                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
                     <div className="font-mono text-lg tabular-nums text-background leading-none">
                       {yearProgress}%
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45">
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
                       of {currentYear}
                     </div>
                   </div>
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2">
+                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
                     <div className="font-mono text-lg tabular-nums text-background leading-none">
                       {fridaysLeft}
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45">
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
                       Fridays left
                     </div>
                   </div>
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2">
+                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
                     <div className="font-mono text-lg tabular-nums text-background leading-none">
                       {weekendsLeft}
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45">
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
                       Saturdays left
                     </div>
                   </div>
                 </div>
               </div>
 
-              <blockquote className="border-l border-background/25 pl-3 text-left">
+              <blockquote className="border-l border-background/25 pl-3 text-left min-w-0">
                 <p className="text-background/80 text-[13px] leading-relaxed font-light italic">
                   “{quote.text}”
                 </p>
@@ -268,11 +268,11 @@ export function YearCalendar({ className }: { className?: string }) {
                 </footer>
               </blockquote>
 
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-background/40 font-mono">
-                  Wave color
+              <div className="flex items-center justify-between gap-3 min-w-0">
+                <span className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-background/40 font-mono">
+                  Wave
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-end gap-2 shrink-0">
                   {WAVE_PRESETS.map(preset => {
                     const active = waveColor === preset.color
                     return (
@@ -286,10 +286,10 @@ export function YearCalendar({ className }: { className?: string }) {
                           setWaveColor(preset.color)
                         }}
                         className={cn(
-                          "size-7 rounded-full border transition-transform active:scale-95",
+                          "size-6 rounded-full border transition-shadow",
                           active
-                            ? "border-background scale-110 ring-2 ring-background/40"
-                            : "border-background/20 hover:scale-105",
+                            ? "border-background ring-2 ring-inset ring-background/50"
+                            : "border-background/25",
                         )}
                         style={{ backgroundColor: preset.color }}
                       />
