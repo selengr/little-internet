@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Tilt } from "@/components/ui/tilt"
 import { cn } from "@/lib/utils"
 
@@ -70,6 +70,30 @@ export function YearCalendar({ className }: { className?: string }) {
   const pointerStart = useRef<{ x: number; y: number } | null>(null)
   const moved = useRef(false)
   const painting = useRef(false)
+  const waveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearWaveLater = (ms = 2500) => {
+    if (waveTimeout.current) clearTimeout(waveTimeout.current)
+    waveTimeout.current = setTimeout(() => {
+      setPointerPos(null)
+      setIsActive(false)
+      waveTimeout.current = null
+    }, ms)
+  }
+
+  const keepWaveAlive = () => {
+    if (waveTimeout.current) {
+      clearTimeout(waveTimeout.current)
+      waveTimeout.current = null
+    }
+    setIsActive(true)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (waveTimeout.current) clearTimeout(waveTimeout.current)
+    }
+  }, [])
 
   const isLeapYear = (year: number) => {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
@@ -101,7 +125,7 @@ export function YearCalendar({ className }: { className?: string }) {
     e.stopPropagation()
     painting.current = true
     moved.current = true // painting should not flip the card
-    setIsActive(true)
+    keepWaveAlive()
     e.currentTarget.setPointerCapture(e.pointerId)
     setPosFromClient(e.clientX, e.clientY, e.currentTarget)
   }
@@ -111,7 +135,7 @@ export function YearCalendar({ className }: { className?: string }) {
     if (!painting.current && e.pointerType === "touch") return
     if (e.pointerType === "mouse" || painting.current) {
       setPosFromClient(e.clientX, e.clientY, e.currentTarget)
-      setIsActive(true)
+      keepWaveAlive()
     }
   }
 
@@ -123,18 +147,13 @@ export function YearCalendar({ className }: { className?: string }) {
     } catch {
       /* already released */
     }
-    if (e.pointerType === "touch") {
-      window.setTimeout(() => {
-        setPointerPos(null)
-        setIsActive(false)
-      }, 180)
-    }
+    // Keep remaining-day wave going briefly after one tap / finger lift
+    clearWaveLater(e.pointerType === "touch" ? 2800 : 1200)
   }
 
   const handleGridPointerLeave = () => {
     if (!painting.current) {
-      setPointerPos(null)
-      setIsActive(false)
+      clearWaveLater(800)
     }
   }
 
