@@ -554,13 +554,11 @@ export default function AgenticPage() {
       <CountriesShowcase />
 
       <section className="relative overflow-hidden border-t border-border px-6 py-24 md:px-12 md:py-32 lg:px-20">
-        {/* Banner — bottom-anchored like before so mountains read on mobile */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/banners/https___west.avif"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 h-[42%] w-full select-none object-cover object-bottom sm:h-[50%] md:h-[62%]"
+          className="absolute bottom-0 left-0 w-full object-cover object-bottom pointer-events-none select-none"
           style={{ opacity: 0.85 }}
         />
         {/* Progressive blur from bottom — blends into site bg */}
