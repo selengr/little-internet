@@ -138,29 +138,31 @@ export function YearCalendar({ className }: { className?: string }) {
         onMouseEnter={handleCardMouseEnter}
       >
         <div
-          className="relative cursor-pointer"
+          className="relative w-[360px] max-w-[calc(100vw-3rem)] cursor-pointer"
           style={{ perspective: "1000px" }}
           onClick={handleCardClick}
         >
           <div
-            className="relative transition-transform duration-700 ease-in-out"
+            className="relative min-h-[320px] transition-transform duration-700 ease-in-out"
             style={{
               transformStyle: "preserve-3d",
               transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
             }}
           >
+            {/* Front */}
             <div
-              className="w-[360px] max-w-[calc(100vw-3rem)] px-4 py-6 bg-foreground flex flex-col my-0 gap-4 border-0 rounded-xl transition-shadow duration-200 overflow-hidden"
+              className="absolute inset-0 flex flex-col gap-4 overflow-hidden rounded-xl bg-foreground px-4 py-5"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 ["--wave-color" as string]: waveColor,
               }}
               onMouseEnter={handleCardMouseEnter}
               onMouseLeave={handleCardMouseLeave}
             >
               <div
-                className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-2"
+                className="grid flex-1 content-start grid-cols-[repeat(30,minmax(0,1fr))] gap-2"
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
@@ -195,7 +197,7 @@ export function YearCalendar({ className }: { className?: string }) {
                   return (
                     <div
                       key={i}
-                      className={`w-1 h-1 rounded-full transition-all duration-150 ${
+                      className={`h-1 w-1 rounded-full transition-all duration-150 ${
                         isPast
                           ? "bg-background shadow-[0_0_4px_rgba(255,255,255,0.6)]"
                           : "bg-zinc-700"
@@ -210,60 +212,62 @@ export function YearCalendar({ className }: { className?: string }) {
                   )
                 })}
               </div>
-              <div className="flex justify-between text-sm text-background font-mono">
+              <div className="flex shrink-0 justify-between font-mono text-sm text-background">
                 <span>{currentYear}</span>
                 <span>{daysRemaining} days remaining</span>
               </div>
             </div>
 
+            {/* Back */}
             <div
-              className="absolute inset-0 px-5 py-5 bg-foreground flex flex-col justify-between gap-3 border-0 rounded-xl overflow-hidden"
+              className="absolute inset-0 flex flex-col overflow-hidden rounded-xl bg-foreground px-5 py-5"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 transform: "rotateY(180deg)",
               }}
             >
-              <div className="space-y-3 text-left min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-background/45 font-mono">
+              <div className="min-h-0 flex-1 space-y-3 overflow-hidden text-left">
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-background/45">
                   Today’s move
                 </p>
-                <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
+                <p className="text-sm font-light leading-snug text-background">{dailyMove}</p>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                    <div className="font-mono text-lg tabular-nums text-background leading-none">
+                  <div className="min-w-0 rounded-lg bg-background/10 px-2.5 py-2">
+                    <div className="font-mono text-lg tabular-nums leading-none text-background">
                       {yearProgress}%
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
+                    <div className="mt-1 truncate text-[9px] uppercase tracking-[0.16em] text-background/45">
                       of {currentYear}
                     </div>
                   </div>
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                    <div className="font-mono text-lg tabular-nums text-background leading-none">
+                  <div className="min-w-0 rounded-lg bg-background/10 px-2.5 py-2">
+                    <div className="font-mono text-lg tabular-nums leading-none text-background">
                       {fridaysLeft}
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
+                    <div className="mt-1 truncate text-[9px] uppercase tracking-[0.16em] text-background/45">
                       Fridays left
                     </div>
                   </div>
                 </div>
+
+                <blockquote className="min-w-0 border-l border-background/25 pl-3 text-left">
+                  <p className="line-clamp-3 text-[13px] font-light italic leading-relaxed text-background/80">
+                    “{quote.text}”
+                  </p>
+                  <footer className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-background/40">
+                    {quote.by}
+                  </footer>
+                </blockquote>
               </div>
 
-              <blockquote className="border-l border-background/25 pl-3 text-left min-w-0">
-                <p className="text-background/80 text-[13px] leading-relaxed font-light italic">
-                  “{quote.text}”
-                </p>
-                <footer className="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-background/40 font-mono">
-                  {quote.by}
-                </footer>
-              </blockquote>
-
-              <div className="flex items-center justify-between gap-3 min-w-0">
-                <span className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-background/40 font-mono">
+              <div className="mt-4 flex shrink-0 items-center justify-between gap-3 border-t border-background/10 pt-4">
+                <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.2em] text-background/40">
                   Wave
                 </span>
-                <div className="flex items-center justify-end gap-2 shrink-0">
+                <div className="flex items-center justify-end gap-2.5">
                   {WAVE_PRESETS.map(preset => {
                     const active = waveColor === preset.color
                     return (
@@ -277,9 +281,9 @@ export function YearCalendar({ className }: { className?: string }) {
                           setWaveColor(preset.color)
                         }}
                         className={cn(
-                          "size-6 rounded-full border transition-shadow",
+                          "size-6 shrink-0 rounded-full border",
                           active
-                            ? "border-background ring-2 ring-inset ring-background/50"
+                            ? "border-background outline outline-2 outline-offset-2 outline-background/35"
                             : "border-background/25",
                         )}
                         style={{ backgroundColor: preset.color }}
