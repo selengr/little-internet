@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { Tilt } from "@/components/ui/tilt"
 import { cn } from "@/lib/utils"
 
@@ -63,7 +63,6 @@ export function YearCalendar({ className }: { className?: string }) {
   const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(null)
   const [cardTilt, setCardTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [isActive, setIsActive] = useState(false)
-  const [remainingLit, setRemainingLit] = useState(false)
   const [isFlipped, setIsFlipped] = useState(false)
   const [waveColor, setWaveColor] = useState<string>(WAVE_PRESETS[0].color)
 
@@ -71,24 +70,6 @@ export function YearCalendar({ className }: { className?: string }) {
   const pointerStart = useRef<{ x: number; y: number } | null>(null)
   const moved = useRef(false)
   const painting = useRef(false)
-  const remainingTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (remainingTimer.current) clearTimeout(remainingTimer.current)
-    }
-  }, [])
-
-  const lightRemaining = () => {
-    setRemainingLit(true)
-    setIsActive(true)
-    if (remainingTimer.current) clearTimeout(remainingTimer.current)
-    remainingTimer.current = setTimeout(() => {
-      setRemainingLit(false)
-      setIsActive(false)
-      remainingTimer.current = null
-    }, 2800)
-  }
 
   const isLeapYear = (year: number) => {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
@@ -120,7 +101,7 @@ export function YearCalendar({ className }: { className?: string }) {
     e.stopPropagation()
     painting.current = true
     moved.current = true // painting should not flip the card
-    lightRemaining()
+    setIsActive(true)
     e.currentTarget.setPointerCapture(e.pointerId)
     setPosFromClient(e.clientX, e.clientY, e.currentTarget)
   }
@@ -142,16 +123,19 @@ export function YearCalendar({ className }: { className?: string }) {
     } catch {
       /* already released */
     }
-    // Past-day trail fades quickly; remaining fill stays via remainingTimer
     if (e.pointerType === "touch") {
-      window.setTimeout(() => setPointerPos(null), 180)
-    } else {
-      setPointerPos(null)
+      window.setTimeout(() => {
+        setPointerPos(null)
+        setIsActive(false)
+      }, 180)
     }
   }
 
   const handleGridPointerLeave = () => {
-    if (!painting.current) setPointerPos(null)
+    if (!painting.current) {
+      setPointerPos(null)
+      setIsActive(false)
+    }
   }
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -274,16 +258,8 @@ export function YearCalendar({ className }: { className?: string }) {
                     }
                   }
 
-                  const delayMs = !isPast ? (i - dayOfYear) * 40 : 0
-                  const shouldAnimate = !isPast && (isActive || remainingLit)
-
-                  let remainingStyle: React.CSSProperties = {}
-                  if (!isPast && remainingLit) {
-                    remainingStyle = {
-                      backgroundColor: waveColor,
-                      boxShadow: `0 0 8px color-mix(in srgb, ${waveColor} 75%, transparent)`,
-                    }
-                  }
+                  const delayMs = !isPast ? (i - dayOfYear) * 80 : 0
+                  const shouldAnimate = !isPast && isActive
 
                   return (
                     <div
@@ -291,13 +267,10 @@ export function YearCalendar({ className }: { className?: string }) {
                       className={`w-1 h-1 rounded-full transition-all duration-150 ${
                         isPast
                           ? "bg-background shadow-[0_0_4px_rgba(255,255,255,0.6)]"
-                          : remainingLit
-                            ? ""
-                            : "bg-zinc-700"
+                          : "bg-zinc-700"
                       }`}
                       style={{
                         ...gradientStyle,
-                        ...remainingStyle,
                         animation: shouldAnimate
                           ? `waveColor 2s ease-in-out ${delayMs}ms infinite`
                           : "none",
