@@ -217,76 +217,76 @@ export function YearCalendar({ className }: { className?: string }) {
             </div>
 
             <div
-              className="absolute inset-0 px-5 py-5 bg-foreground flex flex-col justify-between gap-3 border-0 rounded-xl overflow-hidden"
+              className="absolute inset-0 bg-foreground rounded-xl"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 transform: "rotateY(180deg)",
               }}
             >
-              <div className="space-y-3 text-left min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-background/45 font-mono">
-                  Today’s move
-                </p>
-                <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                    <div className="font-mono text-lg tabular-nums text-background leading-none">
-                      {yearProgress}%
-                    </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
-                      of {currentYear}
+              <div className="box-border flex h-full min-h-0 flex-col justify-between gap-2.5 overflow-hidden px-4 py-4">
+                <div className="min-w-0 space-y-2.5 text-left">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-background/45 font-mono pt-0.5">
+                      Today’s move
+                    </p>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {WAVE_PRESETS.map(preset => {
+                        const active = waveColor === preset.color
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            aria-label={preset.label}
+                            title={preset.label}
+                            onClick={e => {
+                              e.stopPropagation()
+                              setWaveColor(preset.color)
+                            }}
+                            className={cn(
+                              "size-5 rounded-full border",
+                              active
+                                ? "border-background ring-1 ring-inset ring-background/60"
+                                : "border-background/25",
+                            )}
+                            style={{ backgroundColor: preset.color }}
+                          />
+                        )
+                      })}
                     </div>
                   </div>
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                    <div className="font-mono text-lg tabular-nums text-background leading-none">
-                      {fridaysLeft}
+
+                  <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
+                      <div className="font-mono text-lg tabular-nums text-background leading-none">
+                        {yearProgress}%
+                      </div>
+                      <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
+                        of {currentYear}
+                      </div>
                     </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
-                      Fridays left
+                    <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
+                      <div className="font-mono text-lg tabular-nums text-background leading-none">
+                        {fridaysLeft}
+                      </div>
+                      <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
+                        Fridays left
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <blockquote className="border-l border-background/25 pl-3 text-left min-w-0">
-                <p className="text-background/80 text-[13px] leading-relaxed font-light italic">
-                  “{quote.text}”
-                </p>
-                <footer className="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-background/40 font-mono">
-                  {quote.by}
-                </footer>
-              </blockquote>
-
-              <div className="flex items-center justify-between gap-3 min-w-0">
-                <span className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-background/40 font-mono">
-                  Wave
-                </span>
-                <div className="flex items-center justify-end gap-2 shrink-0">
-                  {WAVE_PRESETS.map(preset => {
-                    const active = waveColor === preset.color
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        aria-label={preset.label}
-                        title={preset.label}
-                        onClick={e => {
-                          e.stopPropagation()
-                          setWaveColor(preset.color)
-                        }}
-                        className={cn(
-                          "size-6 rounded-full border transition-shadow",
-                          active
-                            ? "border-background ring-2 ring-inset ring-background/50"
-                            : "border-background/25",
-                        )}
-                        style={{ backgroundColor: preset.color }}
-                      />
-                    )
-                  })}
-                </div>
+                <blockquote className="min-w-0 border-l border-background/25 pl-3 text-left">
+                  <p className="text-background/80 text-[12px] leading-relaxed font-light italic line-clamp-3">
+                    “{quote.text}”
+                  </p>
+                  <footer className="mt-1 text-[10px] uppercase tracking-[0.18em] text-background/40 font-mono">
+                    {quote.by}
+                  </footer>
+                </blockquote>
               </div>
             </div>
           </div>
