@@ -553,18 +553,19 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section className="relative pt-4 pb-0 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
-        {/* Banner image — same as hero */}
+      <section className="relative overflow-hidden border-t border-border px-6 pt-16 pb-20 md:px-12 md:pt-24 md:pb-28 lg:px-20">
+        {/* Banner image — same as hero; must fill the section on mobile */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/banners/https___west.avif"
           alt=""
           aria-hidden="true"
-          className="absolute bottom-0 left-0 w-full object-cover object-bottom pointer-events-none select-none"
+          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[center_70%] md:object-bottom"
           style={{ opacity: 0.85 }}
         />
         {/* Progressive blur from bottom — blends into site bg */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="pointer-events-none absolute inset-0"
           style={{
             maskImage: "linear-gradient(to top, transparent 0%, black 55%)",
             WebkitMaskImage:
@@ -573,17 +574,17 @@ export default function AgenticPage() {
             WebkitBackdropFilter: "blur(18px)",
           }}
         />
-        {/* Colour fade from bottom to site bg — light mode */}
+        {/* Colour fade — lighter on mobile so the mountains still read */}
         <div
-          className="absolute inset-0 pointer-events-none dark:hidden"
+          className="pointer-events-none absolute inset-0 dark:hidden"
           style={{
             background:
-              "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.92) 18%, rgba(245,244,240,0.55) 35%, transparent 55%)",
+              "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.75) 12%, rgba(245,244,240,0.35) 28%, transparent 52%)",
           }}
         />
-        <div className="absolute inset-0 pointer-events-none hidden dark:block bg-gradient-to-t from-background from-0% via-background/55 via-35% to-transparent to-55%" />
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05] mb-6">
+        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-background from-0% via-background/40 via-30% to-transparent to-55% dark:block" />
+        <div className="relative z-10 mx-auto max-w-2xl text-center">
+          <h2 className="mb-6 text-4xl font-light leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
             Come back tomorrow.
             <br />
             Something new lands daily.
