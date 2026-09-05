@@ -236,13 +236,13 @@ export function HomeLatestPosts() {
               {'My writing.'}
             </RevealText>
           </div>
-          <Link
+          {/* <Link
             href="/blog"
             className="inline-flex items-center gap-2 self-start rounded-full border border-border px-4 py-2.5 text-xs tracking-[0.14em] uppercase text-muted-foreground transition-all hover:border-foreground/25 hover:text-foreground hover:bg-muted/40 md:self-auto"
           >
             All posts
             <ArrowUpRight className="size-3.5" />
-          </Link>
+          </Link> */}
         </div>
 
         {loading ? (
