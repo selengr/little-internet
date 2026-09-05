@@ -63,6 +63,7 @@ export function YearCalendar({ className }: { className?: string }) {
   const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(null)
   const [cardTilt, setCardTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [isActive, setIsActive] = useState(false)
+  const [waveLocked, setWaveLocked] = useState(false)
   const [isFlipped, setIsFlipped] = useState(false)
   const [waveColor, setWaveColor] = useState<string>(WAVE_PRESETS[0].color)
 
@@ -102,6 +103,7 @@ export function YearCalendar({ className }: { className?: string }) {
     painting.current = true
     moved.current = true // painting should not flip the card
     setIsActive(true)
+    setWaveLocked(true)
     e.currentTarget.setPointerCapture(e.pointerId)
     setPosFromClient(e.clientX, e.clientY, e.currentTarget)
   }
@@ -112,6 +114,7 @@ export function YearCalendar({ className }: { className?: string }) {
     if (e.pointerType === "mouse" || painting.current) {
       setPosFromClient(e.clientX, e.clientY, e.currentTarget)
       setIsActive(true)
+      setWaveLocked(true)
     }
   }
 
@@ -123,11 +126,9 @@ export function YearCalendar({ className }: { className?: string }) {
     } catch {
       /* already released */
     }
+    // Keep remaining-day wave playing after one touch; only clear the finger glow
     if (e.pointerType === "touch") {
-      window.setTimeout(() => {
-        setPointerPos(null)
-        setIsActive(false)
-      }, 180)
+      setPointerPos(null)
     }
   }
 
@@ -259,7 +260,7 @@ export function YearCalendar({ className }: { className?: string }) {
                   }
 
                   const delayMs = !isPast ? (i - dayOfYear) * 80 : 0
-                  const shouldAnimate = !isPast && isActive
+                  const shouldAnimate = !isPast && (isActive || waveLocked)
 
                   return (
                     <div

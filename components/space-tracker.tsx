@@ -436,7 +436,7 @@ export function SpaceTracker() {
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
 
-      <div className="relative mx-auto max-w-6xl px-6 py-12 md:px-12 md:py-14 lg:px-20">
+      <div className="relative mx-auto max-w-6xl px-6 py-8 md:px-12 md:py-10 lg:px-20">
         <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.24em] text-sky-200/45">
           <span className="flex items-center gap-2">
             <span className="relative flex size-1.5">
@@ -458,11 +458,9 @@ export function SpaceTracker() {
           </span>
         </div>
 
-        <h2 className="mt-8 max-w-3xl text-left text-[2.75rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-5xl md:text-6xl">
+        <h2 className="mt-6 max-w-5xl text-left text-[2.5rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-4xl md:text-5xl">
           {crew ? crew.count : '—'} people are
-          <br />
           off the planet
-          <br />
           right now.
         </h2>
 
