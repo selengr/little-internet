@@ -553,19 +553,19 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section className="relative overflow-hidden border-t border-border px-6 py-24 md:px-12 md:py-32 lg:px-20">
-        {/* Banner — bottom-anchored like before so mountains read on mobile */}
+      <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
+        {/* Banner image — same as hero */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/banners/https___west.avif"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 h-[42%] w-full select-none object-cover object-bottom sm:h-[50%] md:h-[62%]"
+          className="absolute bottom-0 left-0 w-full object-cover object-bottom pointer-events-none select-none"
           style={{ opacity: 0.85 }}
         />
         {/* Progressive blur from bottom — blends into site bg */}
         <div
-          className="pointer-events-none absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
             maskImage: "linear-gradient(to top, transparent 0%, black 55%)",
             WebkitMaskImage:
@@ -576,20 +576,20 @@ export default function AgenticPage() {
         />
         {/* Colour fade from bottom to site bg — light mode */}
         <div
-          className="pointer-events-none absolute inset-0 dark:hidden"
+          className="absolute inset-0 pointer-events-none dark:hidden"
           style={{
             background:
               "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.92) 18%, rgba(245,244,240,0.55) 35%, transparent 55%)",
           }}
         />
-        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-background from-0% via-background/55 via-35% to-transparent to-55% dark:block" />
-        <div className="relative z-10 mx-auto max-w-2xl text-center">
-          <h2 className="mb-6 text-4xl font-light leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
+        <div className="absolute inset-0 pointer-events-none hidden dark:block bg-gradient-to-t from-background from-0% via-background/55 via-35% to-transparent to-55%" />
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05] mb-6">
             Come back tomorrow.
             <br />
             Something new lands daily.
           </h2>
-          <div className="mb-6 flex justify-center">
+          <div className="mb-10 flex justify-center">
             <YearCalendar />
           </div>
           {/* {!submitted ? (
