@@ -553,10 +553,6 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section id="year" className="border-t border-border">
-        <YearCalendar />
-      </section>
-
       <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
         <img
@@ -592,10 +588,9 @@ export default function AgenticPage() {
             <br />
             Something new lands daily.
           </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-10">
-            Markets, poems, jokes, tools, and more — this site gets fresh updates
-            every day.
-          </p>
+          <div className="mb-10 flex justify-center">
+            <YearCalendar />
+          </div>
           {/* {!submitted ? (
             <form
               onSubmit={(e) => {
