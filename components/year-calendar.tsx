@@ -80,7 +80,6 @@ export function YearCalendar({ className }: { className?: string }) {
   const yearProgress = Math.min(100, Math.round((dayOfYear / totalDays) * 100))
 
   const fridaysLeft = countWeekdaysLeft(now, currentYear, 5)
-  const weekendsLeft = countWeekdaysLeft(now, currentYear, 6)
 
   const quote = DAILY_QUOTES[(dayOfYear - 1) % DAILY_QUOTES.length]
   const dailyMove = DAILY_MOVES[(dayOfYear - 1) % DAILY_MOVES.length]
@@ -231,7 +230,7 @@ export function YearCalendar({ className }: { className?: string }) {
                 </p>
                 <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
 
-                <div className="grid grid-cols-3 gap-2 pt-1">
+                <div className="grid grid-cols-2 gap-2 pt-1">
                   <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
                     <div className="font-mono text-lg tabular-nums text-background leading-none">
                       {yearProgress}%
@@ -246,14 +245,6 @@ export function YearCalendar({ className }: { className?: string }) {
                     </div>
                     <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
                       Fridays left
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                    <div className="font-mono text-lg tabular-nums text-background leading-none">
-                      {weekendsLeft}
-                    </div>
-                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
-                      Saturdays left
                     </div>
                   </div>
                 </div>
