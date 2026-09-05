@@ -72,7 +72,7 @@ export function YearCalendar({ className }: { className?: string }) {
   const painting = useRef(false)
   const waveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const clearWaveLater = (ms = 2500) => {
+  const clearWaveLater = (ms = 3200) => {
     if (waveTimeout.current) clearTimeout(waveTimeout.current)
     waveTimeout.current = setTimeout(() => {
       setPointerPos(null)
@@ -147,14 +147,14 @@ export function YearCalendar({ className }: { className?: string }) {
     } catch {
       /* already released */
     }
-    // Keep remaining-day wave going briefly after one tap / finger lift
-    clearWaveLater(e.pointerType === "touch" ? 2800 : 1200)
+    // One tap: keep remaining dots filled a few seconds after lift (not instant clear)
+    clearWaveLater(e.pointerType === "touch" ? 3800 : 1600)
   }
 
   const handleGridPointerLeave = () => {
-    if (!painting.current) {
-      clearWaveLater(800)
-    }
+    // Don't clear on leave while actively painting / holding
+    if (painting.current) return
+    clearWaveLater(1200)
   }
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -277,7 +277,8 @@ export function YearCalendar({ className }: { className?: string }) {
                     }
                   }
 
-                  const delayMs = !isPast ? (i - dayOfYear) * 80 : 0
+                  // Cap stagger so one tap fills the year within ~1s (was days*80ms → never filled)
+                  const delayMs = !isPast ? Math.min((i - dayOfYear) * 16, 900) : 0
                   const shouldAnimate = !isPast && isActive
 
                   return (
@@ -290,9 +291,13 @@ export function YearCalendar({ className }: { className?: string }) {
                       }`}
                       style={{
                         ...gradientStyle,
-                        animation: shouldAnimate
-                          ? `waveColor 2s ease-in-out ${delayMs}ms infinite`
-                          : "none",
+                        ...(shouldAnimate
+                          ? {
+                              backgroundColor: waveColor,
+                              boxShadow: `0 0 6px color-mix(in srgb, ${waveColor} 60%, transparent)`,
+                              animation: `waveColor 2s ease-in-out ${delayMs}ms infinite`,
+                            }
+                          : { animation: "none" }),
                       }}
                     />
                   )

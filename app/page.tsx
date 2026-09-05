@@ -553,34 +553,35 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section className="relative overflow-hidden border-t border-border px-6 py-24 md:px-12 md:py-32 lg:px-20">
+      <section className="relative overflow-hidden border-t border-border px-6 pt-4 md:px-12 lg:px-20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/banners/https___west.avif"
           alt=""
           aria-hidden="true"
-          className="absolute bottom-0 left-0 w-full object-cover object-bottom pointer-events-none select-none"
-          style={{ opacity: 0.85 }}
+          decoding="async"
+          className="pointer-events-none absolute bottom-0 left-0 h-[100%] min-h-[100%] w-full select-none object-cover object-bottom sm:h-[70%] md:h-[72%]"
+          style={{ opacity: 0.90 }}
         />
-        {/* Progressive blur from bottom — blends into site bg */}
+        {/* Soft blur only on the lower band — full-bleed backdrop can wipe the image on iOS */}
         <div
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] md:h-[100%]"
           style={{
-            maskImage: "linear-gradient(to top, transparent 0%, black 55%)",
-            WebkitMaskImage:
-              "linear-gradient(to top, transparent 0%, black 55%)",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
+            maskImage: "linear-gradient(to top, black 0%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to top, black 0%, transparent 100%)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
           }}
         />
-        {/* Colour fade from bottom to site bg — light mode */}
+        {/* Lighter fade so mountains stay visible on narrow screens */}
         <div
           className="pointer-events-none absolute inset-0 dark:hidden"
           style={{
             background:
-              "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.92) 18%, rgba(245,244,240,0.55) 35%, transparent 55%)",
+              "linear-gradient(to top, rgb(245,244,240) 0%, rgba(245,244,240,0.7) 10%, rgba(245,244,240,0.28) 30%, transparent 58%)",
           }}
         />
-        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-background from-0% via-background/55 via-35% to-transparent to-55% dark:block" />
+        <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-background from-0% via-background/40 via-28% to-transparent to-60% dark:block" />
         <div className="relative z-10 mx-auto max-w-2xl text-center">
           <h2 className="mb-6 text-4xl font-light leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
             Come back tomorrow.
