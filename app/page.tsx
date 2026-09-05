@@ -553,7 +553,7 @@ export default function AgenticPage() {
 
       <CountriesShowcase />
 
-      <section className="relative py-32 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
+      <section className="relative pt-4 pb-0 px-6 md:px-12 lg:px-20 border-t border-border overflow-hidden">
         {/* Banner image — same as hero */}
         <img
           src="/images/banners/https___west.avif"
@@ -588,7 +588,7 @@ export default function AgenticPage() {
             <br />
             Something new lands daily.
           </h2>
-          <div className="mb-10 flex justify-center">
+          <div className="mb-6 flex justify-center">
             <YearCalendar />
           </div>
           {/* {!submitted ? (
