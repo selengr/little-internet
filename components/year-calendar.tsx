@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Tilt } from "@/components/ui/tilt"
 import { cn } from "@/lib/utils"
 
@@ -60,11 +60,16 @@ export function YearCalendar({ className }: { className?: string }) {
   const now = new Date()
   const currentYear = now.getFullYear()
 
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
+  const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(null)
   const [cardTilt, setCardTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
-  const [isCardHovered, setIsCardHovered] = useState(false)
+  const [isActive, setIsActive] = useState(false)
   const [isFlipped, setIsFlipped] = useState(false)
   const [waveColor, setWaveColor] = useState<string>(WAVE_PRESETS[0].color)
+
+  const gridRef = useRef<HTMLDivElement>(null)
+  const pointerStart = useRef<{ x: number; y: number } | null>(null)
+  const moved = useRef(false)
+  const painting = useRef(false)
 
   const isLeapYear = (year: number) => {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
@@ -84,16 +89,53 @@ export function YearCalendar({ className }: { className?: string }) {
   const quote = DAILY_QUOTES[(dayOfYear - 1) % DAILY_QUOTES.length]
   const dailyMove = DAILY_MOVES[(dayOfYear - 1) % DAILY_MOVES.length]
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    setMousePos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+  const setPosFromClient = (clientX: number, clientY: number, el: HTMLElement) => {
+    const rect = el.getBoundingClientRect()
+    setPointerPos({
+      x: clientX - rect.left,
+      y: clientY - rect.top,
     })
   }
 
-  const handleMouseLeave = () => {
-    setMousePos(null)
+  const handleGridPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+    painting.current = true
+    moved.current = true // painting should not flip the card
+    setIsActive(true)
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setPosFromClient(e.clientX, e.clientY, e.currentTarget)
+  }
+
+  const handleGridPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+    if (!painting.current && e.pointerType === "touch") return
+    if (e.pointerType === "mouse" || painting.current) {
+      setPosFromClient(e.clientX, e.clientY, e.currentTarget)
+      setIsActive(true)
+    }
+  }
+
+  const handleGridPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+    painting.current = false
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch {
+      /* already released */
+    }
+    if (e.pointerType === "touch") {
+      window.setTimeout(() => {
+        setPointerPos(null)
+        setIsActive(false)
+      }, 180)
+    }
+  }
+
+  const handleGridPointerLeave = () => {
+    if (!painting.current) {
+      setPointerPos(null)
+      setIsActive(false)
+    }
   }
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -103,23 +145,40 @@ export function YearCalendar({ className }: { className?: string }) {
     const mouseX = e.clientX - rect.left
     const mouseY = e.clientY - rect.top
 
-    const tiltX = (mouseY - centerY) / centerY
-    const tiltY = (mouseX - centerX) / centerX
-
-    setCardTilt({ x: tiltX, y: tiltY })
+    setCardTilt({
+      x: (mouseY - centerY) / centerY,
+      y: (mouseX - centerX) / centerX,
+    })
   }
 
   const handleCardMouseLeave = () => {
     setCardTilt({ x: 0, y: 0 })
-    setIsCardHovered(false)
   }
 
   const handleCardMouseEnter = () => {
-    setIsCardHovered(true)
+    setIsActive(true)
   }
 
-  const handleCardClick = () => {
-    setIsFlipped(!isFlipped)
+  const handlePointerDownCard = (e: React.PointerEvent) => {
+    pointerStart.current = { x: e.clientX, y: e.clientY }
+    moved.current = false
+  }
+
+  const handlePointerMoveCard = (e: React.PointerEvent) => {
+    if (!pointerStart.current) return
+    const dx = Math.abs(e.clientX - pointerStart.current.x)
+    const dy = Math.abs(e.clientY - pointerStart.current.y)
+    if (dx > 12 || dy > 12) moved.current = true
+  }
+
+  const handlePointerUpCard = (e: React.PointerEvent) => {
+    const start = pointerStart.current
+    pointerStart.current = null
+    if (!start || moved.current) return
+    // Ignore flips that started on a control
+    const target = e.target as HTMLElement
+    if (target.closest("button, input, a")) return
+    setIsFlipped(v => !v)
   }
 
   const shadowX = -cardTilt.y * 30
@@ -129,7 +188,7 @@ export function YearCalendar({ className }: { className?: string }) {
   const dynamicShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.4), ${shadowX * 0.5}px ${shadowY * 0.5}px ${shadowBlur * 0.6}px rgba(0, 0, 0, 0.25)`
 
   return (
-    <div className={cn("flex items-center justify-center", className)}>
+    <div className={cn("flex items-center justify-center touch-pan-y", className)}>
       <Tilt
         rotationFactor={8}
         springOptions={{ stiffness: 300, damping: 20 }}
@@ -138,9 +197,15 @@ export function YearCalendar({ className }: { className?: string }) {
         onMouseEnter={handleCardMouseEnter}
       >
         <div
-          className="relative cursor-pointer"
-          style={{ perspective: "1000px" }}
-          onClick={handleCardClick}
+          className="relative cursor-pointer select-none"
+          style={{ perspective: "1000px", touchAction: "pan-y" }}
+          onPointerDown={handlePointerDownCard}
+          onPointerMove={handlePointerMoveCard}
+          onPointerUp={handlePointerUpCard}
+          onPointerCancel={() => {
+            pointerStart.current = null
+            moved.current = false
+          }}
         >
           <div
             className="relative transition-transform duration-700 ease-in-out"
@@ -154,29 +219,33 @@ export function YearCalendar({ className }: { className?: string }) {
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 ["--wave-color" as string]: waveColor,
               }}
-              onMouseEnter={handleCardMouseEnter}
-              onMouseLeave={handleCardMouseLeave}
             >
               <div
-                className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-2"
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
+                ref={gridRef}
+                className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-2 touch-none"
+                style={{ touchAction: "none" }}
+                onPointerDown={handleGridPointerDown}
+                onPointerMove={handleGridPointerMove}
+                onPointerUp={handleGridPointerUp}
+                onPointerCancel={handleGridPointerUp}
+                onPointerLeave={handleGridPointerLeave}
               >
                 {Array.from({ length: totalDays }, (_, i) => {
                   const dayNumber = i + 1
                   const isPast = dayNumber <= dayOfYear
 
                   let gradientStyle: React.CSSProperties = {}
-                  if (mousePos && isPast) {
+                  if (pointerPos && isPast) {
                     const col = i % 30
                     const row = Math.floor(i / 30)
                     const dotX = col * (4 + 8) + 2
                     const dotY = row * (4 + 8) + 2
 
                     const distance = Math.sqrt(
-                      Math.pow(mousePos.x - dotX, 2) + Math.pow(mousePos.y - dotY, 2),
+                      Math.pow(pointerPos.x - dotX, 2) + Math.pow(pointerPos.y - dotY, 2),
                     )
 
                     if (distance < 150) {
@@ -190,7 +259,7 @@ export function YearCalendar({ className }: { className?: string }) {
                   }
 
                   const delayMs = !isPast ? (i - dayOfYear) * 80 : 0
-                  const shouldAnimate = !isPast && isCardHovered
+                  const shouldAnimate = !isPast && isActive
 
                   return (
                     <div
@@ -244,6 +313,7 @@ export function YearCalendar({ className }: { className?: string }) {
                               e.stopPropagation()
                               setWaveColor(preset.color)
                             }}
+                            onPointerDown={e => e.stopPropagation()}
                             className={cn(
                               "size-5 rounded-full border",
                               active
