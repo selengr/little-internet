@@ -2,9 +2,59 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState } from "react"
 import { Tilt } from "@/components/ui/tilt"
 import { cn } from "@/lib/utils"
+
+const WAVE_PRESETS = [
+  { id: "ember", label: "Ember", color: "#f97316" },
+  { id: "mint", label: "Mint", color: "#34d399" },
+  { id: "sky", label: "Sky", color: "#38bdf8" },
+  { id: "violet", label: "Violet", color: "#a78bfa" },
+] as const
+
+const DAILY_QUOTES = [
+  { text: "Time is the only currency you spend without knowing the balance.", by: "Unknown" },
+  { text: "The future depends on what you do today.", by: "Gandhi" },
+  { text: "You may delay, but time will not.", by: "Benjamin Franklin" },
+  { text: "Lost time is never found again.", by: "Benjamin Franklin" },
+  { text: "Do not wait. The time will never be just right.", by: "Napoleon Hill" },
+  { text: "Yesterday is gone. Tomorrow has not yet come. We have only today.", by: "Mother Teresa" },
+  { text: "The two most powerful warriors are patience and time.", by: "Leo Tolstoy" },
+  { text: "Your day is a blank page. Write something worth reading.", by: "Unknown" },
+  { text: "A year from now you will wish you had started today.", by: "Karen Lamb" },
+  { text: "Small daily improvements are the key to staggering long-term results.", by: "Unknown" },
+  { text: "Don’t count the days. Make the days count.", by: "Muhammad Ali" },
+  { text: "The best time to plant a tree was 20 years ago. The second best is now.", by: "Chinese proverb" },
+]
+
+const DAILY_MOVES = [
+  "Ship one tiny thing before midnight.",
+  "Write three lines you would want to read next year.",
+  "Delete one distraction from tomorrow’s plan.",
+  "Send the message you’ve been rehearsing.",
+  "Learn one new word and use it once.",
+  "Take a 20-minute walk with no phone.",
+  "Finish the tab you’ve left open for a week.",
+  "Thank someone who made your week lighter.",
+  "Move one task from someday to today.",
+  "Spend 15 minutes on the hard thing first.",
+  "Capture one idea before it evaporates.",
+  "Leave one corner of your day intentionally empty.",
+]
+
+function countWeekdaysLeft(from: Date, year: number, weekday: number) {
+  const end = new Date(year, 11, 31)
+  const cursor = new Date(from)
+  cursor.setHours(0, 0, 0, 0)
+  cursor.setDate(cursor.getDate() + 1)
+  let count = 0
+  while (cursor <= end) {
+    if (cursor.getDay() === weekday) count++
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  return count
+}
 
 export function YearCalendar({ className }: { className?: string }) {
   const now = new Date()
@@ -14,35 +64,7 @@ export function YearCalendar({ className }: { className?: string }) {
   const [cardTilt, setCardTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [isCardHovered, setIsCardHovered] = useState(false)
   const [isFlipped, setIsFlipped] = useState(false)
-  const [hexColor, setHexColor] = useState("#f97316")
-  const [rgbColor, setRgbColor] = useState({ r: "249", g: "115", b: "22" })
-  const [hslColor, setHslColor] = useState({ h: "27", s: "96", l: "53" })
-  const [colorFormat, setColorFormat] = useState<"hex" | "rgb" | "hsl">("hex")
-  const hexInputRef = useRef<HTMLInputElement>(null)
-  const rgbRInputRef = useRef<HTMLInputElement>(null)
-  const hslHInputRef = useRef<HTMLInputElement>(null)
-
-  const getCurrentWaveColor = () => {
-    if (colorFormat === "hex") {
-      return hexColor
-    } else if (colorFormat === "rgb") {
-      return `rgb(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b})`
-    } else {
-      return `hsl(${hslColor.h}, ${hslColor.s}%, ${hslColor.l}%)`
-    }
-  }
-
-  useEffect(() => {
-    if (isFlipped) {
-      if (colorFormat === "hex" && hexInputRef.current) {
-        hexInputRef.current.focus()
-      } else if (colorFormat === "rgb" && rgbRInputRef.current) {
-        rgbRInputRef.current.focus()
-      } else if (colorFormat === "hsl" && hslHInputRef.current) {
-        hslHInputRef.current.focus()
-      }
-    }
-  }, [isFlipped, colorFormat])
+  const [waveColor, setWaveColor] = useState<string>(WAVE_PRESETS[0].color)
 
   const isLeapYear = (year: number) => {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
@@ -55,6 +77,13 @@ export function YearCalendar({ className }: { className?: string }) {
     Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1
 
   const daysRemaining = totalDays - dayOfYear
+  const yearProgress = Math.min(100, Math.round((dayOfYear / totalDays) * 100))
+
+  const fridaysLeft = countWeekdaysLeft(now, currentYear, 5)
+  const weekendsLeft = countWeekdaysLeft(now, currentYear, 6)
+
+  const quote = DAILY_QUOTES[(dayOfYear - 1) % DAILY_QUOTES.length]
+  const dailyMove = DAILY_MOVES[(dayOfYear - 1) % DAILY_MOVES.length]
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -126,7 +155,7 @@ export function YearCalendar({ className }: { className?: string }) {
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
-                ["--wave-color" as string]: getCurrentWaveColor(),
+                ["--wave-color" as string]: waveColor,
               }}
               onMouseEnter={handleCardMouseEnter}
               onMouseLeave={handleCardMouseLeave}
@@ -189,187 +218,84 @@ export function YearCalendar({ className }: { className?: string }) {
             </div>
 
             <div
-              className="absolute top-0 left-0 w-[360px] max-w-[calc(100vw-3rem)] px-4 py-6 bg-foreground flex flex-col my-0 gap-4 border-0 rounded-xl"
+              className="absolute inset-0 w-[360px] max-w-[calc(100vw-3rem)] px-5 py-5 bg-foreground flex flex-col justify-between gap-4 border-0 rounded-xl"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
                 transform: "rotateY(180deg)",
               }}
             >
-              <div className="flex flex-col gap-4 items-center justify-center min-h-[200px]">
-                <h3 className="text-background font-mono text-sm">Days Remaining Flow Color</h3>
+              <div className="space-y-3 text-left">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-background/45 font-mono">
+                  Today’s move
+                </p>
+                <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={e => {
-                      e.stopPropagation()
-                      setColorFormat("hex")
-                    }}
-                    className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
-                      colorFormat === "hex"
-                        ? "bg-background text-foreground"
-                        : "bg-zinc-700 text-background"
-                    }`}
-                  >
-                    HEX
-                  </button>
-                  <button
-                    onClick={e => {
-                      e.stopPropagation()
-                      setColorFormat("rgb")
-                    }}
-                    className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
-                      colorFormat === "rgb"
-                        ? "bg-background text-foreground"
-                        : "bg-zinc-700 text-background"
-                    }`}
-                  >
-                    RGB
-                  </button>
-                  <button
-                    onClick={e => {
-                      e.stopPropagation()
-                      setColorFormat("hsl")
-                    }}
-                    className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
-                      colorFormat === "hsl"
-                        ? "bg-background text-foreground"
-                        : "bg-zinc-700 text-background"
-                    }`}
-                  >
-                    HSL
-                  </button>
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <div className="rounded-lg bg-background/10 px-2.5 py-2">
+                    <div className="font-mono text-lg tabular-nums text-background leading-none">
+                      {yearProgress}%
+                    </div>
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45">
+                      of {currentYear}
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-background/10 px-2.5 py-2">
+                    <div className="font-mono text-lg tabular-nums text-background leading-none">
+                      {fridaysLeft}
+                    </div>
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45">
+                      Fridays left
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-background/10 px-2.5 py-2">
+                    <div className="font-mono text-lg tabular-nums text-background leading-none">
+                      {weekendsLeft}
+                    </div>
+                    <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45">
+                      Saturdays left
+                    </div>
+                  </div>
                 </div>
+              </div>
 
-                {colorFormat === "hex" && (
-                  <input
-                    ref={hexInputRef}
-                    type="text"
-                    value={hexColor}
-                    onChange={e => {
-                      e.stopPropagation()
-                      setHexColor(e.target.value)
-                    }}
-                    onClick={e => e.stopPropagation()}
-                    className="w-full max-w-[280px] px-4 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
-                    placeholder="#f97316"
-                  />
-                )}
+              <blockquote className="border-l border-background/25 pl-3 text-left">
+                <p className="text-background/80 text-[13px] leading-relaxed font-light italic">
+                  “{quote.text}”
+                </p>
+                <footer className="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-background/40 font-mono">
+                  {quote.by}
+                </footer>
+              </blockquote>
 
-                {colorFormat === "rgb" && (
-                  <div
-                    className="flex gap-2 w-full max-w-[280px]"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <div className="flex-1">
-                      <label className="text-background text-xs font-mono mb-1 block">R</label>
-                      <input
-                        ref={rgbRInputRef}
-                        type="number"
-                        min="0"
-                        max="255"
-                        value={rgbColor.r}
-                        onChange={e => {
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-background/40 font-mono">
+                  Wave color
+                </span>
+                <div className="flex items-center gap-2">
+                  {WAVE_PRESETS.map(preset => {
+                    const active = waveColor === preset.color
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        aria-label={preset.label}
+                        title={preset.label}
+                        onClick={e => {
                           e.stopPropagation()
-                          setRgbColor({ ...rgbColor, r: e.target.value })
+                          setWaveColor(preset.color)
                         }}
-                        onClick={e => e.stopPropagation()}
-                        className="w-full px-2 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
+                        className={cn(
+                          "size-7 rounded-full border transition-transform active:scale-95",
+                          active
+                            ? "border-background scale-110 ring-2 ring-background/40"
+                            : "border-background/20 hover:scale-105",
+                        )}
+                        style={{ backgroundColor: preset.color }}
                       />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-background text-xs font-mono mb-1 block">G</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="255"
-                        value={rgbColor.g}
-                        onChange={e => {
-                          e.stopPropagation()
-                          setRgbColor({ ...rgbColor, g: e.target.value })
-                        }}
-                        onClick={e => e.stopPropagation()}
-                        className="w-full px-2 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-background text-xs font-mono mb-1 block">B</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="255"
-                        value={rgbColor.b}
-                        onChange={e => {
-                          e.stopPropagation()
-                          setRgbColor({ ...rgbColor, b: e.target.value })
-                        }}
-                        onClick={e => e.stopPropagation()}
-                        className="w-full px-2 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {colorFormat === "hsl" && (
-                  <div
-                    className="flex gap-2 w-full max-w-[280px]"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <div className="flex-1">
-                      <label className="text-background text-xs font-mono mb-1 block">H</label>
-                      <input
-                        ref={hslHInputRef}
-                        type="number"
-                        min="0"
-                        max="360"
-                        value={hslColor.h}
-                        onChange={e => {
-                          e.stopPropagation()
-                          setHslColor({ ...hslColor, h: e.target.value })
-                        }}
-                        onClick={e => e.stopPropagation()}
-                        className="w-full px-2 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-background text-xs font-mono mb-1 block">S%</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={hslColor.s}
-                        onChange={e => {
-                          e.stopPropagation()
-                          setHslColor({ ...hslColor, s: e.target.value })
-                        }}
-                        onClick={e => e.stopPropagation()}
-                        className="w-full px-2 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-background text-xs font-mono mb-1 block">L%</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={hslColor.l}
-                        onChange={e => {
-                          e.stopPropagation()
-                          setHslColor({ ...hslColor, l: e.target.value })
-                        }}
-                        onClick={e => e.stopPropagation()}
-                        className="w-full px-2 py-2 bg-zinc-800 text-background font-mono text-sm rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-background/50"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div
-                  className="w-16 h-16 rounded-lg border-2 border-background/20"
-                  style={{
-                    backgroundColor: getCurrentWaveColor(),
-                  }}
-                />
+                    )
+                  })}
+                </div>
               </div>
             </div>
           </div>
