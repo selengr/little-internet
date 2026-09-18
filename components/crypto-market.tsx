@@ -181,25 +181,13 @@ export function CryptoMarket() {
           className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10"
         >
           <div className="max-w-xl">
-            <p
-              className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--cx-mute)] mb-5"
-              style={mono}
-            >
-              CoinGecko wire · USD
-            </p>
             <h1
               className="text-[clamp(3.5rem,14vw,8rem)] leading-[0.85] tracking-tight text-[color:var(--cx-fg)]"
               style={display}
             >
-              Tick
+              Crypto
               <span style={{ color: 'var(--cx-signal)' }}>.</span>
             </h1>
-            <p
-              className="mt-6 text-lg md:text-xl text-[color:var(--cx-mute)] max-w-md leading-snug"
-              style={display}
-            >
-              The open market tape — prices, dominance, and seven-day pulse.
-            </p>
           </div>
 
           {hero ? (

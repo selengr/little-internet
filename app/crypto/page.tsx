@@ -21,8 +21,8 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Tick — Live Crypto',
-  description: 'Live cryptocurrency tape powered by CoinGecko',
+  title: 'Crypto',
+  description: 'Live coin prices.',
 }
 
 export default function CryptoPage() {
