@@ -1,9 +1,15 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  /* Old Learning Labs paper tokens */
+  --bg-color-10: hsla(44, 6%, 50%, 0.15);
+  --bg-color-11: #f7f6f3;
+  --bg-color-12: hsla(44, 6%, 50%, 0.15);
+  --fg-color-15: #fff;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -40,7 +46,8 @@
 }
 
 .dark {
-  /* Old Learning Labs dark — Notion-like slate (#2f3437) */
+  /* Exact old Learning Labs body: dark:bg-[#2f3437] + soft white text */
+  --bg-color-11: #2f3437;
   --background: #2f3437;
   --foreground: hsla(0, 0%, 100%, 0.9);
   --card: #373c41;
@@ -132,6 +139,12 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Old site painted the page explicitly — keep dark slate locked in */
+  html.dark,
+  html.dark body {
+    background-color: #2f3437;
+    color: hsla(0, 0%, 100%, 0.9);
   }
 }
 

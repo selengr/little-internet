@@ -6,6 +6,7 @@ import { Moon, Sun } from 'lucide-react'
 
 const navBtnClass =
   'inline-flex items-center justify-center rounded-xl border border-black/10 dark:border-white/20 ' +
+  'bg-[#f8f8f8] dark:bg-[#2f3437] ' +
   'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white ' +
   'hover:border-black/20 dark:hover:border-white/30 hover:bg-black/[0.03] dark:hover:bg-white/[0.08] ' +
   'transition-all duration-200 px-2.5 py-2.5'
