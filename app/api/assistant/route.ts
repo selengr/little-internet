@@ -12,8 +12,8 @@ type ChatMessage = { role: 'user' | 'assistant' | 'system'; content: string }
 
 function getConfig() {
   const apiKey = process.env.INFERX_API_KEY?.trim()
-  const baseUrl = (process.env.INFERX_BASE_URL || 'https://api.inferx.com/v1').replace(/\/$/, '')
-  const model = process.env.INFERX_MODEL || 'meta/llama-3.3-70b'
+  const baseUrl = (process.env.INFERX_BASE_URL || 'https://model.inferx.net/endpoints/v1').replace(/\/$/, '')
+  const model = process.env.INFERX_MODEL || 'gemma-4-31B-it-fp8'
   return { apiKey, baseUrl, model }
 }
 
