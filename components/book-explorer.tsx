@@ -349,12 +349,6 @@ export function BookExplorer() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="mb-8 md:mb-10"
         >
-          <p
-            className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--bk-mute)] mb-4"
-            style={mono}
-          >
-            Open Library stack
-          </p>
           <h1
             className="text-[clamp(3rem,12vw,6.5rem)] leading-[0.88] tracking-tight text-[color:var(--bk-fg)]"
             style={display}
@@ -363,10 +357,10 @@ export function BookExplorer() {
             <span style={{ color: 'var(--bk-accent)' }}>.</span>
           </h1>
           <p
-            className="mt-4 text-base md:text-lg text-[color:var(--bk-mute)] max-w-md leading-snug"
+            className="mt-3 text-base text-[color:var(--bk-mute)] max-w-sm leading-snug"
             style={display}
           >
-            Find a book worth reading tonight.
+            Find a book to read.
           </p>
         </motion.div>
 
