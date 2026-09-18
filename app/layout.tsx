@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FaviconSwitcher } from '@/components/favicon-switcher'
 import { HomeIntroSkipListener } from '@/components/intro-animation'
+import { SiteAssistant } from '@/components/site-assistant'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -81,6 +82,7 @@ export default function RootLayout({
           <FaviconSwitcher />
           <HomeIntroSkipListener />
           {children}
+          <SiteAssistant />
         </ThemeProvider>
         <Analytics />
       </body>
