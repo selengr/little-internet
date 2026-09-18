@@ -353,15 +353,9 @@ export function BookExplorer() {
             className="text-[clamp(3rem,12vw,6.5rem)] leading-[0.88] tracking-tight text-[color:var(--bk-fg)]"
             style={display}
           >
-            Folio
+            Books
             <span style={{ color: 'var(--bk-accent)' }}>.</span>
           </h1>
-          <p
-            className="mt-3 text-base text-[color:var(--bk-mute)] max-w-sm leading-snug"
-            style={display}
-          >
-            Find a book to read.
-          </p>
         </motion.div>
 
         <div ref={wrapRef} className="relative max-w-xl">

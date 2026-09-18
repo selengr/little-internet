@@ -23,8 +23,8 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Folio — Open Library',
-  description: 'Discover books, authors, editions and subjects from Open Library',
+  title: 'Books',
+  description: 'Find a book to read.',
 }
 
 function BookExplorerFallback() {
