@@ -195,25 +195,13 @@ export function ForexMarket() {
           className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10"
         >
           <div className="max-w-xl">
-            <p
-              className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--fx-mute)] mb-5"
-              style={mono}
-            >
-              Frankfurter · ECB reference
-            </p>
             <h1
               className="text-[clamp(3.5rem,14vw,8rem)] leading-[0.85] tracking-tight text-[color:var(--fx-fg)]"
               style={display}
             >
-              Parity
+              Forex
               <span style={{ color: 'var(--fx-accent)' }}>.</span>
             </h1>
-            <p
-              className="mt-6 text-lg md:text-xl text-[color:var(--fx-mute)] max-w-md leading-snug"
-              style={display}
-            >
-              Cross rates from the clearing desk — convert, compare, chart.
-            </p>
           </div>
 
           <motion.div

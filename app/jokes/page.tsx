@@ -22,8 +22,16 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'BIT. — Open Mic Jokes',
-  description: 'Spin a category, pull a bit, save the ones that land — powered by JokeAPI',
+  title: 'Jokes',
+  description: 'Pull a joke.',
+  openGraph: {
+    title: 'Jokes',
+    description: 'Pull a joke.',
+  },
+  twitter: {
+    title: 'Jokes',
+    description: 'Pull a joke.',
+  },
 }
 
 export default function JokesPage() {

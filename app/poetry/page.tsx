@@ -22,8 +22,16 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'LINE. — Daily Poetry',
-  description: 'A letterpress desk for classic verse — today\'s poem, moods, and the next line.',
+  title: 'Poetry',
+  description: 'A poem for today.',
+  openGraph: {
+    title: 'Poetry',
+    description: 'A poem for today.',
+  },
+  twitter: {
+    title: 'Poetry',
+    description: 'A poem for today.',
+  },
 }
 
 export default function PoetryPage() {

@@ -88,7 +88,7 @@ export function PoetryShell({
           >
             <ThemeToggle />
             <span className="font-pixel text-[10px] tracking-[0.2em] text-black/50 dark:text-white/50 hidden sm:inline">
-              LINE
+              Poetry
             </span>
             <Link
               href="/"

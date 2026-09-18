@@ -84,44 +84,15 @@ export function AnimalFactsBattle() {
     <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero — one composition */}
       <header className="relative pb-8 sm:pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-wrap items-center gap-x-3 gap-y-2"
-        >
-          <span
-            className="inline-block h-2 w-2"
-            style={{ background: 'var(--af-signal)' }}
-            aria-hidden
-          />
-          <p
-            className="font-[family-name:var(--font-af-mono)] text-[10px] uppercase tracking-[0.32em]"
-            style={{ color: 'var(--af-mute)' }}
-          >
-            Live bout · session only
-          </p>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.04 }}
-          className="mt-4 font-[family-name:var(--font-af-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
+          className="font-[family-name:var(--font-af-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
         >
-          RING
+          Facts
           <span style={{ color: 'var(--af-signal)' }}>.</span>
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.55, delay: 0.12 }}
-          className="mt-4 max-w-md font-[family-name:var(--font-af-display)] text-lg sm:text-xl italic leading-snug"
-          style={{ color: 'var(--af-mute)' }}
-        >
-          Cat corner versus dog corner. Pull a fact. Award the better one.
-        </motion.p>
 
         {/* Live score strip */}
         <motion.div

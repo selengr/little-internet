@@ -94,7 +94,7 @@ export function ForexShell({ fontVars }: { fontVars: string }) {
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--fx-up)] opacity-60" />
                 <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--fx-up)]" />
               </span>
-              PARITY
+              Forex
             </span>
             <Link
               href="/"

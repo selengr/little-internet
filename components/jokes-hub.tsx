@@ -507,8 +507,6 @@ export function JokesHub() {
     }
   }
 
-  const totalJokes = info?.jokes?.totalCount ?? 1368
-
   const favoriteJokes = useMemo(
     () =>
       favorites.map(f => ({
@@ -547,39 +545,15 @@ export function JokesHub() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero */}
       <header className="pb-8 sm:pb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center gap-x-3 gap-y-2"
-        >
-          <span className="inline-block h-2 w-2" style={{ background: 'var(--jk-cue)' }} aria-hidden />
-          <p
-            className="font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.32em]"
-            style={{ color: 'var(--jk-mute)' }}
-          >
-            Open mic · {totalJokes.toLocaleString()} bits · {favorites.length} saved
-          </p>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.04 }}
-          className="mt-4 font-[family-name:var(--font-jk-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
+          className="font-[family-name:var(--font-jk-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
         >
-          BIT
+          Jokes
           <span style={{ color: 'var(--jk-hot)' }}>.</span>
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.12 }}
-          className="mt-4 max-w-md font-[family-name:var(--font-jk-display)] text-lg sm:text-xl italic leading-snug"
-          style={{ color: 'var(--jk-mute)' }}
-        >
-          One setup. One punchline. Spin a lane or pull the next bit.
-        </motion.p>
       </header>
 
       {error && (

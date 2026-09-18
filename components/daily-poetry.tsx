@@ -9,15 +9,6 @@ import { cn } from '@/lib/utils'
 
 const SAVED_KEY = 'daily-poetry-saved'
 
-/** Fixed locale so SSR and client always match (avoids hydration mismatch). */
-function todayLabel() {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
 export function DailyPoetry() {
   const [poem, setPoem] = useState<PoetryPoem | null>(null)
   const [mood, setMood] = useState<PoetryMood | null>(null)
@@ -25,11 +16,6 @@ export function DailyPoetry() {
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [dateLabel, setDateLabel] = useState('')
-
-  useEffect(() => {
-    setDateLabel(todayLabel())
-  }, [])
 
   const loadPoem = useCallback(async (opts?: { next?: boolean; mood?: PoetryMood | null }) => {
     setLoading(true)
@@ -116,40 +102,15 @@ export function DailyPoetry() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       {/* Hero — brand first */}
       <header className="pb-8 sm:pb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center gap-x-3 gap-y-2"
-        >
-          <span className="inline-block h-2 w-2" style={{ background: 'var(--py-cue)' }} aria-hidden />
-          <p
-            className="font-[family-name:var(--font-py-mono)] text-[10px] uppercase tracking-[0.32em]"
-            style={{ color: 'var(--py-mute)' }}
-          >
-            {dateLabel || 'Today'}
-            {mood ? ` · ${MOODS.find(m => m.id === mood)?.label}` : ' · Today\'s press'}
-          </p>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.04 }}
-          className="mt-4 font-[family-name:var(--font-py-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
+          className="font-[family-name:var(--font-py-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
         >
-          LINE
+          Poetry
           <span style={{ color: 'var(--py-accent)' }}>.</span>
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.12 }}
-          className="mt-4 max-w-md font-[family-name:var(--font-py-display)] text-lg sm:text-xl italic leading-snug"
-          style={{ color: 'var(--py-mute)' }}
-        >
-          Classic verse on a letterpress desk. Arrow Right for the next poem.
-        </motion.p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_220px] lg:items-start">

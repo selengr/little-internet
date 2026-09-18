@@ -21,8 +21,16 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Whereabouts — Your IP',
-  description: 'See your public ISP IP and where the wire thinks you are',
+  title: 'Location',
+  description: 'See where you are.',
+  openGraph: {
+    title: 'Location',
+    description: 'See where you are.',
+  },
+  twitter: {
+    title: 'Location',
+    description: 'See where you are.',
+  },
 }
 
 export default function LocationPage() {

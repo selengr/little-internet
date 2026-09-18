@@ -21,8 +21,16 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Parity — Exchange Rates',
-  description: 'Live forex rates and history from Frankfurter / ECB reference rates',
+  title: 'Forex',
+  description: 'Convert currencies.',
+  openGraph: {
+    title: 'Forex',
+    description: 'Convert currencies.',
+  },
+  twitter: {
+    title: 'Forex',
+    description: 'Convert currencies.',
+  },
 }
 
 export default function ForexPage() {

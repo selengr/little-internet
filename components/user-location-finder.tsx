@@ -296,8 +296,7 @@ export function UserLocationFinder() {
             className={cn('text-[10px] uppercase tracking-[0.35em]', mute)}
             style={mono}
           >
-            Public wire · {data.type.toUpperCase()}
-            {data.connection.asn ? ` · ASN ${data.connection.asn}` : ''}
+            Your IP
           </p>
           <button
             type="button"
@@ -324,7 +323,7 @@ export function UserLocationFinder() {
               className={cn('text-[10px] uppercase tracking-[0.3em] mb-4', mute)}
               style={mono}
             >
-              {usePrecise ? 'Device fix' : 'Estimated from IP'}
+              {usePrecise ? 'From your device' : 'From your IP'}
             </p>
             <h1
               className={cn(
@@ -449,10 +448,10 @@ export function UserLocationFinder() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
           <div>
             <p className={cn('text-[10px] uppercase tracking-[0.3em] mb-1', mute)} style={mono}>
-              Chart
+              Map
             </p>
             <p className={cn('text-2xl md:text-3xl tracking-tight', ink)} style={display}>
-              {usePrecise ? 'Device pin' : 'IP estimate'}
+              {usePrecise ? 'From your device' : 'From your IP'}
             </p>
           </div>
 

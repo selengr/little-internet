@@ -22,8 +22,16 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'RING — Cat vs Dog Facts',
-  description: 'Two corners. One ring. Whose fact lands harder?',
+  title: 'Facts',
+  description: 'Cat and dog facts.',
+  openGraph: {
+    title: 'Facts',
+    description: 'Cat and dog facts.',
+  },
+  twitter: {
+    title: 'Facts',
+    description: 'Cat and dog facts.',
+  },
 }
 
 export default function AnimalFactsPage() {
