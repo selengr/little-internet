@@ -28,7 +28,7 @@ export function MobileNav() {
           className={`flex items-center justify-between px-5 py-3 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] ${NAV_GLASS_CLASS}`}
           style={NAV_GLASS}
         >
-          <span className="font-pixel text-xs tracking-[0.25em] text-black/70 dark:text-white/70">REZA KARBAKHSH</span>
+          <span className="font-pixel text-xs tracking-[0.25em] text-black/70 dark:text-white/70">LITTLE INTERNET</span>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-7" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>

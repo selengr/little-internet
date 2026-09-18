@@ -23,6 +23,14 @@ const mark = Syne({
 export const metadata = {
   title: 'Crypto',
   description: 'Live coin prices.',
+  openGraph: {
+    title: 'Crypto',
+    description: 'Live coin prices.',
+  },
+  twitter: {
+    title: 'Crypto',
+    description: 'Live coin prices.',
+  },
 }
 
 export default function CryptoPage() {

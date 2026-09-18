@@ -25,6 +25,14 @@ const mark = Syne({
 export const metadata = {
   title: 'Books',
   description: 'Find a book to read.',
+  openGraph: {
+    title: 'Books',
+    description: 'Find a book to read.',
+  },
+  twitter: {
+    title: 'Books',
+    description: 'Find a book to read.',
+  },
 }
 
 function BookExplorerFallback() {

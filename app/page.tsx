@@ -629,7 +629,7 @@ export default function AgenticPage() {
       <footer className="py-10 px-6 md:px-12 lg:px-20 border-t border-border">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <span className="font-pixel text-xs tracking-[0.25em] text-muted-foreground/70">
-            REZA KARBAKHSH
+            LITTLE INTERNET
           </span>
 
           {/* Nav sections */}
