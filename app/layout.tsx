@@ -15,39 +15,34 @@ const _ibmPlexSans = IBM_Plex_Sans({ weight: ["300", "400", "500", "600"], subse
 
 export const metadata: Metadata = {
   title: {
-    default: 'Reza Karbakhsh — Live playground of useful tools',
-    template: '%s · Reza',
+    default: 'Little Internet',
+    template: '%s · Little Internet',
   },
   description:
-    'Reza Karbakhsh’s personal playground of live APIs and explorers — books, dictionary, Wiktionary, world atlas, markets, forex, photos, poetry, IP location, QR codes, and more.',
+    'A small corner of the web — books, languages, maps, markets, photos, poems, and other live tools by Reza.',
   keywords: [
+    'Little Internet',
     'Reza Karbakhsh',
-    'Reza',
+    'books',
     'dictionary',
-    'Wiktionary',
-    'Open Library',
-    'crypto markets',
-    'forex',
-    'world atlas',
     'countries',
-    'IP location',
     'poetry',
-    'QR code',
-    'photo gallery',
+    'photos',
+    'tools',
   ],
   authors: [{ name: 'Reza Karbakhsh' }],
   openGraph: {
-    title: 'Reza Karbakhsh — Live playground of useful tools',
+    title: 'Little Internet',
     description:
-      'Explore books, language tools, world countries, markets, photos, poetry, and more — built by Reza.',
+      'A small corner of the web — books, languages, maps, and other live tools.',
     type: 'website',
-    siteName: 'Reza Karbakhsh',
+    siteName: 'Little Internet',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Reza Karbakhsh — Live playground of useful tools',
+    title: 'Little Internet',
     description:
-      'Explore books, language tools, world countries, markets, photos, poetry, and more — built by Reza.',
+      'A small corner of the web — books, languages, maps, and other live tools.',
   },
 
   icons: {
