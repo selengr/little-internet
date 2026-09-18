@@ -92,13 +92,13 @@ const Banner = ({ title, banner, user, home, blog, videoReady, children }: Props
                 <div className="flex flex-col">
                   <span className="mb-5">Hello World👋</span>
                   <span>
-                    I&apos;m reza karbakhsh, a software developer who loves exploring AI by
-                    building and learning in public.
+                    Welcome to my little internet. I&apos;m Reza Karbakhsh, a software
+                    developer who loves exploring AI by building and learning in public.
                   </span>
                 </div>
                 <div>
                   <span className={styles['landing-hover-highlight']}>
-                    Stay tuned for exciting updates - coming soon!{' '}
+                    Stay tuned for exciting updates — coming soon!{' '}
                   </span>
                 </div>
               </>
