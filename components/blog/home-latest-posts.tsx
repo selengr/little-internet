@@ -109,14 +109,14 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
           <h3 className="text-2xl sm:text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] text-white text-balance">
             {post.title}
           </h3>
-          {post.summary && (
+          {/* {post.summary && (
             <p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-white/65">{post.summary}</p>
-          )}
-          {post.tags.length > 0 && (
+          )} */}
+          {/* {post.tags.length > 0 && (
             <div className="mt-4 opacity-90 [&_span]:text-white/90">
               <BlogTagList tags={post.tags.slice(0, 3)} align="start" />
             </div>
-          )}
+          )} */}
           <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium tracking-[0.14em] uppercase text-white/80 transition-colors group-hover:text-white">
             View blog
             <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -241,7 +241,7 @@ export function HomeLatestPosts() {
               {'My writing.'}
             </RevealText>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">
-              Notes on building, learning, and the web — fresh posts from the blog.
+               Just some things I’ve been thinking about, Come along for the journey.
             </p>
           </div>
           {/* <Link
