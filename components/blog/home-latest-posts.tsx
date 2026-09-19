@@ -101,6 +101,10 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
                 <span>{post.readingMinutes} min</span>
               </>
             )}
+            <>
+              <span aria-hidden>·</span>
+              <span>{post.views} views</span>
+            </>
           </div>
           <h3 className="text-2xl sm:text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] text-white text-balance">
             {post.title}
@@ -148,9 +152,10 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center py-0.5">
-          <div className="mb-1 flex items-center gap-2 text-[10px] tracking-wide text-muted-foreground">
+          <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] tracking-wide text-muted-foreground">
             {date && <time dateTime={post.date ?? undefined}>{date}</time>}
             {post.readingMinutes != null && <span>{post.readingMinutes} min</span>}
+            <span>{post.views} views</span>
           </div>
           <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-0.02em] text-foreground transition-colors group-hover:text-foreground/90">
             {post.title}
@@ -235,6 +240,9 @@ export function HomeLatestPosts() {
             <RevealText className="mt-5 text-4xl md:text-5xl font-light tracking-tight leading-[1.05]">
               {'My writing.'}
             </RevealText>
+            <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">
+              Notes on building, learning, and the web — fresh posts from the blog.
+            </p>
           </div>
           {/* <Link
             href="/blog"
