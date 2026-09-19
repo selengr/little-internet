@@ -1,35 +1,91 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { MessageCircle, X, ArrowUp, Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import Link from 'next/link'
+import { ArrowUp, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 
-const SUGGESTIONS = [
-  'What’s on this site?',
-  'Where are the books?',
-  'Show me something fun',
-]
+const SUGGESTIONS = ['Books', 'Crypto', 'Something fun']
+
+const SITE_PATH_RE =
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|jokes|poetry|animal-facts|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+
+function linkifySitePaths(text: string): ReactNode[] {
+  const nodes: ReactNode[] = []
+  let last = 0
+  let i = 0
+  for (const match of text.matchAll(SITE_PATH_RE)) {
+    const start = match.index ?? 0
+    const path = match[1]
+    if (start > last) nodes.push(text.slice(last, start))
+    nodes.push(
+      <Link
+        key={`${path}-${i++}`}
+        href={path}
+        className="underline underline-offset-2 decoration-current/35 hover:decoration-current transition-colors"
+      >
+        {path}
+      </Link>,
+    )
+    last = start + path.length
+  }
+  if (last < text.length) nodes.push(text.slice(last))
+  return nodes.length ? nodes : [text]
+}
+
+function GuideMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+      <circle cx="5.5" cy="7" r="1.5" fill="currentColor" opacity="0.85" />
+      <circle cx="18.5" cy="8" r="1.5" fill="currentColor" opacity="0.85" />
+      <circle cx="7" cy="17.5" r="1.5" fill="currentColor" opacity="0.7" />
+      <circle cx="17" cy="16.5" r="1.5" fill="currentColor" opacity="0.7" />
+      <path
+        d="M6.6 7.8L10.4 10.8M17.6 8.8L13.6 11M8.1 16.4L10.6 13.4M16.2 15.6L13.5 13.2"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
+    </svg>
+  )
+}
+
+function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-1 px-0.5 py-0.5" aria-hidden>
+      {[0, 1, 2].map(i => (
+        <span
+          key={i}
+          className="size-1.5 rounded-full bg-current opacity-40 animate-bounce"
+          style={{ animationDelay: `${i * 120}ms`, animationDuration: '900ms' }}
+        />
+      ))}
+    </span>
+  )
+}
 
 export function SiteAssistant() {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: 'assistant',
-      content: 'Hey — I’m the Little Internet guide. Ask me where things live, or what to try next.',
-    },
-  ])
+  const [messages, setMessages] = useState<Msg[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (open) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-      setTimeout(() => inputRef.current?.focus(), 80)
-    }
+    if (!open) return
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const t = window.setTimeout(() => inputRef.current?.focus(), 180)
+    return () => window.clearTimeout(t)
   }, [open, messages, busy])
 
   useEffect(() => {
@@ -63,7 +119,7 @@ export function SiteAssistant() {
         const message =
           typeof err?.error === 'string'
             ? err.error
-            : 'Couldn’t reach the assistant right now.'
+            : 'Couldn’t reach the guide right now.'
         setMessages(m => [...m, { role: 'assistant', content: message }])
         return
       }
@@ -105,59 +161,43 @@ export function SiteAssistant() {
     }
   }
 
+  const showSuggestions = messages.length === 0 && !busy
+
   return (
     <div className="pointer-events-none fixed bottom-5 right-5 z-[90] flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
-      {open && (
-        <div
-          className={cn(
-            'pointer-events-auto w-[min(100vw-2rem,22rem)] overflow-hidden rounded-2xl border border-black/10 dark:border-white/12',
-            'bg-[#f8f8f8]/95 dark:bg-[#2f3437]/95 shadow-[0_18px_50px_rgba(0,0,0,0.22)] backdrop-blur-xl',
-            'animate-in fade-in slide-in-from-bottom-3 duration-200',
-          )}
-        >
-          <div className="flex items-center justify-between gap-3 border-b border-black/8 dark:border-white/10 px-4 py-3">
-            <div className="min-w-0">
-              <p className="font-pixel text-[10px] tracking-[0.22em] text-black/55 dark:text-white/55">
-                LITTLE INTERNET
-              </p>
-              <p className="text-sm text-black/80 dark:text-white/85">Ask around</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="inline-flex size-8 items-center justify-center rounded-xl border border-black/10 dark:border-white/15 text-black/55 dark:text-white/55 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer"
-              aria-label="Close assistant"
-            >
-              <X className="size-3.5" />
-            </button>
-          </div>
+      <div
+        className={cn(
+          'pointer-events-auto w-[min(100vw-2.5rem,21rem)] origin-bottom-right overflow-hidden',
+          'rounded-[1.35rem] border border-black/[0.08] dark:border-white/[0.1]',
+          'bg-[#f4f3f0]/92 dark:bg-[#2a2e31]/92 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] backdrop-blur-2xl',
+          'transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          open
+            ? 'translate-y-0 scale-100 opacity-100 blur-0'
+            : 'pointer-events-none invisible translate-y-3 scale-[0.92] opacity-0 blur-[2px]',
+        )}
+        aria-hidden={!open}
+      >
+        <div className="flex items-center justify-end px-2.5 pt-2.5">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="inline-flex size-8 items-center justify-center rounded-full text-black/40 dark:text-white/40 transition-colors hover:bg-black/[0.05] hover:text-black/70 dark:hover:bg-white/[0.06] dark:hover:text-white/75 cursor-pointer"
+            aria-label="Close"
+          >
+            <X className="size-3.5" strokeWidth={2.25} />
+          </button>
+        </div>
 
-          <div className="max-h-[min(50vh,22rem)] space-y-3 overflow-y-auto px-4 py-3">
-            {messages.map((m, i) => (
-              <div
-                key={`${m.role}-${i}`}
-                className={cn(
-                  'max-w-[92%] rounded-2xl px-3 py-2 text-[13px] leading-relaxed',
-                  m.role === 'user'
-                    ? 'ml-auto bg-[#37352f] text-[#f8f8f8] dark:bg-white/90 dark:text-[#2f3437]'
-                    : 'bg-black/[0.04] text-black/80 dark:bg-white/[0.06] dark:text-white/85',
-                )}
-              >
-                {m.content || (busy && i === messages.length - 1 ? '…' : '')}
-              </div>
-            ))}
-            <div ref={bottomRef} />
-          </div>
-
-          {messages.length <= 2 && (
-            <div className="flex flex-wrap gap-1.5 px-4 pb-2">
+        <div className="max-h-[min(48vh,20rem)] space-y-2.5 overflow-y-auto px-3.5 pb-3 pt-0.5">
+          {showSuggestions && (
+            <div className="flex flex-wrap gap-1.5 py-6 justify-center">
               {SUGGESTIONS.map(s => (
                 <button
                   key={s}
                   type="button"
                   disabled={busy}
                   onClick={() => send(s)}
-                  className="rounded-full border border-black/10 dark:border-white/12 px-2.5 py-1 text-[11px] text-black/60 dark:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] cursor-pointer disabled:opacity-50"
+                  className="rounded-full border border-black/[0.1] dark:border-white/[0.12] bg-black/[0.02] dark:bg-white/[0.04] px-3 py-1.5 text-[12px] text-black/55 dark:text-white/55 transition-colors hover:border-black/20 hover:text-black/80 dark:hover:border-white/25 dark:hover:text-white/80 cursor-pointer disabled:opacity-50"
                 >
                   {s}
                 </button>
@@ -165,60 +205,97 @@ export function SiteAssistant() {
             </div>
           )}
 
-          <form
-            className="flex items-center gap-2 border-t border-black/8 dark:border-white/10 p-3"
-            onSubmit={e => {
-              e.preventDefault()
-              void send(input)
-            }}
-          >
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              placeholder="Ask anything about the site…"
-              disabled={busy}
-              className="h-10 flex-1 rounded-xl border border-black/10 dark:border-white/12 bg-transparent px-3 text-sm outline-none placeholder:text-black/35 dark:placeholder:text-white/35 focus:border-black/25 dark:focus:border-white/25"
-            />
-            <button
-              type="submit"
-              disabled={busy || !input.trim()}
-              className="inline-flex size-10 items-center justify-center rounded-xl bg-[#37352f] text-[#f8f8f8] dark:bg-white dark:text-[#2f3437] disabled:opacity-40 cursor-pointer"
-              aria-label="Send"
-            >
-              <ArrowUp className="size-4" />
-            </button>
-          </form>
+          {messages.map((m, i) => {
+            const empty = !m.content && busy && i === messages.length - 1
+            return (
+              <div
+                key={`${m.role}-${i}`}
+                className={cn(
+                  'max-w-[90%] rounded-2xl px-3 py-2 text-[13px] leading-relaxed whitespace-pre-wrap',
+                  m.role === 'user'
+                    ? 'ml-auto bg-[#37352f] text-[#f7f6f3] dark:bg-[#e8e6e1] dark:text-[#2f3437]'
+                    : 'bg-black/[0.045] text-black/75 dark:bg-white/[0.06] dark:text-white/80',
+                )}
+              >
+                {empty ? (
+                  <TypingDots />
+                ) : m.role === 'assistant' ? (
+                  linkifySitePaths(m.content)
+                ) : (
+                  m.content
+                )}
+              </div>
+            )
+          })}
+          <div ref={bottomRef} />
         </div>
-      )}
+
+        <form
+          className="flex items-center gap-2 border-t border-black/[0.06] dark:border-white/[0.08] p-2.5"
+          onSubmit={e => {
+            e.preventDefault()
+            void send(input)
+          }}
+        >
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="Ask…"
+            disabled={busy}
+            className="h-10 flex-1 rounded-xl bg-transparent px-3 text-sm outline-none placeholder:text-black/30 dark:placeholder:text-white/30"
+          />
+          <button
+            type="submit"
+            disabled={busy || !input.trim()}
+            className={cn(
+              'inline-flex size-9 items-center justify-center rounded-full transition-all cursor-pointer',
+              'bg-[#37352f] text-[#f7f6f3] dark:bg-[#e8e6e1] dark:text-[#2f3437]',
+              'disabled:opacity-30 hover:scale-105 active:scale-95',
+            )}
+            aria-label="Send"
+          >
+            <ArrowUp className="size-4" strokeWidth={2.25} />
+          </button>
+        </form>
+      </div>
 
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
         className={cn(
-          'pointer-events-auto group relative inline-flex h-12 items-center gap-2 rounded-full border border-black/10 dark:border-white/15',
-          'bg-[#f8f8f8] dark:bg-[#2f3437] px-4 text-sm text-black/75 dark:text-white/80 shadow-[0_10px_30px_rgba(0,0,0,0.18)]',
-          'hover:border-black/20 dark:hover:border-white/25 transition-all cursor-pointer',
+          'pointer-events-auto relative inline-flex size-14 items-center justify-center rounded-full',
+          'border border-black/[0.08] dark:border-white/[0.12]',
+          'bg-[#f4f3f0] dark:bg-[#2a2e31] text-black/75 dark:text-white/85',
+          'shadow-[0_12px_36px_-8px_rgba(0,0,0,0.35)]',
+          'transition-[transform,box-shadow,background-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          'hover:scale-105 hover:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.4)] active:scale-95 cursor-pointer',
+          open && 'rotate-0 bg-[#37352f] text-[#f7f6f3] dark:bg-[#e8e6e1] dark:text-[#2f3437]',
         )}
         aria-expanded={open}
-        aria-label={open ? 'Close assistant' : 'Open assistant'}
+        aria-label={open ? 'Close guide' : 'Open guide'}
       >
-        <span className="relative flex size-2">
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500/50" />
-          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-        </span>
-        {open ? (
-          <>
-            <X className="size-4" />
-            <span className="hidden sm:inline">Close</span>
-          </>
-        ) : (
-          <>
-            <MessageCircle className="size-4" />
-            <span className="hidden sm:inline">Ask</span>
-            <Sparkles className="size-3.5 opacity-50" />
-          </>
+        {!open && (
+          <span className="pointer-events-none absolute inset-0 rounded-full">
+            <span className="absolute inset-0 animate-[assistant-ring_2.8s_ease-out_infinite] rounded-full border border-black/15 dark:border-white/20" />
+          </span>
         )}
+        <span
+          className={cn(
+            'absolute transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+            open ? 'rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100',
+          )}
+        >
+          <GuideMark className="size-6" />
+        </span>
+        <span
+          className={cn(
+            'absolute transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+            open ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0',
+          )}
+        >
+          <X className="size-5" strokeWidth={2.25} />
+        </span>
       </button>
     </div>
   )
