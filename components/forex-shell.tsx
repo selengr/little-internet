@@ -32,10 +32,10 @@ export function ForexShell({ fontVars }: { fontVars: string }) {
         }
 
         :is(html.dark, .dark) .forex-shell {
-          --fx-bg: #282d36;
+          --fx-bg: #2f3437;
           --fx-fg: hsla(0, 0%, 100%, 0.92);
           --fx-mute: hsla(0, 0%, 100%, 0.52);
-          --fx-panel: rgba(50, 56, 66, 0.9);
+          --fx-panel: rgba(55, 60, 65, 0.9);
           --fx-line: hsla(0, 0%, 100%, 0.12);
           --fx-line-soft: hsla(0, 0%, 100%, 0.07);
           --fx-up: #3ecf8e;
@@ -46,7 +46,7 @@ export function ForexShell({ fontVars }: { fontVars: string }) {
           --fx-wash:
             radial-gradient(ellipse 65% 45% at 100% 0%, rgba(91, 157, 255, 0.1), transparent 52%),
             radial-gradient(ellipse 50% 35% at 0% 100%, rgba(62, 207, 142, 0.05), transparent 48%),
-            linear-gradient(180deg, #2e343e 0%, #282d36 50%, #242932 100%);
+            linear-gradient(180deg, #32383b 0%, #2f3437 50%, #2c3134 100%);
           --fx-shadow: 0 22px 56px -24px rgba(0, 0, 0, 0.55);
         }
       `}</style>

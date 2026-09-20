@@ -1,5 +1,5 @@
 import { Instrument_Serif, JetBrains_Mono, Syne } from 'next/font/google'
-import { AnimalFactsExplorer } from '@/components/animal-facts/AnimalFactsExplorer'
+import { CatFactsView } from '@/components/animal-facts/CatFactsView'
 import { AnimalFactsShell } from '@/components/animal-facts/animal-facts-shell'
 
 const display = Instrument_Serif({
@@ -22,22 +22,25 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Animal facts',
-  description: 'Curious cat and dog facts — no scores, no battle.',
+  title: 'Cat facts',
+  description: 'One curious cat fact at a time.',
   openGraph: {
-    title: 'Animal facts',
-    description: 'Curious cat and dog facts — no scores, no battle.',
+    title: 'Cat facts',
+    description: 'One curious cat fact at a time.',
   },
   twitter: {
-    title: 'Animal facts',
-    description: 'Curious cat and dog facts — no scores, no battle.',
+    title: 'Cat facts',
+    description: 'One curious cat fact at a time.',
   },
 }
 
-export default function AnimalFactsPage() {
+export default function CatPage() {
   return (
-    <AnimalFactsShell fontVars={`${display.variable} ${mono.variable} ${mark.variable}`}>
-      <AnimalFactsExplorer />
+    <AnimalFactsShell
+      fontVars={`${display.variable} ${mono.variable} ${mark.variable}`}
+      label="CAT"
+    >
+      <CatFactsView />
     </AnimalFactsShell>
   )
 }

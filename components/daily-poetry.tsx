@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils'
 
 const SAVED_KEY = 'daily-poetry-saved'
 
+const titleFont = { fontFamily: 'var(--font-py-display), Georgia, serif' } as const
+
 export function DailyPoetry() {
   const [poem, setPoem] = useState<PoetryPoem | null>(null)
   const [mood, setMood] = useState<PoetryMood | null>(null)
@@ -99,56 +101,54 @@ export function DailyPoetry() {
       : poem?.lines.filter(l => l.trim()).length ?? 0
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6">
-      {/* Hero — brand first */}
-      <header className="pb-8 sm:pb-10">
+    <div className="mx-auto max-w-6xl px-5 md:px-8">
+      <header className="mb-10 md:mb-14 max-w-2xl">
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-[11px] font-medium uppercase tracking-[0.2em] mb-4"
+          style={{ color: 'var(--py-mute)' }}
+        >
+          Daily verse
+        </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.04 }}
-          className="font-[family-name:var(--font-py-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
+          className="text-[clamp(2.75rem,9vw,5rem)] font-normal leading-[0.95] tracking-tight"
+          style={titleFont}
         >
-          Poetry
-          <span style={{ color: 'var(--py-accent)' }}>.</span>
+          A poem for today.
         </motion.h1>
+        <p className="mt-5 text-[15px] leading-relaxed max-w-md" style={{ color: 'var(--py-mute)' }}>
+          Classics from PoetryDB — pick a mood, or flip to the next piece.
+        </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_220px] lg:items-start">
-        {/* Reading sheet */}
+      <div className="grid gap-5 lg:grid-cols-[1fr_200px] lg:items-start">
         <section
-          className="relative border min-h-[420px]"
+          className="relative min-h-[420px] rounded-2xl border overflow-hidden"
           style={{
             borderColor: 'var(--py-line)',
             background: 'var(--py-paper)',
+            boxShadow: 'var(--py-shadow)',
           }}
         >
           <div
-            className="absolute left-0 top-0 bottom-0 w-1"
-            style={{ background: 'var(--py-accent)' }}
-            aria-hidden
-          />
-
-          <div
-            className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 sm:px-6"
+            className="flex flex-wrap items-center justify-between gap-2 border-b px-5 py-3 sm:px-7"
             style={{ borderColor: 'var(--py-line-soft)' }}
           >
-            <p
-              className="font-[family-name:var(--font-py-mono)] text-[10px] uppercase tracking-[0.22em]"
-              style={{ color: 'var(--py-mute)' }}
-            >
-              Proof sheet
+            <p className="text-[11px] font-medium tracking-wide" style={{ color: 'var(--py-mute)' }}>
+              Reading
             </p>
-            {!loading && poem && (
-              <p
-                className="font-[family-name:var(--font-py-mono)] text-[10px] uppercase tracking-[0.18em] tabular-nums"
-                style={{ color: 'var(--py-mute)' }}
-              >
+            {!loading && poem ? (
+              <p className="text-[12px] tabular-nums" style={{ color: 'var(--py-mute)' }}>
                 {lineCount} lines
               </p>
-            )}
+            ) : null}
           </div>
 
-          <div className="px-4 py-8 sm:px-8 sm:py-10 md:px-12">
+          <div className="px-5 py-8 sm:px-8 sm:py-10 md:px-12">
             <AnimatePresence mode="wait">
               {loading ? (
                 <motion.div
@@ -158,13 +158,13 @@ export function DailyPoetry() {
                   exit={{ opacity: 0 }}
                   className="space-y-4 animate-pulse py-8"
                 >
-                  <div className="h-10 w-2/3" style={{ background: 'var(--py-line-soft)' }} />
-                  <div className="h-3 w-28" style={{ background: 'var(--py-line-soft)' }} />
+                  <div className="h-10 w-2/3 rounded-lg" style={{ background: 'var(--py-line-soft)' }} />
+                  <div className="h-3 w-28 rounded" style={{ background: 'var(--py-line-soft)' }} />
                   <div className="space-y-3 pt-8">
                     {Array.from({ length: 7 }).map((_, i) => (
                       <div
                         key={i}
-                        className="h-3.5"
+                        className="h-3.5 rounded"
                         style={{
                           width: `${55 + (i % 4) * 10}%`,
                           background: 'var(--py-line-soft)',
@@ -180,16 +180,13 @@ export function DailyPoetry() {
                   animate={{ opacity: 1 }}
                   className="py-16"
                 >
-                  <p
-                    className="font-[family-name:var(--font-py-display)] text-xl italic"
-                    style={{ color: 'var(--py-mute)' }}
-                  >
+                  <p className="text-lg leading-relaxed" style={{ color: 'var(--py-mute)' }}>
                     {error ?? 'Nothing on the press just now.'}
                   </p>
                   <button
                     type="button"
                     onClick={() => void loadPoem({ next: true })}
-                    className="mt-6 inline-flex items-center gap-2 h-10 px-4 font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.14em] cursor-pointer"
+                    className="mt-6 inline-flex items-center gap-2 h-10 px-4 rounded-xl text-[13px] font-medium cursor-pointer"
                     style={{ background: 'var(--py-fg)', color: 'var(--py-on-fg)' }}
                   >
                     Try another
@@ -204,11 +201,14 @@ export function DailyPoetry() {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <h2 className="font-[family-name:var(--font-py-display)] text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight leading-[1.15]">
+                  <h2
+                    className="text-3xl sm:text-4xl md:text-[2.75rem] font-normal tracking-tight leading-[1.15]"
+                    style={titleFont}
+                  >
                     {poem.title}
                   </h2>
                   <p
-                    className="mt-3 font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.2em]"
+                    className="mt-3 text-[13px] font-medium tracking-wide"
                     style={{ color: 'var(--py-accent)' }}
                   >
                     {poem.author}
@@ -221,22 +221,16 @@ export function DailyPoetry() {
                       return (
                         <div
                           key={i}
-                          className="group grid grid-cols-[2.5rem_1fr] sm:grid-cols-[3rem_1fr] gap-2 sm:gap-4"
+                          className="group grid grid-cols-[2.25rem_1fr] sm:grid-cols-[2.75rem_1fr] gap-2 sm:gap-4"
                         >
                           <span
-                            className="select-none pt-[0.35em] text-right font-[family-name:var(--font-py-mono)] text-[10px] tabular-nums opacity-0 group-hover:opacity-100 transition-opacity sm:opacity-40"
+                            className="select-none pt-[0.4em] text-right text-[11px] tabular-nums opacity-0 group-hover:opacity-100 transition-opacity sm:opacity-35"
                             style={{ color: 'var(--py-mute)' }}
                           >
                             {empty ? '' : String(n).padStart(2, '0')}
                           </span>
                           <p
-                            className={cn(
-                              'font-[family-name:var(--font-py-display)] leading-[1.85]',
-                              empty && 'h-4',
-                            )}
-                            style={{
-                              fontSize: 'clamp(1.05rem, 2.2vw, 1.3rem)',
-                            }}
+                            className={cn('leading-[1.8] text-[15px] sm:text-[16px]', empty && 'h-4')}
                           >
                             {line || '\u00A0'}
                           </p>
@@ -249,13 +243,12 @@ export function DailyPoetry() {
             </AnimatePresence>
           </div>
 
-          {/* Actions */}
-          {!loading && poem && (
+          {!loading && poem ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.12 }}
-              className="sticky bottom-0 flex flex-wrap items-center gap-2 border-t px-4 py-3 sm:px-6"
+              className="sticky bottom-0 flex flex-wrap items-center gap-2 border-t px-5 py-3.5 sm:px-7"
               style={{
                 borderColor: 'var(--py-line-soft)',
                 background: 'color-mix(in srgb, var(--py-paper) 92%, transparent)',
@@ -265,7 +258,7 @@ export function DailyPoetry() {
               <button
                 type="button"
                 onClick={toggleSave}
-                className="inline-flex h-10 items-center gap-2 px-3 border font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.12em] cursor-pointer"
+                className="inline-flex h-10 items-center gap-2 px-3.5 rounded-xl border text-[13px] font-medium cursor-pointer transition-colors"
                 style={{
                   borderColor: saved ? 'var(--py-accent)' : 'var(--py-line)',
                   color: saved ? 'var(--py-accent)' : 'var(--py-fg)',
@@ -278,7 +271,7 @@ export function DailyPoetry() {
               <button
                 type="button"
                 onClick={() => void copyPoem()}
-                className="inline-flex h-10 items-center gap-2 px-3 border font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.12em] cursor-pointer"
+                className="inline-flex h-10 items-center gap-2 px-3.5 rounded-xl border text-[13px] font-medium cursor-pointer"
                 style={{ borderColor: 'var(--py-line)', color: 'var(--py-fg)' }}
               >
                 {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
@@ -287,7 +280,7 @@ export function DailyPoetry() {
               <button
                 type="button"
                 onClick={() => void sharePoem()}
-                className="inline-flex h-10 items-center gap-2 px-3 border font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.12em] cursor-pointer"
+                className="inline-flex h-10 items-center gap-2 px-3.5 rounded-xl border text-[13px] font-medium cursor-pointer"
                 style={{ borderColor: 'var(--py-line)', color: 'var(--py-fg)' }}
               >
                 <Share2 className="size-3.5" />
@@ -296,30 +289,27 @@ export function DailyPoetry() {
               <button
                 type="button"
                 onClick={() => void loadPoem({ next: true, mood })}
-                className="inline-flex h-10 items-center gap-2 px-4 ml-auto font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.14em] cursor-pointer"
+                className="inline-flex h-10 items-center gap-2 px-4 ml-auto rounded-xl text-[13px] font-medium cursor-pointer"
                 style={{ background: 'var(--py-fg)', color: 'var(--py-on-fg)' }}
               >
                 Next
                 <ArrowRight className="size-3.5" />
               </button>
             </motion.div>
-          )}
+          ) : null}
         </section>
 
-        {/* Mood rail */}
-        <aside className="space-y-4 lg:sticky lg:top-28">
+        <aside className="space-y-3 lg:sticky lg:top-28">
           <div
-            className="border"
-            style={{ borderColor: 'var(--py-line)', background: 'var(--py-panel)' }}
+            className="rounded-2xl border overflow-hidden"
+            style={{
+              borderColor: 'var(--py-line)',
+              background: 'var(--py-panel)',
+              boxShadow: 'var(--py-shadow)',
+            }}
           >
-            <div
-              className="border-b px-4 py-2.5"
-              style={{ borderColor: 'var(--py-line-soft)' }}
-            >
-              <p
-                className="font-[family-name:var(--font-py-mono)] text-[10px] uppercase tracking-[0.22em]"
-                style={{ color: 'var(--py-mute)' }}
-              >
+            <div className="border-b px-4 py-3" style={{ borderColor: 'var(--py-line-soft)' }}>
+              <p className="text-[11px] font-medium tracking-wide" style={{ color: 'var(--py-mute)' }}>
                 Mood
               </p>
             </div>
@@ -329,16 +319,16 @@ export function DailyPoetry() {
                   key={m.id}
                   type="button"
                   onClick={() => void loadPoem({ mood: m.id })}
-                  className="relative shrink-0 px-4 py-3.5 text-left font-[family-name:var(--font-py-mono)] text-[11px] uppercase tracking-[0.14em] cursor-pointer transition-opacity hover:opacity-100"
+                  className="relative shrink-0 px-4 py-3 text-left text-[13px] font-medium cursor-pointer transition-colors"
                   style={{
                     color: mood === m.id ? 'var(--py-fg)' : 'var(--py-mute)',
-                    opacity: mood === m.id ? 1 : 0.8,
+                    background: mood === m.id ? 'var(--py-accent-soft)' : 'transparent',
                   }}
                 >
                   {mood === m.id && (
                     <motion.span
                       layoutId="py-mood"
-                      className="absolute left-0 top-2 bottom-2 w-0.5 lg:top-3 lg:bottom-3"
+                      className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full lg:top-2.5 lg:bottom-2.5"
                       style={{ background: 'var(--py-accent)' }}
                     />
                   )}
@@ -348,10 +338,7 @@ export function DailyPoetry() {
             </div>
           </div>
 
-          <p
-            className="px-1 font-[family-name:var(--font-py-mono)] text-[10px] leading-relaxed tracking-wide"
-            style={{ color: 'var(--py-mute)' }}
-          >
+          <p className="px-1 text-[12px] leading-relaxed" style={{ color: 'var(--py-mute)' }}>
             PoetryDB · featured poets · safe classics
           </p>
         </aside>

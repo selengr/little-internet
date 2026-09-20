@@ -37,10 +37,10 @@ export function BooksShell({
         }
 
         :is(html.dark, .dark) .books-shell {
-          --bk-bg: #2a2e2b;
+          --bk-bg: #2f3437;
           --bk-fg: hsla(0, 0%, 100%, 0.92);
           --bk-mute: hsla(0, 0%, 100%, 0.52);
-          --bk-panel: rgba(55, 60, 57, 0.88);
+          --bk-panel: rgba(55, 60, 65, 0.9);
           --bk-line: hsla(0, 0%, 100%, 0.12);
           --bk-line-soft: hsla(0, 0%, 100%, 0.07);
           --bk-accent: #7eb896;
@@ -50,7 +50,7 @@ export function BooksShell({
           --bk-wash:
             radial-gradient(ellipse 65% 45% at 0% 0%, rgba(126, 184, 150, 0.1), transparent 52%),
             radial-gradient(ellipse 50% 35% at 100% 90%, rgba(212, 184, 74, 0.05), transparent 48%),
-            linear-gradient(180deg, #2f3431 0%, #2a2e2b 50%, #262a27 100%);
+            linear-gradient(180deg, #32383b 0%, #2f3437 50%, #2c3134 100%);
           --bk-shadow: 0 22px 56px -24px rgba(0, 0, 0, 0.55);
         }
       `}</style>

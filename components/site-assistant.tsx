@@ -10,7 +10,7 @@ type Msg = { role: 'user' | 'assistant'; content: string }
 const SUGGESTIONS = ['Books', 'Crypto', 'Something fun']
 
 const SITE_PATH_RE =
-  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|jokes|poetry|animal-facts|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
 
 function linkifySitePaths(text: string): ReactNode[] {
   const nodes: ReactNode[] = []

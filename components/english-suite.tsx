@@ -23,6 +23,7 @@ type Tool = {
   live: boolean
   image: string
   imageAlt: string
+  imagePosition?: string
   glyph: string
   phonetic: string
   ink: string
@@ -39,12 +40,14 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Definitions, phonetics, and examples — a quiet reading room for every word.',
     href: '/dictionary',
     live: true,
+    // Grand library aisle — warm wood, depth, cinematic
     image:
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1400&q=80',
-    imageAlt: 'Open book with printed pages',
+      'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1800&q=85',
+    imageAlt: 'Sunlit aisle in a grand library',
+    imagePosition: 'object-[center_40%]',
     glyph: 'Aa',
     phonetic: '/ˈwɜːrd/',
-    ink: 'from-[#1a1410]/25 via-[#1a1410]/55 to-[#1a1410]/95',
+    ink: 'from-[#0c0a08]/40 via-[#0c0a08]/55 to-[#0c0a08]/96',
     grid: 'md:col-span-7 md:row-span-2',
     height: 'min-h-[420px] md:min-h-full',
     tall: true,
@@ -56,12 +59,14 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Etymology, native audio, and meanings across languages.',
     href: '/wiktionary',
     live: true,
+    // Earth at night — global languages, luminous cities
     image:
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
-    imageAlt: 'People learning together',
+      'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=85',
+    imageAlt: 'Earth from space at night with city lights',
+    imagePosition: 'object-center',
     glyph: '文',
     phonetic: 'あ · Ω · ñ',
-    ink: 'from-[#0e1418]/30 via-[#0e1418]/60 to-[#0e1418]/96',
+    ink: 'from-[#060a12]/45 via-[#060a12]/60 to-[#060a12]/96',
     grid: 'md:col-span-5',
     height: 'min-h-[260px]',
   },
@@ -69,17 +74,19 @@ const ENGLISH_TOOLS: Tool[] = [
     n: '03',
     title: 'Grammar Atelier',
     whisper: 'Soon',
-    desc: 'Tense maps and sentence refinement.',
+    desc: 'Tense maps and sentence refinement — not available yet.',
     href: null,
     live: false,
+    // Desk with pen and notes — craft of writing
     image:
-      'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1000&q=80',
-    imageAlt: 'Handwriting on paper',
+      'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=1600&q=85',
+    imageAlt: 'Notebook and pen on a writing desk',
+    imagePosition: 'object-[center_35%]',
     glyph: 'S—V',
     phonetic: 'subject · verb',
-    ink: 'from-[#141210]/35 via-[#141210]/65 to-[#141210]/96',
+    ink: 'from-[#0e0c0a]/40 via-[#0e0c0a]/60 to-[#0e0c0a]/96',
     grid: 'md:col-span-5',
-    height: 'min-h-[240px]',
+    height: 'min-h-[260px]',
   },
   {
     n: '04',
@@ -88,14 +95,16 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Accent training with studio-quality voice comparisons — coming next.',
     href: null,
     live: false,
+    // Vinyl / music atmosphere — sound and voice
     image:
-      'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1600&q=80',
-    imageAlt: 'Studio microphone',
+      'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1800&q=85',
+    imageAlt: 'Music studio mixing console with warm light',
+    imagePosition: 'object-[center_45%]',
     glyph: 'ə',
     phonetic: '/ʃ/ · /θ/ · /æ/',
-    ink: 'from-[#101018]/30 via-[#101018]/55 to-[#101018]/94',
+    ink: 'from-[#08080c]/45 via-[#08080c]/60 to-[#08080c]/96',
     grid: 'md:col-span-12',
-    height: 'min-h-[220px] md:min-h-[230px]',
+    height: 'min-h-[240px] md:min-h-[260px]',
   },
 ]
 
@@ -132,28 +141,35 @@ function EnglishCard({ tool, delay }: { tool: Tool; delay: number }) {
     <article
       ref={ref}
       className={cn(
-        'group relative overflow-hidden rounded-[1.35rem] border border-white/10 h-full',
+        'group relative overflow-hidden rounded-2xl border border-white/10 h-full',
         tool.height,
-        !tool.live && 'opacity-90',
+        !tool.live && 'cursor-default select-none',
       )}
       style={{
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(28px)',
         transition: `opacity 0.85s ease ${delay}ms, transform 0.85s ease ${delay}ms`,
       }}
+      aria-disabled={!tool.live ? true : undefined}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={tool.image}
         alt={tool.imageAlt}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+        className={cn(
+          'absolute inset-0 w-full h-full object-cover transition-transform duration-[1.1s] ease-out',
+          tool.live && 'group-hover:scale-[1.05]',
+          tool.imagePosition ?? 'object-center',
+        )}
       />
       <div className={`absolute inset-0 bg-gradient-to-t ${tool.ink}`} />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.12),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(255,255,255,0.1),transparent_50%)]" />
+      <div className="absolute inset-0 bg-black/10" />
 
       <div
         className={cn(
-          'pointer-events-none absolute select-none text-white/[0.12] leading-none transition-all duration-700 ease-out group-hover:text-white/[0.18] group-hover:-translate-y-2 group-hover:translate-x-1',
+          'pointer-events-none absolute select-none text-white/[0.1] leading-none transition-all duration-700 ease-out',
+          tool.live && 'group-hover:text-white/[0.16] group-hover:-translate-y-2 group-hover:translate-x-1',
           tool.tall
             ? 'right-[-4%] top-[8%] text-[11rem] md:text-[14rem]'
             : 'right-[-2%] top-[4%] text-[7rem] md:text-[8.5rem]',
@@ -166,29 +182,57 @@ function EnglishCard({ tool, delay }: { tool: Tool; delay: number }) {
 
       <div className="relative z-10 flex h-full flex-col justify-between p-6 md:p-8">
         <div className="flex items-start justify-between gap-3">
-          <span className="text-[10px] tracking-[0.35em] uppercase text-white/45">
-            {tool.n} · {tool.whisper}
-          </span>
-          {tool.live ? (
-            <span className="inline-flex size-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/80 backdrop-blur-sm transition-all duration-500 group-hover:bg-white group-hover:text-stone-900">
-              <ArrowUpRight className="size-3.5" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-[10px] tracking-[0.28em] uppercase text-white/45">
+              {tool.n}
             </span>
-          ) : (
-            <span className="text-[9px] tracking-[0.3em] uppercase text-white/35">Locked</span>
-          )}
+            {tool.live ? (
+              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-emerald-300/90">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-55" />
+                  <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+                </span>
+                {tool.whisper}
+              </span>
+            ) : (
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/90">
+                Coming soon
+              </span>
+            )}
+          </div>
+          {tool.live ? (
+            <span className="inline-flex size-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/85 backdrop-blur-md transition-all duration-500 ease-out group-hover:scale-110 group-hover:bg-white group-hover:text-stone-900 group-hover:border-white group-hover:shadow-[0_8px_24px_-8px_rgba(255,255,255,0.55)]">
+              <ArrowUpRight className="size-3.5 transition-transform duration-500 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          ) : null}
         </div>
 
         <div className={cn('mt-auto', tool.tall && 'max-w-md')}>
-          <p
-            className="mb-3 text-sm italic text-white/55 transition-all duration-500 group-hover:text-white/80"
-            style={{ fontFamily: display.style.fontFamily }}
-          >
-            {tool.phonetic}
-          </p>
+          {!tool.live ? (
+            <p
+              className={cn(
+                'mb-3 font-semibold tracking-tight text-white leading-none',
+                tool.n === '04'
+                  ? 'text-[clamp(2.75rem,6vw,4rem)]'
+                  : 'text-[clamp(2.4rem,5vw,3.25rem)]',
+              )}
+              style={{ fontFamily: display.style.fontFamily }}
+            >
+              Soon
+            </p>
+          ) : (
+            <p
+              className="mb-2.5 text-[13px] italic text-white/55 transition-colors duration-500 group-hover:text-white/80"
+              style={{ fontFamily: display.style.fontFamily }}
+            >
+              {tool.phonetic}
+            </p>
+          )}
           <h3
             className={cn(
               'font-light tracking-tight text-white leading-[1.05]',
               tool.tall ? 'text-4xl md:text-5xl' : 'text-2xl md:text-3xl',
+              !tool.live && 'text-xl md:text-2xl',
             )}
             style={{ fontFamily: display.style.fontFamily }}
           >
@@ -196,17 +240,22 @@ function EnglishCard({ tool, delay }: { tool: Tool; delay: number }) {
           </h3>
           <p
             className={cn(
-              'mt-3 text-sm text-white/55 leading-relaxed',
+              'mt-3 text-[13px] sm:text-sm text-white/60 leading-relaxed',
               tool.tall ? 'max-w-sm' : 'line-clamp-2',
             )}
           >
             {tool.desc}
           </p>
           {tool.live ? (
-            <p className="mt-5 text-[10px] tracking-[0.28em] uppercase text-white/70 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+            <p className="mt-5 inline-flex items-center gap-1.5 text-[11px] tracking-[0.2em] uppercase text-white/75 opacity-0 translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
               Open tool
+              <ArrowUpRight className="size-3" />
             </p>
-          ) : null}
+          ) : (
+            <p className="mt-4 text-[11px] font-medium tracking-[0.18em] uppercase text-white/45">
+              Not clickable yet
+            </p>
+          )}
         </div>
       </div>
     </article>
@@ -217,7 +266,7 @@ function EnglishCard({ tool, delay }: { tool: Tool; delay: number }) {
       <Link
         href={tool.href}
         className={cn(
-          'block focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-[1.35rem]',
+          'block focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-2xl',
           tool.grid,
           tool.height,
         )}

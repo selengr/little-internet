@@ -32,10 +32,10 @@ export function CryptoShell({ fontVars }: { fontVars: string }) {
         }
 
         :is(html.dark, .dark) .crypto-shell {
-          --cx-bg: #292e33;
+          --cx-bg: #2f3437;
           --cx-fg: hsla(0, 0%, 100%, 0.92);
           --cx-mute: hsla(0, 0%, 100%, 0.52);
-          --cx-panel: rgba(52, 58, 64, 0.9);
+          --cx-panel: rgba(55, 60, 65, 0.9);
           --cx-line: hsla(0, 0%, 100%, 0.12);
           --cx-line-soft: hsla(0, 0%, 100%, 0.07);
           --cx-up: #3dd68c;
@@ -46,7 +46,7 @@ export function CryptoShell({ fontVars }: { fontVars: string }) {
           --cx-wash:
             radial-gradient(ellipse 65% 45% at 0% 0%, rgba(200, 255, 61, 0.08), transparent 52%),
             radial-gradient(ellipse 50% 35% at 100% 90%, rgba(61, 214, 140, 0.05), transparent 48%),
-            linear-gradient(180deg, #2f3439 0%, #292e33 50%, #252a2e 100%);
+            linear-gradient(180deg, #32383b 0%, #2f3437 50%, #2c3134 100%);
           --cx-shadow: 0 22px 56px -24px rgba(0, 0, 0, 0.55);
         }
       `}</style>

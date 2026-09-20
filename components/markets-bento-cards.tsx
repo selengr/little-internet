@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { ArrowUpRight } from 'lucide-react'
 import type { CoinMarket } from '@/types/coingecko'
 import { formatPct, formatUsd } from '@/lib/crypto-format'
 
@@ -68,7 +69,7 @@ function MarketBentoCard({
         src={image}
         alt=""
         aria-hidden
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${imagePosition}`}
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.05] ${imagePosition}`}
       />
       <div className={`absolute inset-0 bg-gradient-to-t ${wash}`} />
       <div className="absolute inset-0 bg-[#0f1419]/30" />
@@ -85,11 +86,19 @@ function pctColor(pct: number) {
 function LiveBadge() {
   return (
     <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-emerald-300/90">
-      <span className="relative flex size-1.5">
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-        <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+      <span className="relative flex size-2">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-55" />
+        <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
       </span>
       Live
+    </span>
+  )
+}
+
+function CardArrow() {
+  return (
+    <span className="inline-flex size-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/85 backdrop-blur-md transition-all duration-500 ease-out group-hover:scale-110 group-hover:bg-white group-hover:text-stone-900 group-hover:border-white group-hover:shadow-[0_8px_24px_-8px_rgba(255,255,255,0.55)]">
+      <ArrowUpRight className="size-3.5 transition-transform duration-500 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
     </span>
   )
 }
@@ -176,8 +185,11 @@ export function MarketsBentoCards() {
         >
           <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Crypto</p>
-              <LiveBadge />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Crypto</p>
+                <LiveBadge />
+              </div>
+              <CardArrow />
             </div>
 
             <div className="mt-8 mb-4">
@@ -222,8 +234,11 @@ export function MarketsBentoCards() {
         >
           <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Convert</p>
-              <LiveBadge />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Convert</p>
+                <LiveBadge />
+              </div>
+              <CardArrow />
             </div>
 
             <div className="mt-8 mb-4">

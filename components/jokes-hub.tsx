@@ -29,6 +29,8 @@ const CATEGORIES = [
 
 const FAVORITES_KEY = 'fun-apis-joke-favorites'
 
+const titleFont = { fontFamily: 'var(--font-jk-display), Georgia, serif' } as const
+
 function isJoke(data: JokeResponse): data is Joke {
   return !data.error && 'id' in data && !('jokes' in data)
 }
@@ -106,7 +108,7 @@ function JokeCard({
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        'relative overflow-hidden border',
+        'relative overflow-hidden rounded-2xl border',
         large ? 'p-6 sm:p-8 md:p-10' : 'p-4 sm:p-5',
       )}
       style={
@@ -115,16 +117,18 @@ function JokeCard({
               background: 'var(--jk-stage)',
               color: 'var(--jk-stage-fg)',
               borderColor: 'transparent',
+              boxShadow: 'var(--jk-shadow)',
             }
           : {
               background: 'var(--jk-panel)',
               borderColor: 'var(--jk-line)',
               color: 'var(--jk-fg)',
+              boxShadow: 'var(--jk-shadow)',
             }
       }
     >
       <div
-        className="pointer-events-none absolute left-0 top-0 bottom-0 w-1"
+        className="pointer-events-none absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
         style={{ background: stage ? 'var(--jk-cue)' : cat.color }}
         aria-hidden
       />
@@ -133,26 +137,26 @@ function JokeCard({
         <div className="flex items-center justify-between gap-2 mb-4 sm:mb-5">
           <div className="flex items-center gap-2.5 min-w-0">
             <span
-              className="shrink-0 font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.2em] px-2 py-1 border"
+              className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.16em] px-2 py-1 rounded-lg border"
               style={{
                 borderColor: stage ? 'rgba(242,243,246,0.2)' : 'var(--jk-line)',
                 color: stage ? 'var(--jk-cue)' : 'var(--jk-mute)',
               }}
             >
-              {cat.mark}
+              {cat.label}
             </span>
             <span
-              className="truncate font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.18em]"
+              className="truncate text-[12px]"
               style={{ color: stage ? 'rgba(242,243,246,0.45)' : 'var(--jk-mute)' }}
             >
-              {joke.category} · #{joke.id}
+              #{joke.id}
             </span>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={copy}
-              className="size-8 border flex items-center justify-center transition-opacity hover:opacity-80 cursor-pointer"
+              className="size-8 rounded-xl border flex items-center justify-center transition-opacity hover:opacity-80 cursor-pointer"
               style={{
                 borderColor: stage ? 'rgba(242,243,246,0.2)' : 'var(--jk-line)',
                 color: stage ? 'rgba(242,243,246,0.7)' : 'var(--jk-mute)',
@@ -164,7 +168,7 @@ function JokeCard({
             <button
               type="button"
               onClick={() => onToggleFavorite(joke)}
-              className="size-8 border flex items-center justify-center transition-colors cursor-pointer"
+              className="size-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer"
               style={{
                 borderColor: isFav ? 'var(--jk-hot)' : stage ? 'rgba(242,243,246,0.2)' : 'var(--jk-line)',
                 color: isFav ? 'var(--jk-hot)' : stage ? 'rgba(242,243,246,0.7)' : 'var(--jk-mute)',
@@ -181,8 +185,8 @@ function JokeCard({
           <div className="space-y-4">
             <p
               className={cn(
-                'font-[family-name:var(--font-jk-display)] leading-[1.35] tracking-tight',
-                large ? 'text-2xl sm:text-3xl md:text-[2.15rem]' : 'text-lg sm:text-xl',
+                'leading-[1.45] tracking-[-0.01em] font-medium',
+                large ? 'text-[1.35rem] sm:text-[1.65rem] md:text-[1.85rem]' : 'text-[15px] sm:text-base',
               )}
             >
               {joke.setup}
@@ -194,8 +198,8 @@ function JokeCard({
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   className={cn(
-                    'font-[family-name:var(--font-jk-display)] italic leading-[1.35]',
-                    large ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg',
+                    'leading-[1.45] font-medium',
+                    large ? 'text-[1.2rem] sm:text-[1.4rem]' : 'text-[14px] sm:text-[15px]',
                   )}
                   style={{ color: stage ? 'var(--jk-cue)' : 'var(--jk-hot)' }}
                 >
@@ -206,7 +210,7 @@ function JokeCard({
                   key="reveal"
                   type="button"
                   onClick={onReveal}
-                  className="inline-flex items-center gap-2 h-10 px-4 font-[family-name:var(--font-jk-mono)] text-[11px] uppercase tracking-[0.16em] cursor-pointer transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-90"
                   style={{
                     background: 'var(--jk-cue)',
                     color: 'var(--jk-on-fg)',
@@ -220,8 +224,8 @@ function JokeCard({
         ) : (
           <p
             className={cn(
-              'font-[family-name:var(--font-jk-display)] leading-[1.35] tracking-tight',
-              large ? 'text-2xl sm:text-3xl md:text-[2.15rem]' : 'text-lg sm:text-xl',
+              'leading-[1.45] tracking-[-0.01em] font-medium',
+              large ? 'text-[1.35rem] sm:text-[1.65rem] md:text-[1.85rem]' : 'text-[15px] sm:text-base',
             )}
           >
             {joke.joke}
@@ -311,7 +315,7 @@ export function SpinWheel({
           onClick={onSpin}
           disabled={spinning}
           className={cn(
-            'inline-flex items-center gap-2 font-medium transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+            'inline-flex items-center gap-2 font-medium rounded-xl transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
             compact ? 'px-3 py-1.5 text-[11px]' : 'px-5 py-2.5 text-sm',
           )}
           style={{
@@ -542,23 +546,33 @@ export function JokesHub() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6">
-      {/* Hero */}
-      <header className="pb-8 sm:pb-10">
+    <div className="mx-auto max-w-6xl px-5 md:px-8">
+      <header className="mb-10 md:mb-12 max-w-2xl">
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-[11px] font-medium uppercase tracking-[0.2em] mb-4"
+          style={{ color: 'var(--jk-mute)' }}
+        >
+          Comedy desk
+        </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.04 }}
-          className="font-[family-name:var(--font-jk-mark)] text-[clamp(3.5rem,14vw,7.5rem)] font-extrabold leading-[0.85] tracking-tighter"
+          className="text-[clamp(2.75rem,9vw,5rem)] font-normal leading-[0.95] tracking-tight"
+          style={titleFont}
         >
-          Jokes
-          <span style={{ color: 'var(--jk-hot)' }}>.</span>
+          Pull a joke.
         </motion.h1>
+        <p className="mt-5 text-[15px] leading-relaxed max-w-md" style={{ color: 'var(--jk-mute)' }}>
+          Spin the wheel, pick a category, or keep scrolling the set list.
+        </p>
       </header>
 
       {error && (
         <p
-          className="mb-6 border px-4 py-3 font-[family-name:var(--font-jk-mono)] text-sm"
+          className="mb-6 rounded-xl border px-4 py-3 text-[14px]"
           style={{
             borderColor: 'var(--jk-hot)',
             background: 'var(--jk-hot-soft)',
@@ -574,10 +588,7 @@ export function JokesHub() {
         <div className="grid gap-4 lg:grid-cols-[1fr_240px] lg:items-stretch mb-6 sm:mb-8">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p
-                className="font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.24em]"
-                style={{ color: 'var(--jk-mute)' }}
-              >
+              <p className="text-[11px] font-medium tracking-wide" style={{ color: 'var(--jk-mute)' }}>
                 On stage
               </p>
               <div className="flex flex-wrap gap-2">
@@ -585,7 +596,7 @@ export function JokesHub() {
                   type="button"
                   onClick={randomJoke}
                   disabled={randomLoading}
-                  className="inline-flex h-9 items-center gap-2 px-3 font-[family-name:var(--font-jk-mono)] text-[11px] uppercase tracking-[0.14em] cursor-pointer disabled:opacity-50"
+                  className="inline-flex h-9 items-center gap-2 px-3.5 rounded-xl text-[13px] font-medium cursor-pointer disabled:opacity-50"
                   style={{ background: 'var(--jk-fg)', color: 'var(--jk-on-fg)' }}
                 >
                   <RefreshCw className={cn('size-3.5', randomLoading && 'animate-spin')} />
@@ -609,13 +620,14 @@ export function JokesHub() {
           <motion.aside
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border flex flex-col items-center justify-center gap-5 p-5 sm:p-6"
-            style={{ borderColor: 'var(--jk-line)', background: 'var(--jk-panel)' }}
+            className="rounded-2xl border flex flex-col items-center justify-center gap-5 p-5 sm:p-6"
+            style={{
+              borderColor: 'var(--jk-line)',
+              background: 'var(--jk-panel)',
+              boxShadow: 'var(--jk-shadow)',
+            }}
           >
-            <p
-              className="font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.24em]"
-              style={{ color: 'var(--jk-mute)' }}
-            >
+            <p className="text-[11px] font-medium tracking-wide" style={{ color: 'var(--jk-mute)' }}>
               Wheel
             </p>
             <SpinWheel spinning={spinning} landed={spinLanded} onSpin={spinForJoke} />
@@ -625,8 +637,12 @@ export function JokesHub() {
 
       {/* Desk controls */}
       <section
-        className="border mb-6 sm:mb-8"
-        style={{ borderColor: 'var(--jk-line)', background: 'var(--jk-panel)' }}
+        className="rounded-2xl border mb-6 sm:mb-8 overflow-hidden"
+        style={{
+          borderColor: 'var(--jk-line)',
+          background: 'var(--jk-panel)',
+          boxShadow: 'var(--jk-shadow)',
+        }}
       >
         <div
           className="flex flex-col sm:flex-row sm:items-center gap-3 border-b px-4 py-3 sm:px-5"
@@ -642,7 +658,7 @@ export function JokesHub() {
               onChange={e => setSearch(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && randomJoke()}
               placeholder="Search bits… bar, python, cat"
-              className="w-full bg-transparent pl-6 pr-2 py-2 font-[family-name:var(--font-jk-mono)] text-sm outline-none placeholder:opacity-50"
+              className="w-full bg-transparent pl-6 pr-2 py-2 text-[14px] outline-none placeholder:opacity-50"
               style={{ color: 'var(--jk-fg)' }}
             />
           </div>
@@ -657,7 +673,7 @@ export function JokesHub() {
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
-                className="inline-flex items-center gap-1.5 h-9 px-3 font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.14em] border cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-[12px] font-medium border cursor-pointer transition-colors"
                 style={
                   tab === t.key
                     ? { background: 'var(--jk-fg)', color: 'var(--jk-on-fg)', borderColor: 'var(--jk-fg)' }
@@ -676,7 +692,7 @@ export function JokesHub() {
               <button
                 type="button"
                 onClick={clearFavorites}
-                className="inline-flex items-center gap-1.5 h-9 px-3 font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.14em] border cursor-pointer"
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-[12px] font-medium border cursor-pointer"
                 style={{ borderColor: 'var(--jk-hot)', color: 'var(--jk-hot)' }}
               >
                 <Trash2 className="size-3" />
@@ -692,7 +708,7 @@ export function JokesHub() {
               key={c.key}
               type="button"
               onClick={() => changeCategory(c.key)}
-              className="relative shrink-0 px-3 py-3 font-[family-name:var(--font-jk-mono)] text-[11px] uppercase tracking-[0.14em] cursor-pointer transition-opacity"
+              className="relative shrink-0 px-3 py-3 text-[13px] font-medium cursor-pointer transition-opacity"
               style={{
                 color: category === c.key ? 'var(--jk-fg)' : 'var(--jk-mute)',
                 opacity: category === c.key ? 1 : 0.75,
@@ -705,7 +721,7 @@ export function JokesHub() {
               {category === c.key && (
                 <motion.span
                   layoutId="jk-cat"
-                  className="absolute bottom-0 left-2 right-2 h-0.5"
+                  className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
                   style={{ background: 'var(--jk-hot)' }}
                 />
               )}
@@ -717,18 +733,19 @@ export function JokesHub() {
       {/* Daily — compact strip, not a second hero */}
       {dailyJoke && tab === 'feed' && (
         <section
-          className="mb-6 sm:mb-8 border"
-          style={{ borderColor: 'var(--jk-line)', background: 'var(--jk-panel)' }}
+          className="mb-6 sm:mb-8 rounded-2xl border overflow-hidden"
+          style={{
+            borderColor: 'var(--jk-line)',
+            background: 'var(--jk-panel)',
+            boxShadow: 'var(--jk-shadow)',
+          }}
         >
           <div
             className="flex items-center gap-2 border-b px-4 py-2.5 sm:px-5"
             style={{ borderColor: 'var(--jk-line-soft)' }}
           >
             <Calendar className="size-3.5" style={{ color: 'var(--jk-hot)' }} />
-            <p
-              className="font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.22em]"
-              style={{ color: 'var(--jk-mute)' }}
-            >
+            <p className="text-[11px] font-medium tracking-wide" style={{ color: 'var(--jk-mute)' }}>
               Bit of the day
             </p>
           </div>
@@ -747,7 +764,7 @@ export function JokesHub() {
       {tab === 'feed' ? (
         <section className="space-y-3">
           <p
-            className="font-[family-name:var(--font-jk-mono)] text-[10px] uppercase tracking-[0.22em] flex items-center gap-2"
+            className="text-[11px] font-medium tracking-wide flex items-center gap-2"
             style={{ color: 'var(--jk-mute)' }}
           >
             <Infinity className="size-3" />
@@ -776,13 +793,11 @@ export function JokesHub() {
         <section className="space-y-3">
           {favoriteJokes.length === 0 ? (
             <div
-              className="border border-dashed py-16 text-center"
+              className="rounded-2xl border border-dashed py-16 text-center"
               style={{ borderColor: 'var(--jk-line)', color: 'var(--jk-mute)' }}
             >
               <Heart className="size-8 mx-auto mb-3 opacity-40" />
-              <p className="font-[family-name:var(--font-jk-mono)] text-sm">
-                No saved bits yet. Heart one from the stage.
-              </p>
+              <p className="text-[14px]">No saved bits yet. Heart one from the stage.</p>
             </div>
           ) : (
             favoriteJokes.map(joke => (
@@ -798,10 +813,7 @@ export function JokesHub() {
         </section>
       )}
 
-      <p
-        className="mt-10 text-center font-[family-name:var(--font-jk-mono)] text-[11px]"
-        style={{ color: 'var(--jk-mute)' }}
-      >
+      <p className="mt-10 text-center text-[12px]" style={{ color: 'var(--jk-mute)' }}>
         Powered by{' '}
         <a
           href="https://v2.jokeapi.dev"
