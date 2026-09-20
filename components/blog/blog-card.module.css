@@ -4,20 +4,15 @@
   border-radius: 1rem;
   text-decoration: none;
   color: inherit;
-  transition: background-color 220ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  transition: background-color 150ms linear;
 }
 
 .card:hover {
-  background-color: rgba(0, 0, 0, 0.03);
-  transform: translateY(-6px);
-  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.22);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 :global(.dark) .card:hover {
-  background-color: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.55);
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 .card:focus-visible {
@@ -31,41 +26,15 @@
   height: 198px;
   overflow: hidden;
   border-radius: 1rem;
-  isolation: isolate;
-}
-
-.imageWrap::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(
-    115deg,
-    transparent 0%,
-    transparent 38%,
-    rgba(255, 255, 255, 0.32) 50%,
-    transparent 62%,
-    transparent 100%
-  );
-  transform: translateX(-130%);
-  opacity: 0;
-}
-
-.card:hover .imageWrap::after {
-  opacity: 1;
-  transform: translateX(130%);
-  transition: transform 850ms cubic-bezier(0.22, 1, 0.36, 1), opacity 850ms ease;
 }
 
 .image {
   object-fit: cover;
-  transition: filter 300ms ease, transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: filter 150ms linear;
 }
 
 .card:hover .image {
-  filter: brightness(1.12) saturate(1.08);
-  transform: scale(1.06);
+  filter: brightness(1.2);
 }
 
 .body {
@@ -87,7 +56,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: calc(1.2em * 2 + 8px);
-  transition: color 250ms ease;
+  transition: color 150ms linear;
 }
 
 .card:hover .title {
@@ -156,13 +125,13 @@
   justify-content: center;
   color: rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transform: translate(-6px, 6px) scale(0.85);
-  transition: opacity 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1), color 250ms ease;
+  transform: translateX(-4px);
+  transition: opacity 150ms linear, transform 150ms linear, color 150ms linear;
 }
 
 .card:hover .footerArrow {
   opacity: 1;
-  transform: translate(0, 0) scale(1);
+  transform: translateX(0);
   color: #0078df;
 }
 
