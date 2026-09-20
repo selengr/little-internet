@@ -195,13 +195,21 @@ export function ForexMarket() {
           className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10"
         >
           <div className="max-w-xl">
+            <p
+              className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--fx-mute)] mb-3"
+              style={mono}
+            >
+              Exchange
+            </p>
             <h1
-              className="text-[clamp(3.5rem,14vw,8rem)] leading-[0.85] tracking-tight text-[color:var(--fx-fg)]"
+              className="text-[clamp(2.75rem,10vw,5.5rem)] leading-[0.9] tracking-tight text-[color:var(--fx-fg)]"
               style={display}
             >
-              Forex
-              <span style={{ color: 'var(--fx-accent)' }}>.</span>
+              Convert currency
             </h1>
+            <p className="mt-3 text-sm text-[color:var(--fx-mute)] max-w-md">
+              Live rates, popular pairs, and history — including USD to Iranian Rial.
+            </p>
           </div>
 
           <motion.div
@@ -209,14 +217,14 @@ export function ForexMarket() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.55 }}
             className={cn(
-              'relative border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] backdrop-blur-sm px-6 py-6 md:px-8 md:py-7 min-w-[min(100%,340px)] transition-shadow',
+              'relative overflow-hidden rounded-2xl border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] backdrop-blur-sm px-6 py-6 md:px-8 md:py-7 min-w-[min(100%,340px)] shadow-[var(--fx-shadow)] transition-shadow',
               pulse && 'shadow-[0_0_0_1px_var(--fx-accent)]',
             )}
           >
-            <div className="pointer-events-none absolute top-3 left-3 size-3 border-l border-t border-[color:var(--fx-accent)]" />
-            <div className="pointer-events-none absolute top-3 right-3 size-3 border-r border-t border-[color:var(--fx-accent)]" />
-            <div className="pointer-events-none absolute bottom-3 left-3 size-3 border-l border-b border-[color:var(--fx-accent)]" />
-            <div className="pointer-events-none absolute bottom-3 right-3 size-3 border-r border-b border-[color:var(--fx-accent)]" />
+            <div className="pointer-events-none absolute top-3 left-3 size-3 border-l border-t border-[color:var(--fx-accent)] rounded-tl-sm" />
+            <div className="pointer-events-none absolute top-3 right-3 size-3 border-r border-t border-[color:var(--fx-accent)] rounded-tr-sm" />
+            <div className="pointer-events-none absolute bottom-3 left-3 size-3 border-l border-b border-[color:var(--fx-accent)] rounded-bl-sm" />
+            <div className="pointer-events-none absolute bottom-3 right-3 size-3 border-r border-b border-[color:var(--fx-accent)] rounded-br-sm" />
 
             <p
               className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--fx-mute)] mb-3"
@@ -279,7 +287,7 @@ export function ForexMarket() {
           </p>
         </div>
 
-        <div className="border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] backdrop-blur-sm">
+        <div className="overflow-hidden rounded-2xl border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] backdrop-blur-sm shadow-[var(--fx-shadow)]">
           <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-0">
             {/* From */}
             <div className="p-5 md:p-7 border-b lg:border-b-0 lg:border-r border-[color:var(--fx-line-soft)]">
@@ -296,7 +304,7 @@ export function ForexMarket() {
                 >
                   Amount
                 </p>
-                <div className="relative border-b border-[color:var(--fx-line)] focus-within:border-[color:var(--fx-accent)] transition-colors">
+                <div className="relative border-b-2 border-[color:var(--fx-line)] focus-within:border-[color:var(--fx-fg)] transition-colors">
                   <input
                     type="number"
                     min="0"
@@ -322,7 +330,7 @@ export function ForexMarket() {
               <button
                 type="button"
                 onClick={swap}
-                className="inline-flex size-11 items-center justify-center border border-[color:var(--fx-line)] text-[color:var(--fx-fg)] hover:bg-[color:var(--fx-accent)] hover:text-[color:var(--fx-on-accent)] hover:border-[color:var(--fx-accent)] transition-colors cursor-pointer"
+                className="inline-flex size-11 items-center justify-center rounded-full border border-[color:var(--fx-line)] text-[color:var(--fx-fg)] hover:bg-[color:var(--fx-accent)] hover:text-[color:var(--fx-on-accent)] hover:border-[color:var(--fx-accent)] transition-colors cursor-pointer"
                 aria-label="Swap currencies"
               >
                 <ArrowDownUp className="size-4" />
@@ -390,10 +398,10 @@ export function ForexMarket() {
                       setQuote(p.quote)
                     }}
                     className={cn(
-                      'text-[11px] px-3 py-2 border transition-colors cursor-pointer',
+                      'text-[11px] px-3 py-2 rounded-full border transition-colors cursor-pointer',
                       active
                         ? 'bg-[color:var(--fx-fg)] text-[color:var(--fx-bg)] border-[color:var(--fx-fg)]'
-                        : 'border-[color:var(--fx-line)] text-[color:var(--fx-mute)] hover:text-[color:var(--fx-fg)] hover:border-[color:var(--fx-fg)]/40',
+                        : 'border-[color:var(--fx-line)] text-[color:var(--fx-mute)] hover:text-[color:var(--fx-fg)] hover:border-[color:var(--fx-fg)]/40 hover:bg-[color:var(--fx-line-soft)]',
                     )}
                     style={mono}
                   >
@@ -420,17 +428,17 @@ export function ForexMarket() {
               {period === 'today' ? 'Session' : 'History'}
             </h2>
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-2">
             {PERIODS.map(d => (
               <button
                 key={d}
                 type="button"
                 onClick={() => setPeriod(d)}
                 className={cn(
-                  'text-[10px] uppercase tracking-[0.16em] px-3 py-2 border transition-colors cursor-pointer',
+                  'text-[10px] uppercase tracking-[0.16em] px-3 py-2 rounded-full border transition-colors cursor-pointer',
                   period === d
                     ? 'bg-[color:var(--fx-fg)] text-[color:var(--fx-bg)] border-[color:var(--fx-fg)]'
-                    : 'border-[color:var(--fx-line)] text-[color:var(--fx-mute)] hover:text-[color:var(--fx-fg)]',
+                    : 'border-[color:var(--fx-line)] text-[color:var(--fx-mute)] hover:text-[color:var(--fx-fg)] hover:bg-[color:var(--fx-line-soft)]',
                 )}
                 style={mono}
               >
@@ -442,7 +450,7 @@ export function ForexMarket() {
 
         <div
           className={cn(
-            'border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] backdrop-blur-sm p-5 md:p-7 transition-opacity',
+            'overflow-hidden rounded-2xl border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] backdrop-blur-sm p-5 md:p-7 shadow-[var(--fx-shadow)] transition-opacity',
             historyLoading && 'opacity-60',
           )}
         >
@@ -458,15 +466,15 @@ export function ForexMarket() {
 
           {error ? (
             <p
-              className="text-sm border border-[color:var(--fx-down)]/30 bg-[color:var(--fx-down)]/10 text-[color:var(--fx-down)] px-4 py-3"
+              className="text-sm rounded-xl border border-[color:var(--fx-down)]/30 bg-[color:var(--fx-down)]/10 text-[color:var(--fx-down)] px-4 py-3"
               style={mono}
             >
               {error}
             </p>
           ) : period === 'today' ? (
             <div className="space-y-6">
-              <div className="grid sm:grid-cols-2 gap-px bg-[color:var(--fx-line)] border border-[color:var(--fx-line)]">
-                <div className="bg-[color:var(--fx-bg)] p-5">
+              <div className="grid sm:grid-cols-2 gap-px overflow-hidden rounded-xl bg-[color:var(--fx-line)] border border-[color:var(--fx-line)]">
+                <div className="bg-[color:var(--fx-panel)] p-5">
                   <p
                     className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--fx-mute)] mb-2"
                     style={mono}
@@ -487,7 +495,7 @@ export function ForexMarket() {
                     {series[series.length - 1]?.date ?? rateDate ?? '—'}
                   </p>
                 </div>
-                <div className="bg-[color:var(--fx-bg)] p-5">
+                <div className="bg-[color:var(--fx-panel)] p-5">
                   <p
                     className="text-[10px] uppercase tracking-[0.22em] text-[color:var(--fx-mute)] mb-2"
                     style={mono}

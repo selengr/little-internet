@@ -181,13 +181,21 @@ export function CryptoMarket() {
           className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10"
         >
           <div className="max-w-xl">
+            <p
+              className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--cx-mute)] mb-3"
+              style={mono}
+            >
+              Markets
+            </p>
             <h1
-              className="text-[clamp(3.5rem,14vw,8rem)] leading-[0.85] tracking-tight text-[color:var(--cx-fg)]"
+              className="text-[clamp(2.75rem,10vw,5.5rem)] leading-[0.9] tracking-tight text-[color:var(--cx-fg)]"
               style={display}
             >
-              Crypto
-              <span style={{ color: 'var(--cx-signal)' }}>.</span>
+              Live crypto
             </h1>
+            <p className="mt-3 text-sm text-[color:var(--cx-mute)] max-w-md">
+              Prices, market pulse, and a searchable tape — refreshed every 30 seconds.
+            </p>
           </div>
 
           {hero ? (
@@ -195,12 +203,12 @@ export function CryptoMarket() {
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.12, duration: 0.55 }}
-              className="relative border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] backdrop-blur-sm px-6 py-6 md:px-8 md:py-7 min-w-[min(100%,320px)]"
+              className="relative overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] backdrop-blur-sm px-6 py-6 md:px-8 md:py-7 min-w-[min(100%,320px)] shadow-[var(--cx-shadow)]"
             >
-              <div className="pointer-events-none absolute top-3 left-3 size-3 border-l border-t border-[color:var(--cx-signal)]" />
-              <div className="pointer-events-none absolute top-3 right-3 size-3 border-r border-t border-[color:var(--cx-signal)]" />
-              <div className="pointer-events-none absolute bottom-3 left-3 size-3 border-l border-b border-[color:var(--cx-signal)]" />
-              <div className="pointer-events-none absolute bottom-3 right-3 size-3 border-r border-b border-[color:var(--cx-signal)]" />
+              <div className="pointer-events-none absolute top-3 left-3 size-3 border-l border-t border-[color:var(--cx-signal)] rounded-tl-sm" />
+              <div className="pointer-events-none absolute top-3 right-3 size-3 border-r border-t border-[color:var(--cx-signal)] rounded-tr-sm" />
+              <div className="pointer-events-none absolute bottom-3 left-3 size-3 border-l border-b border-[color:var(--cx-signal)] rounded-bl-sm" />
+              <div className="pointer-events-none absolute bottom-3 right-3 size-3 border-r border-b border-[color:var(--cx-signal)] rounded-br-sm" />
 
               <div className="flex items-center gap-3 mb-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -241,7 +249,7 @@ export function CryptoMarket() {
       {/* ── GLOBAL LEDGER ────────────────────────────────────────────────── */}
       {global ? (
         <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-12">
-          <div className="border-y border-[color:var(--cx-line)]">
+          <div className="overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)]">
             <div className="grid grid-cols-2 md:grid-cols-4">
               {[
                 {
@@ -313,7 +321,7 @@ export function CryptoMarket() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[color:var(--cx-line)] border border-[color:var(--cx-line)]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-2xl bg-[color:var(--cx-line)] border border-[color:var(--cx-line)]">
             {board.map((coin, i) => {
               const up = coin.price_change_percentage_24h >= 0
               return (
@@ -322,7 +330,7 @@ export function CryptoMarket() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 + i * 0.05 }}
-                  className="bg-[color:var(--cx-bg)] p-4 md:p-5 flex flex-col min-h-[160px]"
+                  className="bg-[color:var(--cx-panel)] p-4 md:p-5 flex flex-col min-h-[160px]"
                 >
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span
@@ -372,20 +380,20 @@ export function CryptoMarket() {
       {/* ── CONTROLS + LEDGER ────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-14">
         <div className="flex flex-col md:flex-row md:items-end gap-5 mb-6">
-          <div className="flex-1">
+          <div className="flex-1 max-w-xl">
             <label
               className="block text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
               style={mono}
             >
               Search tape
             </label>
-            <div className="relative">
-              <Search className="absolute left-0 top-1/2 -translate-y-1/2 size-4 text-[color:var(--cx-mute)]" />
+            <div className="relative flex items-center gap-3 border-b-2 border-[color:var(--cx-line)] focus-within:border-[color:var(--cx-fg)] transition-colors pb-2">
+              <Search className="size-4 text-[color:var(--cx-mute)] shrink-0" />
               <input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="bitcoin, sol, eth…"
-                className="w-full bg-transparent border-0 border-b border-[color:var(--cx-line)] focus:border-[color:var(--cx-signal)] pl-7 pr-2 py-3 text-base outline-none transition-colors placeholder:text-[color:var(--cx-mute)]"
+                className="w-full bg-transparent text-base outline-none placeholder:text-[color:var(--cx-mute)]/70"
                 style={mono}
                 aria-label="Search assets"
               />
@@ -396,7 +404,7 @@ export function CryptoMarket() {
             type="button"
             onClick={() => fetchData(query || undefined)}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 h-11 px-4 border border-[color:var(--cx-line)] text-[10px] uppercase tracking-[0.2em] hover:bg-[color:var(--cx-signal)] hover:text-[color:var(--cx-signal-ink)] hover:border-[color:var(--cx-signal)] transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+            className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-[color:var(--cx-line)] text-[10px] uppercase tracking-[0.2em] hover:bg-[color:var(--cx-signal)] hover:text-[color:var(--cx-signal-ink)] hover:border-[color:var(--cx-signal)] transition-colors cursor-pointer disabled:opacity-50 shrink-0"
             style={mono}
           >
             <RefreshCw className={cn('size-3.5', refreshing && 'animate-spin')} />
@@ -404,17 +412,17 @@ export function CryptoMarket() {
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-1 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {SORT_OPTIONS.map(opt => (
             <button
               key={opt.key}
               type="button"
               onClick={() => setSort(opt.key)}
               className={cn(
-                'text-[10px] uppercase tracking-[0.18em] px-3 py-2 border transition-colors cursor-pointer',
+                'text-[10px] uppercase tracking-[0.18em] px-3 py-2 rounded-full border transition-colors cursor-pointer',
                 sort === opt.key
                   ? 'bg-[color:var(--cx-fg)] text-[color:var(--cx-bg)] border-[color:var(--cx-fg)]'
-                  : 'border-[color:var(--cx-line)] text-[color:var(--cx-mute)] hover:text-[color:var(--cx-fg)]',
+                  : 'border-[color:var(--cx-line)] text-[color:var(--cx-mute)] hover:text-[color:var(--cx-fg)] hover:bg-[color:var(--cx-line-soft)]',
               )}
               style={mono}
             >
@@ -425,7 +433,7 @@ export function CryptoMarket() {
 
         {error ? (
           <p
-            className="mb-4 text-sm border border-[color:var(--cx-down)]/30 bg-[color:var(--cx-down)]/10 text-[color:var(--cx-down)] px-4 py-2.5"
+            className="mb-4 text-sm rounded-xl border border-[color:var(--cx-down)]/30 bg-[color:var(--cx-down)]/10 text-[color:var(--cx-down)] px-4 py-2.5"
             style={mono}
           >
             {error}
