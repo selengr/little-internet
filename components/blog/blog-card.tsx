@@ -46,13 +46,18 @@ export function BlogCard({ post }: { post: BlogPostMeta }) {
                 <span>{post.readingMinutes} min read</span>
               </>
             )}
+            {(date || post.readingMinutes != null) && (
+              <span className={styles.metaDot} aria-hidden>
+                ·
+              </span>
+            )}
+            <span>{post.views} views</span>
           </div>
         </div>
 
         {post.tags.length > 0 && <BlogTagList tags={post.tags.slice(0, 6)} align="start" />}
 
         <div className={styles.footer}>
-          <span className={styles.footerViews}>{post.views} views</span>
           <div className={styles.authorAvatar}>
             <Image
               src={post.authorImage || BLOG_AUTHOR_IMAGE}

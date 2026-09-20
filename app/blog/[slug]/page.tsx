@@ -120,22 +120,24 @@ export default async function BlogPostPage({ params }: Props) {
           </section>
         )}
 
-        <footer className="mt-16 flex items-center gap-3.5 pt-10 border-t border-border/35">
-          <span className="pr-3.5 mr-0.5 border-r border-border/50 text-[13px] text-muted-foreground whitespace-nowrap">
+        <footer className="mt-16 flex items-center justify-between gap-3.5 pt-10 border-t border-border/35">
+          <div className="flex items-center gap-3.5 min-w-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={author}
+              alt=""
+              width={52}
+              height={52}
+              className="size-[52px] shrink-0 rounded-full object-cover bg-[var(--bg-color-11,#f5f5f7)]"
+            />
+            <div className="min-w-0">
+              <p className="text-[15px] font-semibold tracking-tight">{post.authorName}</p>
+              <p className="text-[13px] text-muted-foreground">Author</p>
+            </div>
+          </div>
+          <span className="shrink-0 text-[13px] text-muted-foreground whitespace-nowrap">
             <ViewCounter pageId={post.id} initial={post.views} />
           </span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={author}
-            alt=""
-            width={52}
-            height={52}
-            className="size-[52px] rounded-full object-cover bg-[#f5f5f7]"
-          />
-          <div>
-            <p className="text-[15px] font-semibold tracking-tight">{post.authorName}</p>
-            <p className="text-[13px] text-muted-foreground">Author</p>
-          </div>
         </footer>
       </article>
     </main>

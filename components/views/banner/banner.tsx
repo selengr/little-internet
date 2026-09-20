@@ -56,7 +56,7 @@ const Banner = ({ title, banner, user, home, blog, videoReady, children }: Props
         />
 
         {showAuthorRing && (
-          <div className={`${styles['landing-div-rounded']} bg-[#f7f6f3] overflow-hidden`}>
+          <div className={`${styles['landing-div-rounded']} bg-[var(--bg-color-11,#f7f6f3)] overflow-hidden`}>
             <Image
               src={authorSrc}
               alt={blog ? 'Author' : 'Logo'}

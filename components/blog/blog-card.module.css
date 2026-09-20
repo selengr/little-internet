@@ -147,20 +147,6 @@
   border-top-color: rgba(255, 255, 255, 0.08);
 }
 
-.footerViews {
-  font-size: 13px;
-  color: var(--muted-foreground, rgba(0, 0, 0, 0.45));
-  white-space: nowrap;
-  padding-right: 10px;
-  margin-right: 2px;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-:global(.dark) .footerViews {
-  color: rgba(255, 255, 255, 0.45);
-  border-right-color: rgba(255, 255, 255, 0.1);
-}
-
 .authorAvatar {
   position: relative;
   width: 28px;
