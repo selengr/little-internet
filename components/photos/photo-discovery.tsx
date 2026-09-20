@@ -10,6 +10,7 @@ import {
   Shuffle,
   Loader2,
   Share2,
+  X,
 } from 'lucide-react'
 import { PhotoMasonry } from '@/components/photos/photo-masonry'
 import { PhotoDetailModal, PhotographerPanel } from '@/components/photos/photo-detail-modal'
@@ -586,53 +587,47 @@ export function PhotoDiscovery() {
         </section>
 
         {/* Search */}
-        <section className="rounded-3xl border border-border bg-card/60 backdrop-blur-xl p-6 md:p-8">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Search</p>
-          <h2
-            className="text-2xl font-light text-foreground mb-6"
-            style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
-          >
-            Find the perfect photo
-          </h2>
+        <section className="max-w-2xl mx-auto w-full">
           <form
             onSubmit={e => {
               e.preventDefault()
               runSearch(searchQuery)
             }}
-            className="flex flex-col sm:flex-row gap-3"
+            className="relative flex items-center gap-3 border-b-2 border-border focus-within:border-foreground transition-colors pb-3"
           >
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search photos…"
-                className="w-full rounded-2xl border border-border bg-muted/40 py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-foreground/25"
-              />
-            </div>
-            <button
-              type="submit"
-              className="rounded-2xl bg-foreground px-6 py-3.5 text-sm font-medium text-background hover:opacity-90"
-            >
-              Search
-            </button>
+            <Search className="size-5 text-muted-foreground shrink-0" />
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search photos…"
+              className="flex-1 bg-transparent text-lg md:text-xl font-light tracking-tight text-foreground placeholder:text-muted-foreground/45 outline-none min-w-0"
+              style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="size-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+                aria-label="Clear"
+              >
+                <X className="size-4" />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => void runSurprise()}
               disabled={loadingSurprise}
-              title="Surprise me"
-              aria-label="Surprise me with a random photo"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border px-4 py-3.5 text-sm text-foreground/80 hover:bg-muted/60 transition-colors disabled:opacity-60"
+              className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border text-[11px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors disabled:opacity-60"
             >
               {loadingSurprise ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin" />
               ) : (
-                <Shuffle className="size-4" />
+                <Shuffle className="size-3.5" />
               )}
-              <span className="hidden sm:inline">Surprise</span>
+              Surprise
             </button>
           </form>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
             {SEARCH_SUGGESTIONS.map(s => (
               <button
                 key={s}
@@ -649,7 +644,7 @@ export function PhotoDiscovery() {
           </div>
 
           {(submittedQuery || activeCategory) && (
-            <div className="mt-8 pt-8 border-t border-border">
+            <div className="mt-6 pt-6 border-t border-border">
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-4">Filters</p>
               <div className="flex flex-wrap gap-6">
                 <div>
