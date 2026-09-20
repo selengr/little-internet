@@ -105,7 +105,7 @@ function Cover({
     <div className={cn('relative', dims, className)}>
       <div
         className={cn(
-          'relative h-full w-full overflow-hidden border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)]',
+          'relative h-full w-full overflow-hidden rounded-lg border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] shadow-[var(--bk-shadow)]',
           'transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
           size === 'lg' && 'hover:-translate-y-1',
         )}
@@ -147,12 +147,12 @@ function InsightMeter({
           <span className="text-[color:var(--bk-mute)] text-xs">%</span>
         </span>
       </div>
-      <div className="h-1 bg-[color:var(--bk-line-soft)] overflow-hidden">
+      <div className="h-1.5 rounded-full bg-[color:var(--bk-line-soft)] overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(100, value)}%` }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="h-full bg-[color:var(--bk-accent)]"
+          className="h-full rounded-full bg-[color:var(--bk-accent)]"
         />
       </div>
       {hint && (
@@ -349,60 +349,60 @@ export function BookExplorer() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="mb-8 md:mb-10"
         >
+          <p
+            className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--bk-mute)] mb-3"
+            style={mono}
+          >
+            Library
+          </p>
           <h1
-            className="text-[clamp(3rem,12vw,6.5rem)] leading-[0.88] tracking-tight text-[color:var(--bk-fg)]"
+            className="text-[clamp(2.75rem,10vw,5.5rem)] leading-[0.9] tracking-tight text-[color:var(--bk-fg)]"
             style={display}
           >
-            Books
-            <span style={{ color: 'var(--bk-accent)' }}>.</span>
+            Find a book
           </h1>
+          <p className="mt-3 text-sm text-[color:var(--bk-mute)] max-w-md">
+            Search by title, author, or subject — then dig into ratings, pace, and similar reads.
+          </p>
         </motion.div>
 
-        <div ref={wrapRef} className="relative max-w-xl">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-            <div className="relative flex-1 border-b border-[color:var(--bk-line)] focus-within:border-[color:var(--bk-accent)] transition-colors">
-              <Search className="absolute left-0 top-1/2 -translate-y-1/2 size-4 text-[color:var(--bk-mute)]" />
-              <input
-                value={query}
-                onChange={e => onQueryChange(e.target.value)}
-                onKeyDown={onKeyDown}
-                onFocus={() => setShowSuggest(true)}
-                placeholder="Title, author, or subject…"
-                className="w-full bg-transparent h-12 pl-7 pr-8 text-[15px] outline-none placeholder:text-[color:var(--bk-mute)]"
-                style={mono}
-                autoComplete="off"
-                aria-label="Search books"
-              />
-              {query ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery('')
-                    setSuggestions([])
-                    setShowSuggest(true)
-                  }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 size-7 flex items-center justify-center text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] cursor-pointer"
-                  aria-label="Clear search"
-                >
-                  <X className="size-3.5" />
-                </button>
-              ) : null}
-            </div>
+        <div ref={wrapRef} className="relative max-w-2xl">
+          <div className="flex items-center gap-3 border-b-2 border-[color:var(--bk-line)] focus-within:border-[color:var(--bk-fg)] transition-colors pb-3">
+            <Search className="size-5 text-[color:var(--bk-mute)] shrink-0" />
+            <input
+              value={query}
+              onChange={e => onQueryChange(e.target.value)}
+              onKeyDown={onKeyDown}
+              onFocus={() => setShowSuggest(true)}
+              placeholder="Title, author, or subject…"
+              className="flex-1 bg-transparent text-lg md:text-xl font-light tracking-tight outline-none min-w-0 placeholder:text-[color:var(--bk-mute)]/70"
+              style={display}
+              autoComplete="off"
+              aria-label="Search books"
+            />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  setSuggestions([])
+                  setShowSuggest(true)
+                }}
+                className="size-8 rounded-full flex items-center justify-center text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] hover:bg-[color:var(--bk-line-soft)] transition-colors cursor-pointer shrink-0"
+                aria-label="Clear search"
+              >
+                <X className="size-4" />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => void runSearch(query)}
               disabled={loadingBook}
-              className="h-11 px-5 border border-[color:var(--bk-fg)] bg-[color:var(--bk-fg)] text-[color:var(--bk-bg)] text-[11px] uppercase tracking-[0.18em] hover:opacity-90 transition-opacity cursor-pointer shrink-0 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="shrink-0 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full border border-[color:var(--bk-line)] bg-[color:var(--bk-fg)] text-[color:var(--bk-bg)] text-[11px] uppercase tracking-[0.15em] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
               style={mono}
             >
-              {loadingBook ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin" />
-                  Searching
-                </>
-              ) : (
-                'Search'
-              )}
+              {loadingBook ? <Loader2 className="size-3.5 animate-spin" /> : null}
+              {loadingBook ? '…' : 'Search'}
             </button>
           </div>
 
@@ -413,7 +413,7 @@ export function BookExplorer() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
                 transition={{ duration: 0.18 }}
-                className="absolute left-0 right-0 top-[calc(100%+10px)] z-[60] overflow-hidden border border-[color:var(--bk-line)] bg-[color:var(--bk-bg)] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.35)]"
+                className="absolute left-0 right-0 top-[calc(100%+10px)] z-[60] overflow-hidden rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] backdrop-blur-xl shadow-[var(--bk-shadow)]"
               >
                 {suggestLoading && (
                   <div className="p-3 space-y-2">
@@ -474,7 +474,7 @@ export function BookExplorer() {
                               key={r}
                               type="button"
                               onMouseDown={() => void runSearch(r)}
-                              className="text-xs px-3 py-1.5 border border-[color:var(--bk-line)] text-[color:var(--bk-fg)] hover:border-[color:var(--bk-accent)] transition-colors cursor-pointer"
+                              className="text-xs px-3 py-1.5 rounded-full border border-[color:var(--bk-line)] text-[color:var(--bk-fg)] hover:border-[color:var(--bk-accent)] hover:bg-[color:var(--bk-accent-soft)] transition-colors cursor-pointer"
                               style={mono}
                             >
                               {r}
@@ -496,7 +496,7 @@ export function BookExplorer() {
                             key={r}
                             type="button"
                             onMouseDown={() => void runSearch(r)}
-                            className="text-xs px-3 py-1.5 border border-[color:var(--bk-line)] text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] hover:border-[color:var(--bk-fg)]/40 transition-colors cursor-pointer"
+                            className="text-xs px-3 py-1.5 rounded-full border border-[color:var(--bk-line)] text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] hover:border-[color:var(--bk-fg)]/40 hover:bg-[color:var(--bk-line-soft)] transition-colors cursor-pointer"
                             style={mono}
                           >
                             {r}
@@ -522,7 +522,7 @@ export function BookExplorer() {
       </section>
 
       {error && !book && (
-        <div className="border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] py-16 text-center mb-10">
+        <div className="rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] py-16 text-center mb-10">
           <BookOpen className="size-8 mx-auto text-[color:var(--bk-mute)] mb-4" />
           <p className="text-lg" style={display}>
             {error}
@@ -562,7 +562,7 @@ export function BookExplorer() {
                 <div className="flex flex-wrap items-center gap-2 mb-4">
                   {book.popularity != null && book.popularity > 70 && (
                     <span
-                      className="text-[10px] uppercase tracking-[0.18em] px-2.5 py-1 border border-[color:var(--bk-gold)]/40"
+                      className="text-[10px] uppercase tracking-[0.18em] px-2.5 py-1 rounded-full border border-[color:var(--bk-gold)]/40"
                       style={{ ...mono, color: 'var(--bk-gold)' }}
                     >
                       Popular
@@ -571,7 +571,7 @@ export function BookExplorer() {
                   {chips.slice(0, 2).map(s => (
                     <span
                       key={s}
-                      className="text-[10px] tracking-wide px-2.5 py-1 text-[color:var(--bk-mute)] border border-[color:var(--bk-line-soft)]"
+                      className="text-[10px] tracking-wide px-2.5 py-1 rounded-full text-[color:var(--bk-mute)] border border-[color:var(--bk-line-soft)] bg-[color:var(--bk-panel)]"
                       style={mono}
                     >
                       {s}
@@ -590,10 +590,10 @@ export function BookExplorer() {
                     type="button"
                     onClick={() => void shareBook()}
                     className={cn(
-                      'hidden sm:inline-flex shrink-0 items-center gap-2 h-10 px-3.5 border text-xs transition-colors cursor-pointer',
+                      'hidden sm:inline-flex shrink-0 items-center gap-2 h-10 px-3.5 rounded-full border text-xs transition-colors cursor-pointer',
                       shared
-                        ? 'border-[color:var(--bk-accent)] text-[color:var(--bk-accent)]'
-                        : 'border-[color:var(--bk-line)] text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)]',
+                        ? 'border-[color:var(--bk-accent)] text-[color:var(--bk-accent)] bg-[color:var(--bk-accent-soft)]'
+                        : 'border-[color:var(--bk-line)] text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] hover:bg-[color:var(--bk-line-soft)]',
                     )}
                     style={mono}
                     aria-label="Share book"
@@ -611,7 +611,7 @@ export function BookExplorer() {
                 </p>
               </header>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-px border-y border-[color:var(--bk-line)] bg-[color:var(--bk-line)]">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-px overflow-hidden rounded-xl border border-[color:var(--bk-line)] bg-[color:var(--bk-line)]">
                 {[
                   { label: 'Rating', value: book.rating != null ? book.rating.toFixed(1) : '—' },
                   { label: 'Pages', value: book.pages ? String(book.pages) : '—' },
@@ -622,7 +622,7 @@ export function BookExplorer() {
                     value: book.languages?.length ? String(book.languages.length) : '—',
                   },
                 ].map(m => (
-                  <div key={m.label} className="bg-[color:var(--bk-bg)] px-3 py-4">
+                  <div key={m.label} className="bg-[color:var(--bk-panel)] px-3 py-4">
                     <p
                       className="text-[10px] uppercase tracking-[0.16em] text-[color:var(--bk-mute)] mb-1"
                       style={mono}
@@ -683,7 +683,7 @@ export function BookExplorer() {
                           key={s}
                           type="button"
                           onClick={() => void runSearch(s)}
-                          className="text-xs px-3 py-1.5 border border-[color:var(--bk-line)] text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] hover:border-[color:var(--bk-accent)] transition-colors cursor-pointer"
+                          className="text-xs px-3 py-1.5 rounded-full border border-[color:var(--bk-line)] text-[color:var(--bk-mute)] hover:text-[color:var(--bk-fg)] hover:border-[color:var(--bk-accent)] hover:bg-[color:var(--bk-accent-soft)] transition-colors cursor-pointer"
                           style={mono}
                         >
                           {s}
@@ -733,7 +733,7 @@ export function BookExplorer() {
 
               {tab === 'author' && (
                 <div className="flex items-start gap-5">
-                  <div className="size-14 overflow-hidden border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] shrink-0 flex items-center justify-center">
+                  <div className="size-14 overflow-hidden rounded-full border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] shrink-0 flex items-center justify-center">
                     {authorPhotoUrl(book.authorPhotoId) ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -782,7 +782,7 @@ export function BookExplorer() {
             <SkeletonBlock className="h-72 w-full" />
           ) : book ? (
             <div className="lg:sticky lg:top-28 space-y-4">
-              <div className="border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] backdrop-blur-sm p-5">
+              <div className="rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] backdrop-blur-sm p-5 shadow-[var(--bk-shadow)]">
                 <div className="flex items-center justify-between mb-6">
                   <p
                     className="text-[10px] uppercase tracking-[0.24em] text-[color:var(--bk-mute)]"
@@ -848,7 +848,7 @@ export function BookExplorer() {
               </div>
 
               {trending.length > 0 && (
-                <div className="border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] p-4">
+                <div className="rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] p-4 shadow-[var(--bk-shadow)]">
                   <div className="flex items-center gap-2 mb-3 px-1">
                     <TrendingUp className="size-3.5" style={{ color: 'var(--bk-gold)' }} />
                     <p
@@ -864,7 +864,7 @@ export function BookExplorer() {
                         key={t.workKey}
                         type="button"
                         onClick={() => void openWork(t.workKey)}
-                        className="w-full flex items-center gap-3 px-1.5 py-2 hover:bg-[color:var(--bk-line-soft)] transition-colors text-left cursor-pointer"
+                        className="w-full flex items-center gap-3 px-1.5 py-2 rounded-xl hover:bg-[color:var(--bk-line-soft)] transition-colors text-left cursor-pointer"
                       >
                         <Cover
                           id={t.coverId}
@@ -947,7 +947,7 @@ export function BookExplorer() {
           <button
             type="button"
             onClick={() => void shareBook()}
-            className="w-full h-12 border border-[color:var(--bk-line)] bg-[color:var(--bk-bg)]/95 backdrop-blur-xl shadow-2xl text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full h-12 rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)]/95 backdrop-blur-xl shadow-[var(--bk-shadow)] text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
             style={mono}
           >
             <Share2 className="size-4" />
