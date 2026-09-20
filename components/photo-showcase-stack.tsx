@@ -142,7 +142,7 @@ export function PhotoShowcaseStack() {
     poolsRef.current = pools
   }, [pools])
 
-  // Fetch a large unique pool per category (2 pages) so ~10+ swaps stay fresh
+  // Fetch a large unique pool per category so ~30+ swaps stay fresh
   useEffect(() => {
     let cancelled = false
     async function load() {
