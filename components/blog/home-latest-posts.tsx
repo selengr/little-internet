@@ -54,7 +54,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
     <motion.article variants={item} className="h-full">
       <Link
         href="/blog"
-        className="group relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.35rem] border border-border/70 bg-card shadow-sm transition-shadow duration-500 hover:shadow-xl hover:shadow-black/[0.06]"
+        className="group relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.35rem] border border-border/70 bg-card shadow-sm transition-shadow duration-150 ease-linear hover:shadow-xl hover:shadow-black/[0.06]"
       >
         <div className="absolute left-5 top-5 z-20 flex items-center gap-2">
           <span className="rounded-full border border-white/25 bg-black/45 px-2.5 py-1 text-[10px] font-medium tracking-[0.22em] text-white backdrop-blur-md">
@@ -79,11 +79,11 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
             src={banner}
             alt=""
             fill
-            className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+            className="object-cover transition-[filter] duration-150 ease-linear group-hover:brightness-[1.2]"
             sizes="(max-width: 1024px) 100vw, 58vw"
             unoptimized={banner.startsWith('http')}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5 transition-opacity duration-500 group-hover:from-black/90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5" />
         </div>
 
         <div className="absolute inset-x-0 bottom-0 z-10 p-6 sm:p-8">
@@ -117,9 +117,9 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
               <BlogTagList tags={post.tags.slice(0, 3)} align="start" />
             </div>
           )} */}
-          <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium tracking-[0.14em] uppercase text-white/80 transition-colors group-hover:text-white">
+          <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium tracking-[0.14em] uppercase text-white/80 transition-colors duration-150 ease-linear group-hover:text-white">
             View blog
-            <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight className="size-3.5 transition-transform duration-150 ease-linear group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
       </Link>
@@ -135,14 +135,14 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
     <motion.article variants={item}>
       <Link
         href="/blog"
-        className="group flex gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 transition-all duration-500 hover:border-foreground/15 hover:bg-card hover:shadow-lg hover:shadow-black/[0.04]"
+        className="group flex gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 transition-[background-color,border-color] duration-150 ease-linear hover:border-foreground/15 hover:bg-card"
       >
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl sm:h-[96px] sm:w-[96px]">
           <Image
             src={banner}
             alt=""
             fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            className="object-cover transition-[filter] duration-150 ease-linear group-hover:brightness-[1.2]"
             sizes="96px"
             unoptimized={banner.startsWith('http')}
           />
@@ -157,12 +157,12 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
             {post.readingMinutes != null && <span>{post.readingMinutes} min</span>}
             <span>{post.views} views</span>
           </div>
-          <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-0.02em] text-foreground transition-colors group-hover:text-foreground/90">
+          <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-0.02em] text-foreground transition-colors duration-150 ease-linear group-hover:text-foreground/90">
             {post.title}
           </h3>
-          <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors group-hover:text-foreground">
+          <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors duration-150 ease-linear group-hover:text-foreground">
             View blog
-            <ArrowUpRight className="size-3 opacity-60 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight className="size-3 opacity-60 transition-transform duration-150 ease-linear group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
       </Link>

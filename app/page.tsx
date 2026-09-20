@@ -29,6 +29,7 @@ import { YearCalendar } from "@/components/year-calendar";
 import { HomeLatestPosts } from "@/components/blog/home-latest-posts";
 import { HomeLocationStrip } from "@/components/home-location-strip";
 import { CustomScrollbar } from "@/components/custom-scrollbar";
+import { FooterAuthLink } from "@/components/footer-auth-link";
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -666,6 +667,7 @@ export default function AgenticPage() {
                 {l.label}
               </a>
             ))}
+            <FooterAuthLink />
           </div>
         </div>
         <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-border/60">

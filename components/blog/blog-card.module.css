@@ -8,11 +8,11 @@
 }
 
 .card:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 :global(.dark) .card:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 .card:focus-visible {
@@ -30,12 +30,11 @@
 
 .image {
   object-fit: cover;
-  transition: filter 150ms linear, transform 450ms ease;
+  transition: filter 150ms linear;
 }
 
 .card:hover .image {
-  filter: brightness(1.12);
-  transform: scale(1.02);
+  filter: brightness(1.2);
 }
 
 .body {
@@ -56,6 +55,16 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: calc(1.2em * 2 + 8px);
+  transition: color 150ms linear;
+}
+
+.card:hover .title {
+  color: #0078df;
+}
+
+:global(.dark) .card:hover .title {
+  color: #6fb5ff;
 }
 
 .details {
@@ -74,7 +83,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 50px;
+  min-height: calc(1.45em * 2 + 8px);
 }
 
 :global(.dark) .description {
@@ -109,8 +118,47 @@
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+.footerArrow {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 150ms linear, transform 150ms linear, color 150ms linear;
+}
+
+.card:hover .footerArrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: #0078df;
+}
+
+:global(.dark) .footerArrow {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+:global(.dark) .card:hover .footerArrow {
+  color: #6fb5ff;
+}
+
 :global(.dark) .footer {
   border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.footerViews {
+  font-size: 13px;
+  color: var(--muted-foreground, rgba(0, 0, 0, 0.45));
+  white-space: nowrap;
+  padding-right: 10px;
+  margin-right: 2px;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global(.dark) .footerViews {
+  color: rgba(255, 255, 255, 0.45);
+  border-right-color: rgba(255, 255, 255, 0.1);
 }
 
 .authorAvatar {

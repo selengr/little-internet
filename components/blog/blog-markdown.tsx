@@ -184,6 +184,7 @@ function splitBlocks(src: string): Block[] {
       !/^\d+\.\s+/.test(lines[i]) &&
       !/^> /.test(lines[i]) &&
       !/^---+$/.test(lines[i].trim()) &&
+      !/^!\[([^\]]*)\]\(([^)]+)\)$/.test(lines[i].trim()) &&
       !(isTableRow(lines[i]) && i + 1 < lines.length && isTableSep(lines[i + 1]))
     ) {
       parts.push(lines[i])

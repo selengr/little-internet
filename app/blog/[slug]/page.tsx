@@ -84,10 +84,6 @@ export default async function BlogPostPage({ params }: Props) {
                   <span>{post.readingMinutes} min read</span>
                 </>
               )}
-              <span className="opacity-35" aria-hidden>
-                ·
-              </span>
-              <ViewCounter pageId={post.id} initial={post.views} />
             </div>
 
             {post.tags.length > 0 && <BlogTagList tags={post.tags} />}
@@ -125,6 +121,9 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         <footer className="mt-16 flex items-center gap-3.5 pt-10 border-t border-border/35">
+          <span className="pr-3.5 mr-0.5 border-r border-border/50 text-[13px] text-muted-foreground whitespace-nowrap">
+            <ViewCounter pageId={post.id} initial={post.views} />
+          </span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={author}
