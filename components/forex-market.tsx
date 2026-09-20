@@ -45,7 +45,7 @@ function formatIrr(rate: number): string {
 export function ForexMarket() {
   const [currencies, setCurrencies] = useState<FrankfurterCurrency[]>([
     ...FALLBACK_CURRENCIES,
-    { iso_code: 'IRR', name: 'Iranian Rial', symbol: '﷼' },
+    { iso_code: 'IRR', name: 'Iranian Rial (free market)', symbol: '﷼' },
   ])
   const [base, setBase] = useState(DEFAULT_BASE)
   const [quote, setQuote] = useState(DEFAULT_QUOTE)
@@ -61,6 +61,7 @@ export function ForexMarket() {
   const [historyLoading, setHistoryLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pulse, setPulse] = useState(false)
+  const [rateSource, setRateSource] = useState<string | null>(null)
   const prevRateRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export function ForexMarket() {
         if (json.currencies?.length) {
           const list = json.currencies as FrankfurterCurrency[]
           if (!list.some(c => c.iso_code === 'IRR')) {
-            list.push({ iso_code: 'IRR', name: 'Iranian Rial', symbol: '﷼' })
+            list.push({ iso_code: 'IRR', name: 'Iranian Rial (free market)', symbol: '﷼' })
           }
           setCurrencies(list)
         }
@@ -102,6 +103,7 @@ export function ForexMarket() {
       prevRateRef.current = next
       setRate(next)
       setRateDate(json.rate.date)
+      setRateSource(json.meta?.source ?? null)
       setLastUpdated(new Date())
       setCountdown(30)
       setError(null)
@@ -172,7 +174,12 @@ export function ForexMarket() {
     code === 'IRR' ? formatIrr(value) : formatRate(value, code)
 
   const quoteName = currencies.find(c => c.iso_code === quote)?.name ?? quote
-  const isUsdIrr = base === 'USD' && quote === 'IRR'
+  const involvesIrr = base === 'IRR' || quote === 'IRR'
+  const isFreeMarket = involvesIrr || rateSource === 'tgju-free-market'
+  const tomanHint =
+    quote === 'IRR' && rate != null
+      ? `≈ ${Math.round(rate / 10).toLocaleString()} toman`
+      : null
 
   if (loading && rate == null) {
     return (
@@ -230,8 +237,9 @@ export function ForexMarket() {
               className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--fx-mute)] mb-3"
               style={mono}
             >
-              {isUsdIrr ? 'USD → IRR' : `${base} → ${quote}`}
+              {base} → {quote}
               {rateDate ? ` · ${rateDate}` : ''}
+              {isFreeMarket ? ' · free market' : ''}
             </p>
             <p className="text-sm text-[color:var(--fx-mute)] mb-1" style={mono}>
               1 <span className="text-[color:var(--fx-fg)]">{base}</span> =
@@ -243,6 +251,11 @@ export function ForexMarket() {
               {rate != null ? displayRate(rate, quote) : '—'}{' '}
               <span className="text-xl font-medium text-[color:var(--fx-mute)]">{quote}</span>
             </p>
+            {tomanHint ? (
+              <p className="mt-2 text-sm text-[color:var(--fx-mute)]" style={mono}>
+                {tomanHint}
+              </p>
+            ) : null}
             <div className="mt-4 flex items-center justify-between gap-3">
               <div>
                 <Delta value={change} large />
@@ -262,7 +275,9 @@ export function ForexMarket() {
               </button>
             </div>
             <p className="mt-3 text-xs text-[color:var(--fx-mute)]">
-              {isUsdIrr ? 'Iranian Rial · ریال ایران' : quoteName}
+              {involvesIrr
+                ? 'Iran free-market rate (TGJU) · not ECB/official'
+                : quoteName}
             </p>
           </motion.div>
         </motion.div>

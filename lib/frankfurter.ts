@@ -27,7 +27,7 @@ export const FALLBACK_CURRENCIES = [
   { iso_code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
   { iso_code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
   { iso_code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { iso_code: 'IRR', name: 'Iranian Rial', symbol: '﷼' },
+  { iso_code: 'IRR', name: 'Iranian Rial (free market)', symbol: '﷼' },
   { iso_code: 'TRY', name: 'Turkish Lira', symbol: '₺' },
   { iso_code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
   { iso_code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
