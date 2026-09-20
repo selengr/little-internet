@@ -56,15 +56,6 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: calc(1.2em * 2 + 8px);
-  transition: color 150ms linear;
-}
-
-.card:hover .title {
-  color: #0078df;
-}
-
-:global(.dark) .card:hover .title {
-  color: #6fb5ff;
 }
 
 .details {
