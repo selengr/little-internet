@@ -7,7 +7,6 @@ import {
   Search,
   Sparkles,
   Flame,
-  Camera,
   Shuffle,
   Loader2,
   Share2,
@@ -54,10 +53,8 @@ export function PhotoDiscovery() {
   const [hero, setHero] = useState<UnsplashPhotoView | null>(null)
   const [daily, setDaily] = useState<UnsplashPhotoView | null>(null)
   const [collections, setCollections] = useState<UnsplashCollectionView[]>([])
-  const [latest, setLatest] = useState<UnsplashPhotoView[]>([])
   const [trending, setTrending] = useState<UnsplashPhotoView[]>([])
   const [gallery, setGallery] = useState<UnsplashPhotoView[]>([])
-  const [surprise, setSurprise] = useState<UnsplashPhotoView | null>(null)
 
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -104,7 +101,6 @@ export function PhotoDiscovery() {
       if (dailyRes.status === 'fulfilled') setDaily(dailyRes.value.photo)
       if (collectionsRes.status === 'fulfilled') setCollections(collectionsRes.value.collections)
       if (latestRes.status === 'fulfilled') {
-        setLatest(latestRes.value.photos)
         setGallery(latestRes.value.photos)
       }
       if (trendingRes.status === 'fulfilled') setTrending(trendingRes.value.photos)
@@ -322,9 +318,9 @@ export function PhotoDiscovery() {
     setLoadingSurprise(true)
     try {
       const json = await fetchUnsplash<{ photo: UnsplashPhotoView }>({ action: 'random' })
-      setSurprise(json.photo)
+      setSelectedPhoto(json.photo)
     } catch {
-      setSurprise(null)
+      /* ignore — surprise is best-effort */
     } finally {
       setLoadingSurprise(false)
     }
@@ -371,7 +367,7 @@ export function PhotoDiscovery() {
           </>
         )}
         {!hero && loadingHero && (
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-900 to-black animate-pulse" />
+          <div className="absolute inset-0 bg-muted animate-pulse" />
         )}
 
         {hero && (
@@ -395,8 +391,8 @@ export function PhotoDiscovery() {
             className={cn(
               'rounded-2xl border px-5 py-4 text-sm',
               loadError.toLowerCase().includes('rate limit')
-                ? 'border-amber-500/25 bg-amber-500/10 text-amber-100'
-                : 'border-red-500/25 bg-red-500/10 text-red-200',
+                ? 'border-amber-500/25 bg-amber-500/10 text-amber-800 dark:text-amber-100'
+                : 'border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-200',
             )}
           >
             <p className="font-medium">
@@ -407,23 +403,25 @@ export function PhotoDiscovery() {
             <p
               className={cn(
                 'mt-1',
-                loadError.toLowerCase().includes('rate limit') ? 'text-amber-100/75' : 'text-red-200/70',
+                loadError.toLowerCase().includes('rate limit')
+                  ? 'text-amber-800/75 dark:text-amber-100/75'
+                  : 'text-red-700/75 dark:text-red-200/70',
               )}
             >
               {loadError}
             </p>
             {loadError.includes('UNSPLASH_ACCESS_KEY') && (
-              <p className="mt-2 text-red-200/60 text-xs">
-                Add <code className="rounded bg-black/30 px-1">UNSPLASH_ACCESS_KEY</code> to{' '}
-                <code className="rounded bg-black/30 px-1">.env.local</code> locally, or to{' '}
-                <code className="rounded bg-black/30 px-1">Vercel → Environment Variables</code> for
+              <p className="mt-2 text-red-700/60 dark:text-red-200/60 text-xs">
+                Add <code className="rounded bg-black/10 dark:bg-black/30 px-1">UNSPLASH_ACCESS_KEY</code> to{' '}
+                <code className="rounded bg-black/10 dark:bg-black/30 px-1">.env.local</code> locally, or to{' '}
+                <code className="rounded bg-black/10 dark:bg-black/30 px-1">Vercel → Environment Variables</code> for
                 production, then redeploy.
               </p>
             )}
             <button
               type="button"
               onClick={() => void loadInitial()}
-              className="mt-3 rounded-full border border-red-400/30 px-4 py-1.5 text-xs text-red-100 hover:bg-red-500/10"
+              className="mt-3 rounded-full border border-red-400/30 px-4 py-1.5 text-xs text-red-700 dark:text-red-100 hover:bg-red-500/10"
             >
               Try again
             </button>
@@ -432,36 +430,39 @@ export function PhotoDiscovery() {
 
         {/* Daily inspiration */}
         {daily && (
-          <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+          <section className="relative overflow-hidden rounded-3xl border border-border bg-card/60 backdrop-blur-xl">
             <div className="grid md:grid-cols-[1fr_1.1fr] gap-0">
               <div className="p-8 md:p-10 flex flex-col justify-center">
-                <div className="inline-flex items-center gap-2 text-amber-300/80 mb-4">
+                <div className="inline-flex items-center gap-2 text-amber-500 dark:text-amber-300/80 mb-4">
                   <Sparkles className="size-4" />
                   <span className="text-[10px] uppercase tracking-[0.25em]">Photo of the day</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-light text-white leading-snug">
+                <h2
+                  className="text-2xl md:text-3xl font-light text-foreground leading-snug"
+                  style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+                >
                   {daily.description ?? daily.alt}
                 </h2>
-                <p className="mt-3 text-sm text-white/45">by {daily.photographer.name}</p>
+                <p className="mt-3 text-sm text-muted-foreground">by {daily.photographer.name}</p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => setSelectedPhoto(daily)}
-                    className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black"
+                    className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
                   >
                     View full
                   </button>
                   <button
                     type="button"
                     onClick={() => void handleDownload(daily)}
-                    className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80"
+                    className="rounded-full border border-border px-4 py-2 text-sm text-foreground/80 hover:bg-muted/60 transition-colors"
                   >
                     Download
                   </button>
                   <button
                     type="button"
                     onClick={() => void handleShare(daily)}
-                    className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80"
+                    className="rounded-full border border-border px-4 py-2 text-sm text-foreground/80 hover:bg-muted/60 transition-colors"
                   >
                     Share
                   </button>
@@ -479,8 +480,13 @@ export function PhotoDiscovery() {
         <section>
           <div className="flex items-end justify-between gap-4 mb-6">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-white/35 mb-2">Featured</p>
-              <h2 className="text-2xl font-light text-white">Trending collections</h2>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Featured</p>
+              <h2
+                className="text-2xl font-light text-foreground"
+                style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+              >
+                Trending collections
+              </h2>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -489,7 +495,7 @@ export function PhotoDiscovery() {
                 key={c.id}
                 type="button"
                 onClick={() => void openCollection(c)}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl ring-1 ring-white/10 text-left"
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/10 text-left"
               >
                 {c.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -510,7 +516,7 @@ export function PhotoDiscovery() {
             ))}
             {!collections.length && loadingHero && (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="aspect-[4/5] rounded-2xl bg-white/10 animate-pulse" />
+                <div key={i} className="aspect-[4/5] rounded-2xl bg-muted animate-pulse" />
               ))
             )}
           </div>
@@ -518,8 +524,13 @@ export function PhotoDiscovery() {
 
         {/* Categories */}
         <section>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-white/35 mb-2">Explore</p>
-          <h2 className="text-2xl font-light text-white mb-5">Categories</h2>
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Explore</p>
+          <h2
+            className="text-2xl font-light text-foreground mb-5"
+            style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+          >
+            Categories
+          </h2>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             {PHOTO_CATEGORIES.map(cat => (
               <button
@@ -529,8 +540,8 @@ export function PhotoDiscovery() {
                 className={cn(
                   'shrink-0 rounded-full border px-4 py-2.5 text-sm backdrop-blur-md transition-colors',
                   activeCategory === cat.id
-                    ? 'border-white/30 bg-white/15 text-white'
-                    : 'border-white/10 bg-white/[0.04] text-white/65 hover:bg-white/[0.08]',
+                    ? 'border-foreground/30 bg-foreground/10 text-foreground'
+                    : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground',
                 )}
               >
                 <span className="mr-1.5">{cat.emoji}</span>
@@ -540,24 +551,16 @@ export function PhotoDiscovery() {
           </div>
         </section>
 
-        {/* Latest */}
-        <section>
-          <div className="flex items-center gap-2 mb-5">
-            <Camera className="size-4 text-white/40" />
-            <h2 className="text-2xl font-light text-white">Latest photos</h2>
-          </div>
-          <PhotoMasonry
-            photos={latest.slice(0, 8)}
-            onPhotoClick={setSelectedPhoto}
-            onDownload={p => void handleDownload(p)}
-          />
-        </section>
-
         {/* Trending */}
         <section>
           <div className="flex items-center gap-2 mb-5">
-            <Flame className="size-4 text-orange-400/80" />
-            <h2 className="text-2xl font-light text-white">Trending now</h2>
+            <Flame className="size-4 text-orange-500 dark:text-orange-400/80" />
+            <h2
+              className="text-2xl font-light text-foreground"
+              style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+            >
+              Trending now
+            </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {trending.map(photo => (
@@ -565,7 +568,7 @@ export function PhotoDiscovery() {
                 key={photo.id}
                 type="button"
                 onClick={() => setSelectedPhoto(photo)}
-                className="group relative aspect-[3/4] overflow-hidden rounded-2xl ring-1 ring-white/10"
+                className="group relative aspect-[3/4] overflow-hidden rounded-2xl ring-1 ring-black/[0.06] dark:ring-white/10"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -583,9 +586,14 @@ export function PhotoDiscovery() {
         </section>
 
         {/* Search */}
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 md:p-8">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-white/35 mb-2">Search</p>
-          <h2 className="text-2xl font-light text-white mb-6">Find the perfect photo</h2>
+        <section className="rounded-3xl border border-border bg-card/60 backdrop-blur-xl p-6 md:p-8">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Search</p>
+          <h2
+            className="text-2xl font-light text-foreground mb-6"
+            style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+          >
+            Find the perfect photo
+          </h2>
           <form
             onSubmit={e => {
               e.preventDefault()
@@ -594,19 +602,34 @@ export function PhotoDiscovery() {
             className="flex flex-col sm:flex-row gap-3"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-white/35" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <input
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search photos…"
-                className="w-full rounded-2xl border border-white/10 bg-black/30 py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/25"
+                className="w-full rounded-2xl border border-border bg-muted/40 py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-foreground/25"
               />
             </div>
             <button
               type="submit"
-              className="rounded-2xl bg-white px-6 py-3.5 text-sm font-medium text-black hover:bg-white/90"
+              className="rounded-2xl bg-foreground px-6 py-3.5 text-sm font-medium text-background hover:opacity-90"
             >
               Search
+            </button>
+            <button
+              type="button"
+              onClick={() => void runSurprise()}
+              disabled={loadingSurprise}
+              title="Surprise me"
+              aria-label="Surprise me with a random photo"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border px-4 py-3.5 text-sm text-foreground/80 hover:bg-muted/60 transition-colors disabled:opacity-60"
+            >
+              {loadingSurprise ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Shuffle className="size-4" />
+              )}
+              <span className="hidden sm:inline">Surprise</span>
             </button>
           </form>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -618,7 +641,7 @@ export function PhotoDiscovery() {
                   setSearchQuery(s)
                   runSearch(s)
                 }}
-                className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/50 hover:bg-white/5 hover:text-white/80"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors"
               >
                 {s}
               </button>
@@ -626,11 +649,11 @@ export function PhotoDiscovery() {
           </div>
 
           {(submittedQuery || activeCategory) && (
-            <div className="mt-8 pt-8 border-t border-white/8">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 mb-4">Filters</p>
+            <div className="mt-8 pt-8 border-t border-border">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-4">Filters</p>
               <div className="flex flex-wrap gap-6">
                 <div>
-                  <p className="text-xs text-white/45 mb-2">Orientation</p>
+                  <p className="text-xs text-muted-foreground mb-2">Orientation</p>
                   <div className="flex flex-wrap gap-2">
                     {ORIENTATIONS.map(o => (
                       <button
@@ -647,8 +670,8 @@ export function PhotoDiscovery() {
                         className={cn(
                           'rounded-full border px-3 py-1.5 text-xs',
                           filters.orientation === o.id
-                            ? 'border-white/30 bg-white/10 text-white'
-                            : 'border-white/10 text-white/50',
+                            ? 'border-foreground/30 bg-foreground/10 text-foreground'
+                            : 'border-border text-muted-foreground hover:text-foreground',
                         )}
                       >
                         {o.label}
@@ -657,7 +680,7 @@ export function PhotoDiscovery() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-white/45 mb-2">Color</p>
+                  <p className="text-xs text-muted-foreground mb-2">Color</p>
                   <div className="flex flex-wrap gap-2">
                     {COLORS.map(c => (
                       <button
@@ -677,8 +700,8 @@ export function PhotoDiscovery() {
                         className={cn(
                           'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs',
                           filters.color === c.id
-                            ? 'border-white/30 bg-white/10 text-white'
-                            : 'border-white/10 text-white/50',
+                            ? 'border-foreground/30 bg-foreground/10 text-foreground'
+                            : 'border-border text-muted-foreground hover:text-foreground',
                         )}
                       >
                         <span className="size-2.5 rounded-full" style={{ background: c.swatch }} />
@@ -688,7 +711,7 @@ export function PhotoDiscovery() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-white/45 mb-2">Sort</p>
+                  <p className="text-xs text-muted-foreground mb-2">Sort</p>
                   <div className="flex gap-2">
                     {(['relevant', 'latest'] as const).map(o => (
                       <button
@@ -702,8 +725,8 @@ export function PhotoDiscovery() {
                         className={cn(
                           'rounded-full border px-3 py-1.5 text-xs capitalize',
                           (filters.orderBy ?? 'relevant') === o
-                            ? 'border-white/30 bg-white/10 text-white'
-                            : 'border-white/10 text-white/50',
+                            ? 'border-foreground/30 bg-foreground/10 text-foreground'
+                            : 'border-border text-muted-foreground hover:text-foreground',
                         )}
                       >
                         {o}
@@ -716,56 +739,18 @@ export function PhotoDiscovery() {
           )}
         </section>
 
-        {/* Surprise */}
-        <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-3xl border border-white/10 bg-gradient-to-r from-violet-500/10 to-transparent p-6 md:p-8">
-          <div>
-            <h2 className="text-xl font-light text-white">Random discovery</h2>
-            <p className="text-sm text-white/45 mt-1">Let chance pick your next favorite shot.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void runSurprise()}
-            disabled={loadingSurprise}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black disabled:opacity-60"
-          >
-            {loadingSurprise ? <Loader2 className="size-4 animate-spin" /> : <Shuffle className="size-4" />}
-            Surprise me
-          </button>
-        </section>
-
-        {surprise && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl overflow-hidden border border-white/10 ring-1 ring-white/10"
-          >
-            <button type="button" onClick={() => setSelectedPhoto(surprise)} className="block w-full text-left">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={surprise.urls.regular} alt={surprise.alt} className="w-full max-h-[420px] object-cover" />
-            </button>
-            <div className="flex items-center justify-between gap-4 p-4 bg-white/[0.03]">
-              <div>
-                <p className="text-sm text-white">{surprise.photographer.name}</p>
-                <p className="text-xs text-white/45">{surprise.description ?? surprise.alt}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedPhoto(surprise)}
-                className="text-xs text-white/60 hover:text-white"
-              >
-                Open →
-              </button>
-            </div>
-          </motion.div>
-        )}
-
         {/* Main gallery */}
         <section ref={galleryRef}>
           <div className="flex items-end justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-2xl font-light text-white">{galleryTitle}</h2>
+              <h2
+                className="text-2xl font-light text-foreground"
+                style={{ fontFamily: 'var(--font-display-serif), Georgia, serif' }}
+              >
+                {galleryTitle}
+              </h2>
               {searchTotal > 0 && submittedQuery && (
-                <p className="text-sm text-white/40 mt-1">{searchTotal.toLocaleString()} results</p>
+                <p className="text-sm text-muted-foreground mt-1">{searchTotal.toLocaleString()} results</p>
               )}
             </div>
           </div>
@@ -777,7 +762,7 @@ export function PhotoDiscovery() {
           />
           <div ref={loadMoreRef} className="h-8 mt-4 flex items-center justify-center">
             {loadingGallery && gallery.length > 0 && (
-              <Loader2 className="size-5 animate-spin text-white/30" />
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
             )}
           </div>
         </section>

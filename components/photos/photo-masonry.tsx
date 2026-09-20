@@ -10,7 +10,7 @@ function MasonrySkeleton() {
         <div
           key={i}
           className={cn(
-            'break-inside-avoid rounded-2xl bg-white/10 animate-pulse',
+            'break-inside-avoid rounded-2xl bg-muted animate-pulse',
             i % 3 === 0 ? 'h-72' : i % 3 === 1 ? 'h-52' : 'h-64',
           )}
         />
@@ -40,8 +40,8 @@ export function PhotoMasonry({
 
   if (!loading && photos.length === 0) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-8 py-16 text-center">
-        <p className="text-white/50 text-sm">No photos found. Try another search or category.</p>
+      <div className="rounded-3xl border border-border bg-card/60 px-8 py-16 text-center">
+        <p className="text-muted-foreground text-sm">No photos found. Try another search or category.</p>
       </div>
     )
   }
@@ -53,7 +53,7 @@ export function PhotoMasonry({
         return (
           <article
             key={photo.id}
-            className="group relative mb-3 break-inside-avoid overflow-hidden rounded-2xl bg-black/20 ring-1 ring-white/10"
+            className="group relative mb-3 break-inside-avoid overflow-hidden rounded-2xl bg-muted ring-1 ring-black/[0.06] dark:ring-white/10"
           >
             <button
               type="button"
