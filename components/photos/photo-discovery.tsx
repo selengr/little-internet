@@ -22,10 +22,8 @@ import type {
 } from '@/types/unsplash'
 import {
   formatPhotoCount,
-  loadSavedPhotos,
   PHOTO_CATEGORIES,
   SEARCH_SUGGESTIONS,
-  toggleSavedPhoto,
 } from '@/lib/unsplash'
 import { cn } from '@/lib/utils'
 
@@ -67,7 +65,6 @@ export function PhotoDiscovery() {
   const [profileUser, setProfileUser] = useState<UnsplashUserView | null>(null)
   const [profilePhotos, setProfilePhotos] = useState<UnsplashPhotoView[]>([])
 
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [loadError, setLoadError] = useState<string | null>(null)
   const [loadingHero, setLoadingHero] = useState(true)
   const [loadingGallery, setLoadingGallery] = useState(false)
@@ -79,10 +76,6 @@ export function PhotoDiscovery() {
 
   const galleryRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setSavedIds(new Set(loadSavedPhotos()))
-  }, [])
 
   const loadInitial = useCallback(async () => {
     setLoadingHero(true)
@@ -269,12 +262,6 @@ export function PhotoDiscovery() {
     } finally {
       setLoadingProfile(false)
     }
-  }
-
-  const handleSave = (photo: UnsplashPhotoView) => {
-    const nowSaved = toggleSavedPhoto(photo.id)
-    setSavedIds(new Set(loadSavedPhotos()))
-    return nowSaved
   }
 
   const handleDownload = async (photo: UnsplashPhotoView) => {
@@ -765,11 +752,7 @@ export function PhotoDiscovery() {
 
       <PhotoDetailModal
         photo={selectedPhoto}
-        saved={selectedPhoto ? savedIds.has(selectedPhoto.id) : false}
         onClose={() => setSelectedPhoto(null)}
-        onSave={() => {
-          if (selectedPhoto) handleSave(selectedPhoto)
-        }}
         onDownload={() => {
           if (selectedPhoto) void handleDownload(selectedPhoto)
         }}

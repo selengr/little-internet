@@ -1,15 +1,12 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Heart, Share2, X, ExternalLink } from 'lucide-react'
+import { Download, Share2, X } from 'lucide-react'
 import type { UnsplashPhotoView, UnsplashUserView } from '@/types/unsplash'
-import { cn } from '@/lib/utils'
 
 interface PhotoDetailModalProps {
   photo: UnsplashPhotoView | null
-  saved?: boolean
   onClose: () => void
-  onSave: () => void
   onDownload: () => void
   onShare: () => void
   onPhotographerClick: (user: UnsplashUserView) => void
@@ -17,9 +14,7 @@ interface PhotoDetailModalProps {
 
 export function PhotoDetailModal({
   photo,
-  saved,
   onClose,
-  onSave,
   onDownload,
   onShare,
   onPhotographerClick,
@@ -134,34 +129,12 @@ export function PhotoDetailModal({
                 </button>
                 <button
                   type="button"
-                  onClick={onSave}
-                  className={cn(
-                    'inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm transition-colors',
-                    saved
-                      ? 'border-rose-400/30 bg-rose-500/15 text-rose-200'
-                      : 'border-white/15 text-white/80 hover:bg-white/5',
-                  )}
-                >
-                  <Heart className={cn('size-4', saved && 'fill-current')} />
-                  {saved ? 'Saved' : 'Save'}
-                </button>
-                <button
-                  type="button"
                   onClick={onShare}
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5"
                 >
                   <Share2 className="size-4" />
                   Share
                 </button>
-                <a
-                  href={photo.links.html}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm text-white/60 hover:bg-white/5"
-                >
-                  <ExternalLink className="size-4" />
-                  Unsplash
-                </a>
               </div>
             </div>
           </motion.div>
