@@ -2,36 +2,26 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { Instrument_Serif } from 'next/font/google'
 import type { CoinMarket } from '@/types/coingecko'
 import { formatPct, formatUsd } from '@/lib/crypto-format'
+
+const display = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+})
 
 const REFRESH_MS = 30_000
 
 const CARD_IMAGES = {
   crypto:
     'https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1200&q=80',
-  forex:
+  convert:
     'https://images.unsplash.com/photo-1579621970795-87facc2f976d?auto=format&fit=crop&w=1200&q=80',
   soon:
     'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
 } as const
-
-type ForexPair = {
-  label: string
-  rate: number
-  change: number
-}
-
-function seriesToPair(label: string, series: { rate: number }[]): ForexPair | null {
-  if (!series.length) return null
-  const first = series[0].rate
-  const last = series[series.length - 1].rate
-  return {
-    label,
-    rate: last,
-    change: series.length > 1 ? ((last - first) / first) * 100 : 0,
-  }
-}
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -125,10 +115,6 @@ function buildChartPaths(
   return { line, fill, lastX: last.x, lastY: last.y }
 }
 
-function formatForexRate(rate: number) {
-  return rate >= 10 ? rate.toFixed(2) : rate.toFixed(4)
-}
-
 function PriceLabel({
   x,
   pairLabel,
@@ -165,9 +151,7 @@ function PriceLabel({
 export function MarketsBentoCards() {
   const [btc, setBtc] = useState<CoinMarket | null>(null)
   const [eth, setEth] = useState<CoinMarket | null>(null)
-  const [eur, setEur] = useState<ForexPair | null>(null)
-  const [gbp, setGbp] = useState<ForexPair | null>(null)
-  const [eurSeries, setEurSeries] = useState<number[]>([])
+  const [usdIrr, setUsdIrr] = useState<{ rate: number; changePct: number | null; date: string | null } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -175,26 +159,27 @@ export function MarketsBentoCards() {
 
     async function load() {
       try {
-        const [cryptoRes, eurSeriesRes, gbpSeriesRes] = await Promise.all([
+        const [cryptoRes, usdIrrRes] = await Promise.all([
           fetch('/api/crypto?per_page=2', { cache: 'no-store' }),
-          fetch('/api/forex?action=series&days=7d&base=EUR&quote=USD', { cache: 'no-store' }),
-          fetch('/api/forex?action=series&days=7d&base=GBP&quote=USD', { cache: 'no-store' }),
+          fetch('/api/forex?action=rate&base=USD&quote=IRR', { cache: 'no-store' }),
         ])
 
         const cryptoJson = await cryptoRes.json()
-        const eurSeriesJson = await eurSeriesRes.json()
-        const gbpSeriesJson = await gbpSeriesRes.json()
+        const usdIrrJson = await usdIrrRes.json()
 
         if (!cancelled) {
           const coins: CoinMarket[] = cryptoJson.coins ?? []
           setBtc(coins.find(c => c.symbol.toLowerCase() === 'btc') ?? coins[0] ?? null)
           setEth(coins.find(c => c.symbol.toLowerCase() === 'eth') ?? coins[1] ?? null)
 
-          const eurPoints: { rate: number }[] = eurSeriesJson.series ?? []
-          const gbpPoints: { rate: number }[] = gbpSeriesJson.series ?? []
-          setEur(seriesToPair('EUR / USD', eurPoints))
-          setGbp(seriesToPair('GBP / USD', gbpPoints))
-          setEurSeries(eurPoints.map(p => p.rate))
+          if (usdIrrJson?.rate?.rate != null) {
+            setUsdIrr({
+              rate: Number(usdIrrJson.rate.rate),
+              changePct:
+                typeof usdIrrJson.meta?.changePct === 'number' ? usdIrrJson.meta.changePct : null,
+              date: usdIrrJson.rate.date ?? null,
+            })
+          }
         }
       } catch {
         // keep last good data
@@ -214,19 +199,25 @@ export function MarketsBentoCards() {
   const btcChart = btc?.sparkline_in_7d?.price
     ? buildChartPaths(btc.sparkline_in_7d.price)
     : null
-  const forexChart = eurSeries.length >= 2
-    ? buildChartPaths(eurSeries, 300, 145, 80)
-    : null
 
   const btcPrice = loading && !btc ? '—' : btc ? formatUsd(btc.current_price) : '—'
   const btcPct = loading && !btc ? '—' : btc ? formatPct(btc.price_change_percentage_24h) : '—'
   const ethPrice = loading && !eth ? '—' : eth ? formatUsd(eth.current_price) : '—'
   const ethPct = loading && !eth ? '—' : eth ? formatPct(eth.price_change_percentage_24h) : '—'
 
-  const eurPrice = loading && !eur ? '—' : eur ? formatForexRate(eur.rate) : '—'
-  const eurPct = loading && !eur ? '—' : eur ? formatPct(eur.change) : '—'
-  const gbpPrice = loading && !gbp ? '—' : gbp ? formatForexRate(gbp.rate) : '—'
-  const gbpPct = loading && !gbp ? '—' : gbp ? formatPct(gbp.change) : '—'
+  const irrRate = usdIrr?.rate
+  const irrFormatted =
+    loading && !usdIrr
+      ? '—'
+      : irrRate != null
+        ? Math.round(irrRate).toLocaleString()
+        : '—'
+  const tomanFormatted =
+    irrRate != null ? Math.round(irrRate / 10).toLocaleString() : null
+  const irrPct =
+    usdIrr?.changePct != null
+      ? `${usdIrr.changePct >= 0 ? '+' : ''}${usdIrr.changePct.toFixed(2)}%`
+      : null
 
   return (
     <>
@@ -271,43 +262,58 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
-      {/* Forex */}
-      <Link href="/forex" className="col-span-12 md:col-span-4 block">
+      {/* Convert — live USD → IRR */}
+      <Link href="/convert" className="col-span-12 md:col-span-4 block">
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"
           delay={160}
-          image={CARD_IMAGES.forex}
-          wash="from-[#0a1411]/35 via-[#0a1411]/55 to-[#0a1411]/93"
+          image={CARD_IMAGES.convert}
+          wash="from-[#0a1018]/40 via-[#0a1018]/60 to-[#0a1018]/94"
         >
-          <svg
-            className="absolute inset-0 w-full h-full"
-            viewBox="0 0 300 240"
-            preserveAspectRatio="none"
-            aria-hidden
-          >
-            <defs>
-              <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity=".3" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {forexChart ? (
-              <>
-                <path d={forexChart.fill} fill="url(#fg)" />
-                <path d={forexChart.line} fill="none" stroke="#6ee7b7" strokeWidth="1.6" />
-                <circle cx={forexChart.lastX} cy={forexChart.lastY} r="3" fill="#6ee7b7" />
-              </>
-            ) : null}
-            <PriceLabel x={16} pairLabel="EUR / USD" pairColor="#a7f3d0" price={eurPrice} pct={eurPct} pctX={78} />
-            <PriceLabel x={158} pairLabel="GBP / USD" pairColor="#a7f3d0" price={gbpPrice} pct={gbpPct} pctX={230} />
-          </svg>
+          <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Convert</p>
+              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-emerald-300/90">
+                <span className="relative flex size-1.5">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+                </span>
+                Live
+              </span>
+            </div>
 
-          <div className="relative z-10 flex flex-col justify-end h-full p-6 pt-28">
-            <p className="text-[10px] tracking-[0.22em] uppercase text-white/50 mb-2">Forex</p>
-            <h3 className="text-[15px] font-light text-white mb-2">Exchange rates</h3>
-            <p className="text-sm text-white/55 leading-relaxed">
-              Live FX pairs, conversion, and history charts.
-            </p>
+            <div className="mt-8 mb-4">
+              <p
+                className="text-[13px] text-white/55 mb-2 tracking-wide"
+                style={{ fontFamily: display.style.fontFamily }}
+              >
+                1 USD → IRR
+              </p>
+              <p
+                className="text-[clamp(1.85rem,4vw,2.35rem)] leading-none tracking-tight text-white tabular-nums"
+                style={{ fontFamily: display.style.fontFamily }}
+              >
+                {irrFormatted}
+              </p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/55">
+                {tomanFormatted ? <span>≈ {tomanFormatted} toman</span> : null}
+                {irrPct ? (
+                  <span style={{ color: pctColor(parseFloat(irrPct)) }}>{irrPct}</span>
+                ) : null}
+              </div>
+            </div>
+
+            <div>
+              <h3
+                className="text-[1.35rem] leading-tight tracking-tight text-white mb-1.5"
+                style={{ fontFamily: display.style.fontFamily }}
+              >
+                Convert currency
+              </h3>
+              <p className="text-sm text-white/55 leading-relaxed">
+                Free-market rates — convert any pair, starting with live USD to Iranian Rial.
+              </p>
+            </div>
           </div>
         </MarketBentoCard>
       </Link>

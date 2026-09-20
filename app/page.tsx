@@ -301,7 +301,7 @@ export default function AgenticPage() {
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <h3 className="text-lg font-light">Convert a file</h3>
                   <Link
-                    href="/convert"
+                    href="/files"
                     className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground/70 hover:text-foreground transition-colors tracking-wide shrink-0 mt-1"
                   >
                     Studio
@@ -464,6 +464,7 @@ export default function AgenticPage() {
             <div key={rep} className="flex shrink-0">
               {[
                 "QR Codes",
+                "Currency Convert",
                 "File Convert",
                 "Cat Facts",
                 "Dog Facts",
@@ -471,7 +472,6 @@ export default function AgenticPage() {
                 "Joke Spinner",
                 "Live Markets",
                 "Crypto Prices",
-                "Forex Rates",
                 "Photo Discovery",
               ].map((cap) => (
                 <div
