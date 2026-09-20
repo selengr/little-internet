@@ -56,6 +56,60 @@ const STICKY_TOP  = 80   // matches top: 80px on first card
 const STICKY_STEP = 16   // each card stacks 16px lower
 const SCALE_STEP  = 0.04 // scale reduction per card stacked on top
 const OFFSET_STEP = 8    // px pushed down per card stacked on top
+/** Never re-show a photo within this many advances (when the pool is large enough). */
+const NO_REPEAT_WINDOW = 10
+const POOL_PAGES = 2
+const POOL_PER_PAGE = 15
+
+function shuffleIndices(n: number): number[] {
+  const a = Array.from({ length: n }, (_, i) => i)
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+function uniquePhotos(photos: UnsplashPhotoView[]): UnsplashPhotoView[] {
+  const seen = new Set<string>()
+  return photos.filter(p => {
+    if (!p?.id || seen.has(p.id)) return false
+    seen.add(p.id)
+    return true
+  })
+}
+
+async function fetchCategoryPool(query: string): Promise<UnsplashPhotoView[]> {
+  const pages = await Promise.all(
+    Array.from({ length: POOL_PAGES }, async (_, i) => {
+      const params = new URLSearchParams({
+        action: "search",
+        query,
+        per_page: String(POOL_PER_PAGE),
+        page: String(i + 1),
+        order_by: "latest",
+      })
+      const res = await fetch(`/api/unsplash?${params}`, { cache: "no-store" })
+      const json = await res.json()
+      return (json.photos ?? []) as UnsplashPhotoView[]
+    }),
+  )
+  return uniquePhotos(pages.flat())
+}
+
+/** Build a fresh play order that avoids starting with any recently shown photo. */
+function buildPlayOrder(poolSize: number, recentIdx: number[]): number[] {
+  if (poolSize <= 1) return poolSize === 1 ? [0] : []
+  const blocked = new Set(recentIdx.slice(-Math.min(NO_REPEAT_WINDOW, poolSize - 1)))
+  let order = shuffleIndices(poolSize)
+  // Prefer a start that isn't in the recent window
+  const startAt = order.findIndex(idx => !blocked.has(idx))
+  if (startAt > 0) {
+    const [pick] = order.splice(startAt, 1)
+    order = [pick, ...order]
+  }
+  return order
+}
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
@@ -78,28 +132,43 @@ export function PhotoShowcaseStack() {
   const [pools, setPools] = useState<UnsplashPhotoView[][]>(CATEGORIES.map(() => []))
   const [activeIdx, setActiveIdx] = useState<number[]>(CATEGORIES.map(() => 0))
 
-  // Fetch a small rotating pool of photos per category
+  const poolsRef = useRef(pools)
+  const orderRef = useRef<number[][]>(CATEGORIES.map(() => []))
+  const cursorRef = useRef<number[]>(CATEGORIES.map(() => 0))
+  const recentRef = useRef<number[][]>(CATEGORIES.map(() => []))
+
+  useEffect(() => {
+    poolsRef.current = pools
+  }, [pools])
+
+  // Fetch a large unique pool per category (2 pages) so ~10+ swaps stay fresh
   useEffect(() => {
     let cancelled = false
     async function load() {
       const results = await Promise.all(
         CATEGORIES.map(async cat => {
           try {
-            const params = new URLSearchParams({
-              action: "search",
-              query: cat.query,
-              per_page: "6",
-              order_by: "latest",
-            })
-            const res = await fetch(`/api/unsplash?${params}`, { cache: "no-store" })
-            const json = await res.json()
-            return (json.photos ?? []) as UnsplashPhotoView[]
+            return await fetchCategoryPool(cat.query)
           } catch {
             return []
           }
         }),
       )
-      if (!cancelled) setPools(results)
+      if (cancelled) return
+
+      orderRef.current = results.map(pool => shuffleIndices(pool.length))
+      cursorRef.current = results.map(() => 0)
+      recentRef.current = results.map((pool, i) => {
+        const first = orderRef.current[i][0]
+        return typeof first === "number" ? [first] : []
+      })
+      setPools(results)
+      setActiveIdx(
+        results.map((pool, i) => {
+          const first = orderRef.current[i][0]
+          return typeof first === "number" && pool.length ? first : 0
+        }),
+      )
     }
     void load()
     return () => {
@@ -107,14 +176,32 @@ export function PhotoShowcaseStack() {
     }
   }, [])
 
-  // Each card advances on its own timer — Space runs ~1.5s faster
+  // Each card walks a shuffled deck — no repeats until the deck is exhausted
   useEffect(() => {
+    if (!pools.some(p => p.length > 1)) return
+
     const timers = CATEGORIES.map((cat, i) =>
       setInterval(() => {
+        const pool = poolsRef.current[i]
+        if (!pool || pool.length < 2) return
+
+        let order = orderRef.current[i]
+        let cursor = cursorRef.current[i] + 1
+
+        if (cursor >= order.length) {
+          order = buildPlayOrder(pool.length, recentRef.current[i])
+          orderRef.current[i] = order
+          cursor = 0
+        }
+
+        cursorRef.current[i] = cursor
+        const nextIdx = order[cursor]
+        const recent = recentRef.current[i]
+        recentRef.current[i] = [...recent, nextIdx].slice(-NO_REPEAT_WINDOW)
+
         setActiveIdx(prev => {
-          if (!pools[i] || pools[i].length < 2) return prev
           const next = [...prev]
-          next[i] = (next[i] + 1) % pools[i].length
+          next[i] = nextIdx
           return next
         })
       }, cat.rotateMs),
@@ -150,7 +237,7 @@ export function PhotoShowcaseStack() {
         const scale = 1 - d * SCALE_STEP
         const translateY = d * OFFSET_STEP
         const pool = pools[i]
-        const photo = pool?.length ? pool[activeIdx[i] % pool.length] : undefined
+        const photo = pool?.length ? pool[activeIdx[i]] : undefined
 
         return (
           <div
