@@ -11,6 +11,8 @@ interface ShowcaseCategory {
   query: string
   title: string
   desc: string
+  /** How often this card advances to the next photo */
+  rotateMs: number
 }
 
 // ids match PHOTO_CATEGORIES in lib/unsplash.ts so cards deep-link straight
@@ -22,6 +24,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "nature landscape",
     title: "Nature & landscapes",
     desc: "Mountains, forests, and untouched wilderness — pulled live from Unsplash.",
+    rotateMs: 4800,
   },
   {
     id: "architecture",
@@ -29,6 +32,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "architecture",
     title: "Architecture & cities",
     desc: "Striking structures and skylines, refreshed automatically every few seconds.",
+    rotateMs: 4800,
   },
   {
     id: "people",
@@ -36,6 +40,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "people portrait",
     title: "People & portraits",
     desc: "Candid moments and studio portraits from creators around the world.",
+    rotateMs: 4800,
   },
   {
     id: "space",
@@ -43,6 +48,8 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "space galaxy",
     title: "Space & galaxies",
     desc: "Nebulae, stars, and cosmic wonder — a rotating window into the cosmos.",
+    // ~1.5s sooner than the cards above so Space never feels late
+    rotateMs: 3300,
   },
 ]
 
@@ -50,11 +57,10 @@ const STICKY_TOP  = 80   // matches top: 80px on first card
 const STICKY_STEP = 16   // each card stacks 16px lower
 const SCALE_STEP  = 0.04 // scale reduction per card stacked on top
 const OFFSET_STEP = 8    // px pushed down per card stacked on top
-const ROTATE_MS   = 4200 // how often one random card swaps its photo
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] tracking-widest font-sans text-black/40 bg-black/[0.04]">
+    <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] tracking-widest font-sans text-muted-foreground bg-muted/70 border border-border/60">
       {children}
     </span>
   )
@@ -102,19 +108,19 @@ export function PhotoShowcaseStack() {
     }
   }, [])
 
-  // Every few seconds, advance one random card to the next photo in its pool
+  // Each card advances on its own timer — Space runs ~1.5s faster
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIdx(prev => {
-        const eligible = CATEGORIES.map((_, i) => i).filter(i => pools[i]?.length > 1)
-        if (!eligible.length) return prev
-        const pick = eligible[Math.floor(Math.random() * eligible.length)]
-        const next = [...prev]
-        next[pick] = (next[pick] + 1) % pools[pick].length
-        return next
-      })
-    }, ROTATE_MS)
-    return () => clearInterval(interval)
+    const timers = CATEGORIES.map((cat, i) =>
+      setInterval(() => {
+        setActiveIdx(prev => {
+          if (!pools[i] || pools[i].length < 2) return prev
+          const next = [...prev]
+          next[i] = (next[i] + 1) % pools[i].length
+          return next
+        })
+      }, cat.rotateMs),
+    )
+    return () => timers.forEach(clearInterval)
   }, [pools])
 
   useEffect(() => {
@@ -165,9 +171,9 @@ export function PhotoShowcaseStack() {
               <button
                 type="button"
                 onClick={() => router.push(`/photos?category=${cat.id}`)}
-                className="group relative block w-full text-left bg-[#faf9f7] rounded-2xl border border-black/[0.07] overflow-hidden cursor-pointer"
+                className="group relative block w-full text-left bg-[#faf9f7] dark:bg-[#373c41] rounded-2xl border border-black/[0.07] dark:border-white/[0.1] overflow-hidden cursor-pointer shadow-none dark:shadow-[0_18px_40px_-28px_rgba(0,0,0,0.55)]"
               >
-                <div className="relative w-full h-56 pointer-events-none md:hidden overflow-hidden bg-stone-200/60">
+                <div className="relative w-full h-56 pointer-events-none md:hidden overflow-hidden bg-stone-200/60 dark:bg-white/[0.06]">
                   <AnimatePresence>
                     {photo && (
                       <motion.img
@@ -183,7 +189,9 @@ export function PhotoShowcaseStack() {
                       />
                     )}
                   </AnimatePresence>
-                  {!photo && <div className="absolute inset-0 animate-pulse bg-stone-300/50" />}
+                  {!photo && (
+                    <div className="absolute inset-0 animate-pulse bg-stone-300/50 dark:bg-white/[0.08]" />
+                  )}
                 </div>
 
                 <div className="hidden md:block absolute inset-y-0 right-0 w-[58%] overflow-hidden pointer-events-none">
@@ -202,7 +210,9 @@ export function PhotoShowcaseStack() {
                       />
                     )}
                   </AnimatePresence>
-                  {!photo && <div className="absolute inset-0 animate-pulse bg-stone-200/60" />}
+                  {!photo && (
+                    <div className="absolute inset-0 animate-pulse bg-stone-200/60 dark:bg-white/[0.06]" />
+                  )}
                 </div>
 
                 {/* Text content */}
@@ -210,28 +220,30 @@ export function PhotoShowcaseStack() {
                   <div className="md:max-w-[54%]">
                     <div className="flex items-center justify-between mb-6">
                       <Tag>{cat.label}</Tag>
-                      <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] text-black/30 tracking-widest uppercase">
-                        <span className="relative flex size-1.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-                          <span className="relative inline-flex rounded-full size-1.5 bg-emerald-500" />
+                      <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] text-muted-foreground tracking-widest uppercase">
+                        <span className="relative flex size-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-55" />
+                          <span className="relative inline-flex rounded-full size-2 bg-emerald-500 dark:bg-emerald-400" />
                         </span>
                         Live
                       </span>
                     </div>
-                    <h3 className="text-xl font-light mb-3">{cat.title}</h3>
-                    <p className="text-sm text-black/45 leading-relaxed mb-3">{cat.desc}</p>
-                    <p className="text-xs italic text-black/35 mb-8 min-h-[1.5em]">
+                    <h3 className="text-xl font-light mb-3 text-foreground">{cat.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">{cat.desc}</p>
+                    <p className="text-xs italic text-muted-foreground/80 mb-8 min-h-[1.5em]">
                       {photo ? `“${photo.alt}” — ${photo.photographer.name}` : "\u00A0"}
                     </p>
                   </div>
-                  <div className="flex items-end gap-8 pt-6 border-t border-black/[0.06]">
+                  <div className="flex items-end gap-8 pt-6 border-t border-black/[0.06] dark:border-white/[0.1]">
                     <div>
-                      <div className="text-2xl font-light tabular-nums">
+                      <div className="text-2xl font-light tabular-nums text-foreground">
                         {photo ? new Date(photo.createdAt).getFullYear() : "—"}
                       </div>
-                      <div className="text-[11px] text-black/35 tracking-widest mt-0.5">captured</div>
+                      <div className="text-[11px] text-muted-foreground tracking-widest mt-0.5">
+                        captured
+                      </div>
                     </div>
-                    <div className="ml-auto text-xs text-black/40 group-hover:text-black/70 group-hover:translate-x-0.5 transition-all">
+                    <div className="ml-auto text-xs text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all">
                       Explore →
                     </div>
                   </div>

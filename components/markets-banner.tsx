@@ -166,9 +166,9 @@ export function MarketsBanner() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-emerald-300/90">
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-55" />
+                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
               </span>
               Live
             </span>
