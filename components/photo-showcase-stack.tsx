@@ -56,10 +56,11 @@ const STICKY_TOP  = 80   // matches top: 80px on first card
 const STICKY_STEP = 16   // each card stacks 16px lower
 const SCALE_STEP  = 0.04 // scale reduction per card stacked on top
 const OFFSET_STEP = 8    // px pushed down per card stacked on top
-/** Never re-show a photo within this many advances (when the pool is large enough). */
-const NO_REPEAT_WINDOW = 10
-const POOL_PAGES = 2
-const POOL_PER_PAGE = 15
+/** Prefer this many unique swaps before any photo can return. */
+const NO_REPEAT_WINDOW = 30
+/** 3 × 30 = up to 90 unique photos per card (API max per_page is 30). */
+const POOL_PAGES = 3
+const POOL_PER_PAGE = 30
 
 function shuffleIndices(n: number): number[] {
   const a = Array.from({ length: n }, (_, i) => i)
