@@ -54,7 +54,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
     <motion.article variants={item} className="h-full">
       <Link
         href="/blog"
-        className="group relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.35rem] border border-border/70 bg-card shadow-sm transition-shadow duration-500 hover:shadow-xl hover:shadow-black/[0.06]"
+        className="group relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.35rem] border border-border/70 bg-card shadow-sm transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 hover:border-foreground/20 hover:shadow-2xl hover:shadow-black/[0.12]"
       >
         <div className="absolute left-5 top-5 z-20 flex items-center gap-2">
           <span className="rounded-full border border-white/25 bg-black/45 px-2.5 py-1 text-[10px] font-medium tracking-[0.22em] text-white backdrop-blur-md">
@@ -79,11 +79,15 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
             src={banner}
             alt=""
             fill
-            className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+            className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.08]"
             sizes="(max-width: 1024px) 100vw, 58vw"
             unoptimized={banner.startsWith('http')}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/5 transition-opacity duration-500 group-hover:from-black/90" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-[1] -translate-x-[130%] bg-[linear-gradient(115deg,transparent_0%,transparent_38%,rgba(255,255,255,0.35)_50%,transparent_62%,transparent_100%)] opacity-0 transition-[transform,opacity] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[130%] group-hover:opacity-100"
+          />
         </div>
 
         <div className="absolute inset-x-0 bottom-0 z-10 p-6 sm:p-8">
@@ -106,7 +110,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
               <span>{post.views} views</span>
             </>
           </div>
-          <h3 className="text-2xl sm:text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] text-white text-balance">
+          <h3 className="text-2xl sm:text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] text-white text-balance transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5">
             {post.title}
           </h3>
           {/* {post.summary && (
@@ -135,7 +139,7 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
     <motion.article variants={item}>
       <Link
         href="/blog"
-        className="group flex gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 transition-all duration-500 hover:border-foreground/15 hover:bg-card hover:shadow-lg hover:shadow-black/[0.04]"
+        className="group flex gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-foreground/20 hover:bg-card hover:shadow-lg hover:shadow-black/[0.08]"
       >
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl sm:h-[96px] sm:w-[96px]">
           <Image
@@ -145,6 +149,10 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             sizes="96px"
             unoptimized={banner.startsWith('http')}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -translate-x-[130%] bg-[linear-gradient(115deg,transparent_0%,transparent_38%,rgba(255,255,255,0.4)_50%,transparent_62%,transparent_100%)] opacity-0 transition-[transform,opacity] duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-[130%] group-hover:opacity-100"
           />
           <span className="absolute left-1.5 top-1.5 rounded-md bg-black/55 px-1.5 py-0.5 text-[9px] font-semibold tracking-widest text-white backdrop-blur-sm">
             {String(index + 1).padStart(2, '0')}
