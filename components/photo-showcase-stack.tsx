@@ -24,7 +24,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "nature landscape",
     title: "Nature & landscapes",
     desc: "Mountains, forests, and untouched wilderness — pulled live from Unsplash.",
-    rotateMs: 4800,
+    rotateMs: 3800,
   },
   {
     id: "architecture",
@@ -32,7 +32,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "architecture",
     title: "Architecture & cities",
     desc: "Striking structures and skylines, refreshed automatically every few seconds.",
-    rotateMs: 4800,
+    rotateMs: 3800,
   },
   {
     id: "people",
@@ -40,7 +40,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "people portrait",
     title: "People & portraits",
     desc: "Candid moments and studio portraits from creators around the world.",
-    rotateMs: 4800,
+    rotateMs: 3200,
   },
   {
     id: "space",
@@ -48,8 +48,7 @@ const CATEGORIES: ShowcaseCategory[] = [
     query: "space galaxy",
     title: "Space & galaxies",
     desc: "Nebulae, stars, and cosmic wonder — a rotating window into the cosmos.",
-    // ~1.5s sooner than the cards above so Space never feels late
-    rotateMs: 3300,
+    rotateMs: 2800,
   },
 ]
 
