@@ -204,16 +204,18 @@ export default function AgenticPage() {
 
       <section id="markets" className="relative py-32 px-6 md:px-12 lg:px-20 overflow-hidden">
         <div className="relative max-w-6xl mx-auto">
-          <div className="mb-16">
-            <PixelIcon type="platform" size={40} />
-            <div className="mt-4">
-              <Tag>MARKETS</Tag>
+          <div className="mb-14 md:mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+            <div>
+              <PixelIcon type="platform" size={40} />
+              <div className="mt-4">
+                <Tag>MARKETS</Tag>
+              </div>
+              <RevealText className="mt-5 text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05]">
+                {"The market pulse."}
+              </RevealText>
             </div>
-            <RevealText className="mt-5 text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05]">
-              {"Check markets."}
-            </RevealText>
-            <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-md">
-                 Explore crypto, stocks, and financial markets.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs md:pb-1">
+              Live Bitcoin, currency convert, and what&apos;s next — prices that move while you watch.
             </p>
           </div>
 

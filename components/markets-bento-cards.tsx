@@ -2,15 +2,8 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { Instrument_Serif } from 'next/font/google'
 import type { CoinMarket } from '@/types/coingecko'
 import { formatPct, formatUsd } from '@/lib/crypto-format'
-
-const display = Instrument_Serif({
-  subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
-})
 
 const REFRESH_MS = 30_000
 
@@ -21,8 +14,9 @@ const CARD_IMAGES = {
   // Cool-toned dollar field — clear “currency convert” signal
   convert:
     'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1400&q=85',
+  // Glowing trading screens — atmospheric “markets ahead”
   soon:
-    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1400&q=85',
+    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1400&q=85',
 } as const
 
 function useInView(threshold = 0.1) {
@@ -187,16 +181,8 @@ export function MarketsBentoCards() {
             </div>
 
             <div className="mt-8 mb-4">
-              <p
-                className="text-[13px] text-white/55 mb-2 tracking-wide"
-                style={{ fontFamily: display.style.fontFamily }}
-              >
-                Bitcoin · BTC
-              </p>
-              <p
-                className="text-[clamp(1.85rem,4vw,2.35rem)] leading-none tracking-tight text-white tabular-nums"
-                style={{ fontFamily: display.style.fontFamily }}
-              >
+              <p className="text-[13px] text-white/55 mb-2 tracking-wide">Bitcoin · BTC</p>
+              <p className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white tabular-nums">
                 {btcPrice}
               </p>
               <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/55">
@@ -217,12 +203,7 @@ export function MarketsBentoCards() {
             </div>
 
             <div>
-              <h3
-                className="text-[1.35rem] leading-tight tracking-tight text-white mb-1.5"
-                style={{ fontFamily: display.style.fontFamily }}
-              >
-                Live crypto prices
-              </h3>
+              <h3 className="text-[15px] font-light text-white mb-2">Live crypto prices</h3>
               <p className="text-sm text-white/55 leading-relaxed">
                 Bitcoin, Ethereum, and the top coins — refreshed every 30 seconds.
               </p>
@@ -246,16 +227,8 @@ export function MarketsBentoCards() {
             </div>
 
             <div className="mt-8 mb-4">
-              <p
-                className="text-[13px] text-white/55 mb-2 tracking-wide"
-                style={{ fontFamily: display.style.fontFamily }}
-              >
-                1 USD → IRR
-              </p>
-              <p
-                className="text-[clamp(1.85rem,4vw,2.35rem)] leading-none tracking-tight text-white tabular-nums"
-                style={{ fontFamily: display.style.fontFamily }}
-              >
+              <p className="text-[13px] text-white/55 mb-2 tracking-wide">1 USD → IRR</p>
+              <p className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white tabular-nums">
                 {irrFormatted}
               </p>
               <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/55">
@@ -267,12 +240,7 @@ export function MarketsBentoCards() {
             </div>
 
             <div>
-              <h3
-                className="text-[1.35rem] leading-tight tracking-tight text-white mb-1.5"
-                style={{ fontFamily: display.style.fontFamily }}
-              >
-                Convert currency
-              </h3>
+              <h3 className="text-[15px] font-light text-white mb-2">Convert currency</h3>
               <p className="text-sm text-white/55 leading-relaxed">
                 Free-market rates — convert any pair, starting with live USD to Iranian Rial.
               </p>
@@ -281,24 +249,40 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
-      {/* Soon */}
+      {/* Soon — not clickable */}
       <MarketBentoCard
-        className="col-span-12 md:col-span-4 p-0 min-h-[240px]"
+        className="col-span-12 md:col-span-4 p-0 min-h-[240px] cursor-default select-none"
         delay={200}
         image={CARD_IMAGES.soon}
-        wash="from-[#12110f]/40 via-[#12110f]/60 to-[#12110f]/94"
+        imagePosition="object-[center_40%]"
+        wash="from-[#0a1210]/45 via-[#0a1210]/60 to-[#0a1210]/94"
       >
-        <div className="relative z-10 flex flex-col justify-end h-full p-6 min-h-[240px]">
-          <p className="text-[10px] tracking-[0.22em] uppercase text-white/50 mb-2">Soon</p>
-          <h3
-            className="text-[1.35rem] leading-tight tracking-tight text-white mb-1.5"
-            style={{ fontFamily: display.style.fontFamily }}
-          >
-            More markets
-          </h3>
-          <p className="text-sm text-white/55 leading-relaxed">
-            Stocks, commodities, and other finance tools will land here next.
-          </p>
+        <div
+          className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6 pointer-events-none"
+          aria-disabled="true"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Markets</p>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-amber-200/80">
+              Coming soon
+            </span>
+          </div>
+
+          <div className="mt-8 mb-4">
+            <p className="text-[clamp(2.4rem,5vw,3.1rem)] font-light leading-none tracking-tight text-white">
+              Soon
+            </p>
+            {/* <p className="mt-3 text-sm text-white/55 leading-relaxed max-w-[16rem]">
+              Not clickable yet — stocks, commodities, and more tools are on the way.
+            </p> */}
+          </div>
+
+          <div>
+            <h3 className="text-[15px] font-light text-white mb-2">More markets</h3>
+            <p className="text-sm text-white/55 leading-relaxed">
+              Stay tuned. This card is a preview only.
+            </p>
+          </div>
         </div>
       </MarketBentoCard>
     </>
