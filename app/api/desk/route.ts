@@ -33,19 +33,19 @@ const WATCHLIST_IDS = Object.keys(ASSETS).join(',')
 type CacheEntry = { at: number; payload: unknown }
 const memoryCache = new Map<string, CacheEntry>()
 
-function cacheKeyFor(assetId: string, interval: string, days: number) {
-  return `desk:v3:${assetId}:${interval}:${days}`
+function cacheKeyFor(assetId: string, interval: string, days: number | 'max') {
+  return `desk:v4:${assetId}:${interval}:${days}`
 }
 
 function findAnyCachedPayload(assetId: string, preferInterval?: string): unknown | null {
   if (preferInterval) {
-    for (const days of [daysForInterval(preferInterval), 90, 14, 1, 180]) {
+    for (const days of [daysForInterval(preferInterval), 90, 14, 1, 180, 365]) {
       const hit = memoryCache.get(cacheKeyFor(assetId, preferInterval, days))
       if (hit?.payload) return hit.payload
     }
   }
-  for (const iv of ['1d', '4h', '1h', '1w']) {
-    for (const days of [daysForInterval(iv), 90, 14, 1, 180]) {
+  for (const iv of ['1d', '4h', '1h', '1w', '1mo', 'max']) {
+    for (const days of [daysForInterval(iv), 90, 14, 1, 180, 365]) {
       const hit = memoryCache.get(cacheKeyFor(assetId, iv, days))
       if (hit?.payload) return hit.payload
     }
@@ -59,11 +59,12 @@ function findAnyCachedPayload(assetId: string, preferInterval?: string): unknown
 async function fetchBarsForDays(
   assetId: string,
   interval: string,
-  days: number,
+  days: number | 'max',
 ): Promise<{ bars: OhlcBar[]; prices: [number, number][]; volumes: [number, number][] }> {
+  const daysParam = days === 'max' ? 'max' : String(days)
   const [ohlcRes, chartRes] = await Promise.all([
-    geckoFetch(`${COINGECKO}/coins/${assetId}/ohlc?vs_currency=usd&days=${days}`),
-    geckoFetch(`${COINGECKO}/coins/${assetId}/market_chart?vs_currency=usd&days=${days}`),
+    geckoFetch(`${COINGECKO}/coins/${assetId}/ohlc?vs_currency=usd&days=${daysParam}`),
+    geckoFetch(`${COINGECKO}/coins/${assetId}/market_chart?vs_currency=usd&days=${daysParam}`),
   ])
 
   const chartJson = chartRes.ok ? await chartRes.json() : null
@@ -124,7 +125,7 @@ async function geckoFetch(url: string): Promise<Response> {
   return last!
 }
 
-function daysForInterval(interval: string): number {
+function daysForInterval(interval: string): number | 'max' {
   switch (interval) {
     case '15m':
     case '1h':
@@ -133,6 +134,10 @@ function daysForInterval(interval: string): number {
       return 14
     case '1w':
       return 180
+    case '1mo':
+      return 365
+    case 'max':
+      return 'max'
     case '1d':
     default:
       return 90
@@ -147,6 +152,10 @@ function bucketMsForInterval(interval: string): number {
       return 4 * 60 * 60 * 1000
     case '1w':
       return 7 * 24 * 60 * 60 * 1000
+    case '1mo':
+      return 30 * 24 * 60 * 60 * 1000
+    case 'max':
+      return 14 * 24 * 60 * 60 * 1000
     case '1d':
     default:
       return 24 * 60 * 60 * 1000
@@ -245,7 +254,7 @@ export async function GET(request: NextRequest) {
       ? ((await marketsRes.json()) as MarketRow[]).filter(Boolean)
       : []
 
-    const dayCandidates = [...new Set([days, 90, 14, 1, 180])]
+    const dayCandidates = [...new Set([days, 365, 180, 90, 14, 1] as const)]
     let bars: OhlcBar[] = []
     for (const d of dayCandidates) {
       const fetched = await fetchBarsForDays(asset.id, interval, d)

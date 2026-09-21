@@ -48,7 +48,7 @@ function DeskNavLinks() {
   )
 }
 
-type DeskInterval = '1h' | '4h' | '1d' | '1w'
+type DeskInterval = '1h' | '4h' | '1d' | '1w' | '1mo' | 'max'
 
 export function DeskShell({
   fontVars,

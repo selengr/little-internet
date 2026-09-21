@@ -35,13 +35,13 @@ function buildBuyZone(
 ): { from: number; to: number } | null {
   if (!finite(support) || !finite(atrAbs)) return null
   let from = support
-  let to = support + atrAbs * 0.55
+  let to = support + atrAbs * 0.22
   if (finite(close) && close < to) to = Math.min(to, close)
   const zone = normalizeZone(from, to)
   if (!zone) return null
   if (zone.to - zone.from < zone.from * 1e-6) {
     const mid = (zone.from + zone.to) / 2
-    const pad = Math.max(mid * 0.0001, atrAbs * 0.05)
+    const pad = Math.max(mid * 0.0001, atrAbs * 0.03)
     return { from: mid - pad, to: mid + pad }
   }
   return zone
@@ -53,7 +53,7 @@ function buildSellZone(
   close: number | null,
 ): { from: number; to: number } | null {
   if (!finite(resistance) || !finite(atrAbs)) return null
-  let from = resistance - atrAbs * 0.55
+  let from = resistance - atrAbs * 0.22
   let to = resistance
   if (finite(close) && close > from) from = Math.max(from, close * 0.998)
   const zone = normalizeZone(from, to)

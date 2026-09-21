@@ -165,7 +165,7 @@ export function CandleChart({
   }, [zoomPreset, bars.length, resetToken])
 
   const layout = useMemo(() => {
-    const candleH = showRsi || showMacd ? 328 : 408
+    const candleH = showRsi || showMacd ? 384 : 464
     const volH = showVolume ? 52 : 0
     const rsiH = showRsi ? 68 : 0
     const macdH = showMacd ? 72 : 0
@@ -179,7 +179,7 @@ export function CandleChart({
     if (showRsi) y += rsiH + gap
     const macdPane = { top: y, h: macdH }
     if (showMacd) y += macdH
-    return { candle, volume, rsiPane, macdPane, totalH: Math.max(y + PAD.b, 388) }
+    return { candle, volume, rsiPane, macdPane, totalH: Math.max(y + PAD.b, 444) }
   }, [showVolume, showRsi, showMacd])
 
   const slice = useMemo(() => {
@@ -587,8 +587,8 @@ export function CandleChart({
 
   if (!model) {
     return (
-      <div className="relative w-full min-h-[388px]">
-        <div className="h-[408px] rounded-lg bg-white/[0.02] animate-pulse" />
+      <div className="relative w-full min-h-[444px]">
+        <div className="h-[464px] rounded-lg bg-white/[0.02] animate-pulse" />
       </div>
     )
   }
@@ -731,98 +731,100 @@ export function CandleChart({
 
         {model.buyBand ? (
           <g>
-            <rect
-              x={PAD.l}
-              y={model.buyBand.y1}
-              width={PLOT_W}
-              height={Math.max(2, model.buyBand.y2 - model.buyBand.y1)}
-              fill="url(#buyBandGrad)"
-            />
-            <line
-              x1={PAD.l}
-              x2={W - PAD.r}
-              y1={model.buyBand.y1}
-              y2={model.buyBand.y1}
-              stroke={C.up}
-              strokeOpacity="0.52"
-              strokeWidth="0.85"
-            />
-            <line
-              x1={PAD.l}
-              x2={W - PAD.r}
-              y1={model.buyBand.y2}
-              y2={model.buyBand.y2}
-              stroke={C.up}
-              strokeOpacity="0.52"
-              strokeWidth="0.85"
-            />
-            <rect
-              x={PAD.l + 4}
-              y={model.buyBand.y1 + 2}
-              width={34}
-              height={12}
-              rx="2"
-              fill="rgba(14,203,129,0.2)"
-              stroke={C.up}
-              strokeOpacity="0.35"
-              strokeWidth="0.5"
-            />
-            <text
-              x={PAD.l + 8}
-              y={model.buyBand.y1 + 11}
-              fill={C.up}
-              style={{ fontSize: 8, fontFamily: MONO, fontWeight: 700, letterSpacing: '0.06em' }}
-            >
-              BUY
-            </text>
+            {(() => {
+              const maxH = 14
+              const rawH = Math.max(2, model.buyBand.y2 - model.buyBand.y1)
+              const h = Math.min(rawH, maxH)
+              const y = model.buyBand.y2 - h
+              return (
+                <>
+                  <rect
+                    x={PAD.l}
+                    y={y}
+                    width={PLOT_W}
+                    height={h}
+                    fill="url(#buyBandGrad)"
+                  />
+                  <line
+                    x1={PAD.l}
+                    x2={W - PAD.r}
+                    y1={model.buyBand.y2}
+                    y2={model.buyBand.y2}
+                    stroke={C.up}
+                    strokeOpacity="0.65"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x={PAD.l + 4}
+                    y={y + 1}
+                    width={34}
+                    height={11}
+                    rx="2"
+                    fill="rgba(14,203,129,0.22)"
+                    stroke={C.up}
+                    strokeOpacity="0.35"
+                    strokeWidth="0.5"
+                  />
+                  <text
+                    x={PAD.l + 8}
+                    y={y + 9}
+                    fill={C.up}
+                    style={{ fontSize: 8, fontFamily: MONO, fontWeight: 700, letterSpacing: '0.06em' }}
+                  >
+                    BUY
+                  </text>
+                </>
+              )
+            })()}
           </g>
         ) : null}
         {model.sellBand ? (
           <g>
-            <rect
-              x={PAD.l}
-              y={model.sellBand.y1}
-              width={PLOT_W}
-              height={Math.max(2, model.sellBand.y2 - model.sellBand.y1)}
-              fill="url(#sellBandGrad)"
-            />
-            <line
-              x1={PAD.l}
-              x2={W - PAD.r}
-              y1={model.sellBand.y1}
-              y2={model.sellBand.y1}
-              stroke={C.down}
-              strokeOpacity="0.52"
-              strokeWidth="0.85"
-            />
-            <line
-              x1={PAD.l}
-              x2={W - PAD.r}
-              y1={model.sellBand.y2}
-              y2={model.sellBand.y2}
-              stroke={C.down}
-              strokeOpacity="0.52"
-              strokeWidth="0.85"
-            />
-            <rect
-              x={PAD.l + 4}
-              y={model.sellBand.y1 + 2}
-              width={34}
-              height={12}
-              rx="2"
-              fill="rgba(246,70,93,0.18)"
-              stroke={C.down}
-              strokeOpacity="0.35"
-              strokeWidth="0.5"
-            />
-            <text
-              x={PAD.l + 8}
-              y={model.sellBand.y1 + 11}
-              fill={C.down}
-              style={{ fontSize: 8, fontFamily: MONO, fontWeight: 700, letterSpacing: '0.06em' }}
-            >
-              SELL
-            </text>
+            {(() => {
+              const maxH = 14
+              const rawH = Math.max(2, model.sellBand.y2 - model.sellBand.y1)
+              const h = Math.min(rawH, maxH)
+              const y = model.sellBand.y1
+              return (
+                <>
+                  <rect
+                    x={PAD.l}
+                    y={y}
+                    width={PLOT_W}
+                    height={h}
+                    fill="url(#sellBandGrad)"
+                  />
+                  <line
+                    x1={PAD.l}
+                    x2={W - PAD.r}
+                    y1={model.sellBand.y1}
+                    y2={model.sellBand.y1}
+                    stroke={C.down}
+                    strokeOpacity="0.65"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x={PAD.l + 4}
+                    y={y + 1}
+                    width={34}
+                    height={11}
+                    rx="2"
+                    fill="rgba(246,70,93,0.2)"
+                    stroke={C.down}
+                    strokeOpacity="0.35"
+                    strokeWidth="0.5"
+                  />
+                  <text
+                    x={PAD.l + 8}
+                    y={y + 9}
+                    fill={C.down}
+                    style={{ fontSize: 8, fontFamily: MONO, fontWeight: 700, letterSpacing: '0.06em' }}
+                  >
+                    SELL
+                  </text>
+                </>
+              )
+            })()}
           </g>
         ) : null}
 

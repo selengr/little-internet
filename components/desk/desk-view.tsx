@@ -10,7 +10,20 @@ import { cn } from '@/lib/utils'
 import type { OhlcBar, TapeRead } from '@/lib/desk-indicators'
 import { RefreshCw, Search, Star } from 'lucide-react'
 
-type Interval = '1h' | '4h' | '1d' | '1w'
+type Interval = '1h' | '4h' | '1d' | '1w' | '1mo' | 'max'
+
+const INTERVALS: { key: Interval; label: string }[] = [
+  { key: '1h', label: '1H' },
+  { key: '4h', label: '4H' },
+  { key: '1d', label: '1D' },
+  { key: '1w', label: '1W' },
+  { key: '1mo', label: '1M' },
+  { key: 'max', label: 'ALL' },
+]
+
+function isInterval(v: string | null | undefined): v is Interval {
+  return v === '1h' || v === '4h' || v === '1d' || v === '1w' || v === '1mo' || v === 'max'
+}
 type Zoom = 50 | 100 | 0
 type SidePanel = 'book' | 'trades'
 
@@ -82,13 +95,6 @@ type DeskPayload = {
   }
 }
 
-const INTERVALS: { key: Interval; label: string }[] = [
-  { key: '1h', label: '1H' },
-  { key: '4h', label: '4H' },
-  { key: '1d', label: '1D' },
-  { key: '1w', label: '1W' },
-]
-
 const PREFS_KEY = 'desk-prefs-v3'
 
 function pctClass(n: number | null | undefined) {
@@ -157,9 +163,15 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
   const [chartResetToken, setChartResetToken] = useState(0)
 
   const [showEma, setShowEma] = useState(true)
-  const [showVolume, setShowVolume] = useState(true)
+  const [showVolume, setShowVolume] = useState(false)
   const [showRsi, setShowRsi] = useState(false)
   const [showMacd, setShowMacd] = useState(false)
+
+  // Stable first paint (SSR + hydrate) — prefs apply only after mount
+  const uiEma = chartMounted ? showEma : true
+  const uiVol = chartMounted ? showVolume : false
+  const uiRsi = chartMounted ? showRsi : false
+  const uiMacd = chartMounted ? showMacd : false
 
   useEffect(() => {
     setChartMounted(true)
@@ -185,10 +197,7 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
         if (p.zoom === 50 || p.zoom === 100 || p.zoom === 0) setZoom(p.zoom)
         if (p.sidePanel === 'book' || p.sidePanel === 'trades') setSidePanel(p.sidePanel)
         if (!searchParams.get('asset') && p.asset) setAsset(p.asset)
-        if (
-          !searchParams.get('interval') &&
-          (p.interval === '1h' || p.interval === '4h' || p.interval === '1d' || p.interval === '1w')
-        ) {
+        if (!searchParams.get('interval') && isInterval(p.interval)) {
           setIntervalKey(p.interval)
         }
       }
@@ -204,14 +213,7 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
     const urlAsset = searchParams.get('asset')
     const urlInterval = searchParams.get('interval')
     if (urlAsset && urlAsset !== asset) setAsset(urlAsset)
-    if (
-      urlInterval === '1h' ||
-      urlInterval === '4h' ||
-      urlInterval === '1d' ||
-      urlInterval === '1w'
-    ) {
-      if (urlInterval !== interval) setIntervalKey(urlInterval)
-    }
+    if (isInterval(urlInterval) && urlInterval !== interval) setIntervalKey(urlInterval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
@@ -325,6 +327,8 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
       if (e.key === '2') setIntervalKey('4h')
       if (e.key === '3') setIntervalKey('1d')
       if (e.key === '4') setIntervalKey('1w')
+      if (e.key === '5') setIntervalKey('1mo')
+      if (e.key === '6') setIntervalKey('max')
       if (e.key === 'r' || e.key === 'R') void load()
     }
     window.addEventListener('keydown', onKey)
@@ -581,10 +585,10 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
             <span className="hidden sm:block w-px h-3.5 bg-white/[0.08] mx-1" aria-hidden />
             {(
               [
-                ['EMA', showEma, setShowEma],
-                ['VOL', showVolume, setShowVolume],
-                ['RSI', showRsi, setShowRsi],
-                ['MACD', showMacd, setShowMacd],
+                ['EMA', uiEma, setShowEma],
+                ['VOL', uiVol, setShowVolume],
+                ['RSI', uiRsi, setShowRsi],
+                ['MACD', uiMacd, setShowMacd],
               ] as const
             ).map(([lab, on, set]) => (
               <button
@@ -597,6 +601,7 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
                     ? 'text-[#f0b90b] bg-[#f0b90b]/10'
                     : 'text-white/32 hover:text-white/58 hover:bg-white/[0.04]',
                 )}
+                suppressHydrationWarning
               >
                 {lab}
               </button>
@@ -645,9 +650,9 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
               </button>
             </div>
           </div>
-          <div className="relative p-1 flex-1 min-h-[360px]">
+          <div className="relative p-1 flex-1 min-h-[420px]">
             {!chartMounted || (loading && !data) ? (
-              <div className="h-[400px] bg-white/[0.03] animate-pulse rounded" />
+              <div className="h-[460px] bg-white/[0.03] animate-pulse rounded" />
             ) : chartSeries && data ? (
               <>
                 {loading ? (
@@ -670,10 +675,10 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
                   buyTo={botAdvice?.buyTo}
                   sellFrom={botAdvice?.sellFrom}
                   sellTo={botAdvice?.sellTo}
-                  showEma={showEma}
-                  showVolume={showVolume}
-                  showRsi={showRsi}
-                  showMacd={showMacd}
+                  showEma={uiEma}
+                  showVolume={uiVol}
+                  showRsi={uiRsi}
+                  showMacd={uiMacd}
                   zoomPreset={zoom}
                   resetToken={chartResetToken}
                   pairLabel={`${data.asset.symbol}/USDT`}

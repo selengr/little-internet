@@ -281,20 +281,12 @@ export function MarketsBentoCards() {
               <CardArrow />
             </div>
 
-            <div className="mt-8 mb-4">
-              <p className="text-[13px] text-white/55 mb-2 tracking-wide">Spot terminal</p>
-              <p className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white">
-                Charts
-              </p>
-              <p className="mt-2.5 text-sm text-white/55">
-                Order book · on-chain tape · gas
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-[15px] font-light text-white mb-2">Trading desk</h3>
-              <p className="text-sm text-white/55 leading-relaxed">
-                Exchange-style spot view with live candles, depth, and Etherscan transfers.
+            <div className="mt-auto pt-10">
+              <h3 className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white">
+                Market desk
+              </h3>
+              <p className="mt-3 text-sm text-white/55 leading-relaxed max-w-[18rem]">
+                Charts and buy/sell tips for major coins.
               </p>
             </div>
           </div>

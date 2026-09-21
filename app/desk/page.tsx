@@ -38,7 +38,7 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-type DeskInterval = '1h' | '4h' | '1d' | '1w'
+type DeskInterval = '1h' | '4h' | '1d' | '1w' | '1mo' | 'max'
 
 function parseDeskQuery(sp: Record<string, string | string[] | undefined>) {
   const assetRaw = sp.asset
@@ -48,7 +48,9 @@ function parseDeskQuery(sp: Record<string, string | string[] | undefined>) {
   const ivRaw = sp.interval
   const iv = typeof ivRaw === 'string' ? ivRaw : Array.isArray(ivRaw) ? ivRaw[0] : undefined
   const interval: DeskInterval =
-    iv === '1h' || iv === '4h' || iv === '1d' || iv === '1w' ? iv : '1d'
+    iv === '1h' || iv === '4h' || iv === '1d' || iv === '1w' || iv === '1mo' || iv === 'max'
+      ? iv
+      : '1d'
   return { asset, interval }
 }
 
