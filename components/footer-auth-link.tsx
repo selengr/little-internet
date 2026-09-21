@@ -1,28 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 interface SessionUser {
   firstName?: string;
   email?: string;
 }
 
-// Lightweight footer entry point into the auth flow — shows "Sign in" for
-// guests, or the account link once a session is detected. Deliberately kept
-// out of the main nav/mobile-nav for now; footer-only per current scope.
+// Footer auth entry: guests see "Sign in"; signed-in users see Log out + name.
 export function FooterAuthLink() {
+  const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [checked, setChecked] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  useEffect(() => {
+  const refreshSession = useCallback(() => {
     let cancelled = false;
     fetch("/api/auth/me", { credentials: "include" })
       .then(res => (res.ok ? res.json() : null))
       .then(data => {
         if (!cancelled) setUser(data?.user ?? null);
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      })
       .finally(() => {
         if (!cancelled) setChecked(true);
       });
@@ -31,19 +34,45 @@ export function FooterAuthLink() {
     };
   }, []);
 
+  useEffect(() => {
+    return refreshSession();
+  }, [refreshSession]);
+
+  const onLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      setUser(null);
+      router.refresh();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   if (!checked) {
     // Reserve space silently to avoid a layout shift once the check resolves.
     return <span className="text-xs text-transparent select-none">Sign in</span>;
   }
 
   if (user) {
+    const name = user.firstName?.trim() || user.email || "Account";
     return (
-      <Link
-        href="/account"
-        className="text-xs text-muted-foreground/70 hover:text-foreground/70 transition-colors tracking-widest"
-      >
-        {user.firstName ? `Hi, ${user.firstName}` : "Account"}
-      </Link>
+      <span className="inline-flex items-center gap-2.5 text-xs tracking-widest">
+        <button
+          type="button"
+          onClick={onLogout}
+          disabled={loggingOut}
+          className="text-muted-foreground/70 hover:text-foreground/70 transition-colors disabled:opacity-50"
+        >
+          {loggingOut ? "…" : "Log out"}
+        </button>
+        <Link
+          href="/account"
+          className="text-muted-foreground/70 hover:text-foreground/70 transition-colors"
+        >
+          {name}
+        </Link>
+      </span>
     );
   }
 

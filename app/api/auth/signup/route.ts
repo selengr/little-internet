@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createUser, toPublicUser } from '@/lib/users-file'
-import { attachSessionCookie } from '@/lib/auth-session'
 
 // DB path kept for later — Mongo is not running yet.
 // import { connectDB } from "@/lib/mongodb";
@@ -14,7 +13,6 @@ export async function POST(req: Request) {
     const lastName = String(body.lastName ?? '').trim()
     const email = String(body.email ?? '').trim().toLowerCase()
     const password = String(body.password ?? '')
-    const rememberMe = Boolean(body.rememberMe)
 
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json({ message: 'All fields are required' }, { status: 400 })
@@ -63,12 +61,11 @@ export async function POST(req: Request) {
     })
     const publicUser = toPublicUser(user)
 
-    const response = NextResponse.json({
+    // Account only — no session. Client switches to Sign in next.
+    return NextResponse.json({
       message: 'Account created successfully',
       user: publicUser,
     })
-
-    return await attachSessionCookie(response, publicUser, rememberMe)
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EXISTS') {
       return NextResponse.json({ message: 'User already exists' }, { status: 400 })

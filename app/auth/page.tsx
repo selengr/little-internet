@@ -5,7 +5,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthCard } from "@/components/auth/auth-card";
+import { AuthCard, type AuthTab } from "@/components/auth/auth-card";
 
 function AuthPageContent() {
   const router = useRouter();
@@ -16,6 +16,7 @@ function AuthPageContent() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [activeTab, setActiveTab] = useState<AuthTab>("signup");
   const { toast } = useToast();
 
   const nextPath = searchParams.get("next") || "/";
@@ -24,7 +25,7 @@ function AuthPageContent() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   };
 
-  const goAfterAuth = () => {
+  const goAfterSignIn = () => {
     router.replace(nextPath.startsWith("/") ? nextPath : "/");
     router.refresh();
   };
@@ -76,7 +77,7 @@ function AuthPageContent() {
         title: "Signed in successfully!",
         description: `Welcome back${data.user?.firstName ? `, ${data.user.firstName}` : ""}.`,
       });
-      goAfterAuth();
+      goAfterSignIn();
     } catch (error: unknown) {
       toast({
         title: "Error",
@@ -132,7 +133,6 @@ function AuthPageContent() {
           lastName,
           email,
           password,
-          rememberMe,
         }),
       });
 
@@ -142,11 +142,12 @@ function AuthPageContent() {
         throw new Error(data.message || "Could not create account");
       }
 
+      setPassword("");
+      setActiveTab("signin");
       toast({
         title: "Account created!",
-        description: "You are signed in and ready to go.",
+        description: "Sign in with your new account to continue.",
       });
-      goAfterAuth();
     } catch (error: unknown) {
       toast({
         title: "Error",
@@ -196,6 +197,8 @@ function AuthPageContent() {
           setLastName={setLastName}
           rememberMe={rememberMe}
           setRememberMe={setRememberMe}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
           onSignIn={handleSignIn}
           onSignUp={handleSignUp}
           onSocialLogin={handleSocialLogin}

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export function LogoutButton() {
+export function LogoutButton({ redirectTo = '/' }: { redirectTo?: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -11,7 +11,7 @@ export function LogoutButton() {
     setLoading(true)
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
-      router.replace('/auth')
+      router.replace(redirectTo)
       router.refresh()
     } finally {
       setLoading(false)

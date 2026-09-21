@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { X, Mail, Eye, EyeOff } from "lucide-react"
 
+export type AuthTab = "signup" | "signin"
+
 interface AuthCardProps {
   isLoading: boolean
   email: string
@@ -20,6 +22,8 @@ interface AuthCardProps {
   setLastName: (password: string) => void
   rememberMe: boolean
   setRememberMe: (remember: boolean) => void
+  activeTab: AuthTab
+  onTabChange: (tab: AuthTab) => void
   onSignIn: (e: React.FormEvent) => void
   onSignUp: (e: React.FormEvent) => void
   onSocialLogin: (provider: string) => void
@@ -64,6 +68,8 @@ export function AuthCard({
   setPassword,
   rememberMe,
   setRememberMe,
+  activeTab,
+  onTabChange,
   onSignIn,
   onSignUp,
   firstName,
@@ -72,7 +78,6 @@ export function AuthCard({
   setLastName,
   onForgotPassword,
 }: AuthCardProps) {
-  const [activeTab, setActiveTab] = useState<"signup" | "signin">("signup")
   const [showPassword, setShowPassword] = useState(false)
 
   return (
@@ -92,7 +97,7 @@ export function AuthCard({
                   <button
                     key={tab}
                     type="button"
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => onTabChange(tab)}
                     className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${
                       active ? "text-white" : "text-white/55 hover:text-white/80"
                     }`}
