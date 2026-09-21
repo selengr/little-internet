@@ -6,7 +6,7 @@ import { CandleChart } from '@/components/desk/candle-chart'
 import { formatPct, formatUsd } from '@/lib/crypto-format'
 import { cn } from '@/lib/utils'
 import type { Bias, OhlcBar, TapeRead } from '@/lib/desk-indicators'
-import { Activity, Keyboard, RefreshCw } from 'lucide-react'
+import { Activity, Keyboard, RefreshCw, Search, Star } from 'lucide-react'
 
 type Interval = '1h' | '4h' | '1d' | '1w'
 type Zoom = 50 | 100 | 0
@@ -148,6 +148,8 @@ export function DeskView() {
   const [error, setError] = useState<string | null>(null)
   const [flash, setFlash] = useState<'up' | 'down' | null>(null)
   const [showHints, setShowHints] = useState(false)
+  const [watchQuery, setWatchQuery] = useState('')
+  const [favorites, setFavorites] = useState<string[]>([])
   const prevPrice = useRef<number | null>(null)
   const hydrated = useRef(false)
 
@@ -169,11 +171,13 @@ export function DeskView() {
         zoom: Zoom
         asset: string
         interval: Interval
+        favorites: string[]
       }>
       if (typeof p.showEma === 'boolean') setShowEma(p.showEma)
       if (typeof p.showVolume === 'boolean') setShowVolume(p.showVolume)
       if (typeof p.showRsi === 'boolean') setShowRsi(p.showRsi)
       if (typeof p.showMacd === 'boolean') setShowMacd(p.showMacd)
+      if (Array.isArray(p.favorites)) setFavorites(p.favorites.filter((x): x is string => typeof x === 'string'))
       if (p.zoom === 50 || p.zoom === 100 || p.zoom === 0) setZoom(p.zoom)
       if (!searchParams.get('asset') && p.asset) setAsset(p.asset)
       if (!searchParams.get('interval') && (p.interval === '1h' || p.interval === '4h' || p.interval === '1d' || p.interval === '1w')) {
@@ -193,7 +197,16 @@ export function DeskView() {
     try {
       localStorage.setItem(
         PREFS_KEY,
-        JSON.stringify({ asset, interval, zoom, showEma, showVolume, showRsi, showMacd }),
+        JSON.stringify({
+          asset,
+          interval,
+          zoom,
+          showEma,
+          showVolume,
+          showRsi,
+          showMacd,
+          favorites,
+        }),
       )
     } catch {
       /* ignore */
@@ -208,7 +221,7 @@ export function DeskView() {
     params.set('interval', interval)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only push URL when asset/interval change
-  }, [asset, interval, zoom, showEma, showVolume, showRsi, showMacd, pathname, router])
+  }, [asset, interval, zoom, showEma, showVolume, showRsi, showMacd, favorites, pathname, router])
 
   const load = useCallback(
     async (silent = false) => {
@@ -297,6 +310,38 @@ export function DeskView() {
   const score = data?.tape.score ?? 0
   const scorePct = ((score + 5) / 10) * 100
 
+  const candlePressure = useMemo(() => {
+    const sample = (data?.bars ?? []).slice(-20)
+    if (!sample.length) return { buy: 50, sell: 50 }
+    const buys = sample.filter(b => b.c >= b.o).length
+    const buyPct = Math.round((buys / sample.length) * 100)
+    return { buy: buyPct, sell: 100 - buyPct }
+  }, [data?.bars])
+
+  const sortedWatch = useMemo(() => {
+    const list = [...(data?.watchlist ?? [])]
+    const q = watchQuery.trim().toLowerCase()
+    const filtered = q
+      ? list.filter(
+          w =>
+            w.symbol.toLowerCase().includes(q) ||
+            w.name.toLowerCase().includes(q) ||
+            w.id.includes(q),
+        )
+      : list
+    filtered.sort((a, b) => {
+      const af = favorites.includes(a.id) ? 0 : 1
+      const bf = favorites.includes(b.id) ? 0 : 1
+      if (af !== bf) return af - bf
+      return (b.change24h ?? 0) - (a.change24h ?? 0)
+    })
+    return filtered
+  }, [data?.watchlist, favorites, watchQuery])
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]))
+  }
+
   const rangePos =
     data?.low24h != null &&
     data?.high24h != null &&
@@ -349,11 +394,29 @@ export function DeskView() {
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className={cn('text-sm tabular-nums font-mono font-medium', pctClass(data?.change24h))}>
-              {data?.change24h != null ? formatPct(data.change24h) : '—'}
-            </span>
-            <span className="text-[10px] text-white/30 uppercase tracking-wider">24h</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            {(
+              [
+                ['1h', data?.change1h],
+                ['24h', data?.change24h],
+                ['7d', data?.change7d],
+              ] as const
+            ).map(([label, val]) => (
+              <span
+                key={label}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-mono tabular-nums',
+                  val != null && val >= 0
+                    ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400'
+                    : val != null
+                      ? 'border-rose-500/25 bg-rose-500/10 text-rose-400'
+                      : 'border-white/10 text-white/35',
+                )}
+              >
+                <span className="text-[9px] uppercase tracking-wider opacity-70">{label}</span>
+                {val != null ? formatPct(val) : '—'}
+              </span>
+            ))}
           </div>
 
           <div className="hidden lg:flex items-center gap-3 text-[10px] font-mono text-white/35">
@@ -456,49 +519,73 @@ export function DeskView() {
       <div className="grid grid-cols-12 gap-3 items-start">
         {/* Watchlist */}
         <aside className="col-span-12 lg:col-span-2 rounded-xl border border-white/10 bg-[#12161b]/95 overflow-hidden">
-          <div className="px-3 py-2.5 border-b border-white/[0.06] flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 font-mono">Markets</p>
-            <Activity className="size-3 text-white/25" />
+          <div className="px-3 py-2.5 border-b border-white/[0.06] space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 font-mono">Markets</p>
+              <Activity className="size-3 text-white/25" />
+            </div>
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-white/30" />
+              <input
+                value={watchQuery}
+                onChange={e => setWatchQuery(e.target.value)}
+                placeholder="Search…"
+                className="w-full rounded-md border border-white/10 bg-black/30 pl-7 pr-2 py-1.5 text-[11px] text-white placeholder:text-white/25 outline-none focus:border-white/25"
+              />
+            </div>
           </div>
           <div className="max-h-[560px] overflow-y-auto divide-y divide-white/[0.04]">
-            {(data?.watchlist ?? []).map(item => {
+            {sortedWatch.map(item => {
               const active = item.id === asset
               const up = (item.change24h ?? 0) >= 0
+              const fav = favorites.includes(item.id)
               return (
-                <button
+                <div
                   key={item.id}
-                  type="button"
-                  onClick={() => setAsset(item.id)}
                   className={cn(
-                    'w-full flex items-center gap-2 px-2.5 py-2 text-left transition-colors',
+                    'flex items-stretch transition-colors',
                     active ? 'bg-white/[0.07]' : 'hover:bg-white/[0.04]',
                   )}
                 >
-                  {item.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.image} alt="" className="size-5 rounded-full shrink-0" />
-                  ) : (
-                    <span className="size-5 rounded-full bg-white/10 shrink-0" />
-                  )}
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-1">
-                      <span className="text-[12px] text-white font-medium leading-tight">
-                        {item.symbol}
+                  <button
+                    type="button"
+                    onClick={() => toggleFavorite(item.id)}
+                    className="px-1.5 text-white/25 hover:text-amber-300 transition-colors"
+                    aria-label={fav ? 'Unfavorite' : 'Favorite'}
+                  >
+                    <Star className={cn('size-3', fav && 'fill-amber-300 text-amber-300')} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAsset(item.id)}
+                    className="flex-1 flex items-center gap-2 px-1.5 py-2 text-left"
+                  >
+                    {item.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.image} alt="" className="size-5 rounded-full shrink-0" />
+                    ) : (
+                      <span className="size-5 rounded-full bg-white/10 shrink-0" />
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between gap-1">
+                        <span className="text-[12px] text-white font-medium leading-tight">
+                          {item.symbol}
+                        </span>
+                        <span className={cn('text-[10px] tabular-nums font-mono', pctClass(item.change24h))}>
+                          {item.change24h != null ? formatPct(item.change24h) : '—'}
+                        </span>
                       </span>
-                      <span className={cn('text-[10px] tabular-nums font-mono', pctClass(item.change24h))}>
-                        {item.change24h != null ? formatPct(item.change24h) : '—'}
+                      <span className="mt-0.5 flex items-center justify-between gap-1">
+                        <span className="text-[10px] text-white/35 tabular-nums font-mono truncate">
+                          {formatUsd(item.price)}
+                        </span>
+                        {item.sparkline?.length ? (
+                          <MiniSpark data={item.sparkline} up={up} />
+                        ) : null}
                       </span>
                     </span>
-                    <span className="mt-0.5 flex items-center justify-between gap-1">
-                      <span className="text-[10px] text-white/35 tabular-nums font-mono truncate">
-                        {formatUsd(item.price)}
-                      </span>
-                      {item.sparkline?.length ? (
-                        <MiniSpark data={item.sparkline} up={up} />
-                      ) : null}
-                    </span>
-                  </span>
-                </button>
+                  </button>
+                </div>
               )
             })}
             {loading && !data ? (
@@ -507,6 +594,9 @@ export function DeskView() {
                   <div key={i} className="h-10 rounded bg-white/[0.04] animate-pulse" />
                 ))}
               </div>
+            ) : null}
+            {!loading && sortedWatch.length === 0 ? (
+              <p className="px-3 py-4 text-[11px] text-white/35 font-mono">No markets match.</p>
             ) : null}
           </div>
         </aside>
@@ -592,6 +682,8 @@ export function DeskView() {
                 macd={view.macd}
                 macdSignal={view.macdSignal}
                 macdHist={view.macdHist}
+                support={data?.tape.support}
+                resistance={data?.tape.resistance}
                 showEma={showEma}
                 showVolume={showVolume}
                 showRsi={showRsi}
@@ -603,6 +695,46 @@ export function DeskView() {
 
         {/* Decision rail */}
         <aside className="col-span-12 lg:col-span-3 space-y-3">
+          <div className="rounded-xl border border-white/10 bg-[#12161b]/95 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 font-mono">
+                Candle pressure · 20
+              </p>
+              <span className="text-[10px] font-mono text-white/45">
+                <span className="text-emerald-400">{candlePressure.buy}%</span>
+                <span className="text-white/25"> / </span>
+                <span className="text-rose-400">{candlePressure.sell}%</span>
+              </span>
+            </div>
+            <div className="flex h-2 rounded-full overflow-hidden bg-white/[0.06]">
+              <div className="bg-emerald-400 transition-all duration-500" style={{ width: `${candlePressure.buy}%` }} />
+              <div className="bg-rose-400 transition-all duration-500" style={{ width: `${candlePressure.sell}%` }} />
+            </div>
+            <p className="mt-2 text-[10px] text-white/35 leading-relaxed">
+              Share of green vs red candles on the visible session — short-term crowd lean.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-[#12161b]/95 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 font-mono">RSI gauge</p>
+              <span className="text-sm font-mono tabular-nums text-violet-300">
+                {rsi != null ? rsi.toFixed(1) : '—'}
+              </span>
+            </div>
+            <div className="relative h-2 rounded-full bg-gradient-to-r from-emerald-500/40 via-white/15 to-rose-500/40 overflow-hidden">
+              <div
+                className="absolute top-1/2 -translate-y-1/2 size-3 rounded-full bg-white shadow border border-violet-300/50 transition-all duration-500"
+                style={{ left: `calc(${Math.min(100, Math.max(0, rsi ?? 50))}% - 6px)` }}
+              />
+            </div>
+            <div className="mt-1.5 flex justify-between text-[9px] uppercase tracking-wider text-white/30 font-mono">
+              <span>Oversold</span>
+              <span>Neutral</span>
+              <span>Overbought</span>
+            </div>
+          </div>
+
           <div className="rounded-xl border border-white/10 bg-[#12161b]/95 p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 font-mono">
