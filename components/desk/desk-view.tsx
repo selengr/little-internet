@@ -491,7 +491,7 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
       ) : null}
 
       {/* Main: markets | chart | book/trades */}
-      <div className="grid grid-cols-12 gap-1 items-stretch min-h-[calc(100vh-7rem)]">
+      <div className="grid grid-cols-12 gap-1 items-stretch lg:min-h-[calc(100vh-7rem)]">
         {/* Markets */}
         <aside className="col-span-12 lg:col-span-2 rounded border border-white/[0.07] bg-[#0d1117] flex flex-col overflow-hidden max-h-[420px] lg:max-h-none">
           <div className="px-2 py-1.5 border-b border-white/[0.06]">
@@ -650,9 +650,9 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
               </button>
             </div>
           </div>
-          <div className="relative p-1 flex-1 min-h-[420px] max-lg:min-h-[580px]">
+          <div className="relative p-1 flex-1 max-lg:flex-none min-h-0">
             {!chartMounted || (loading && !data) ? (
-              <div className="h-[460px] max-lg:h-[600px] bg-white/[0.03] animate-pulse rounded" />
+              <div className="aspect-[11/7] max-lg:aspect-[11/8] w-full bg-white/[0.03] animate-pulse rounded" />
             ) : chartSeries && data ? (
               <>
                 {loading ? (

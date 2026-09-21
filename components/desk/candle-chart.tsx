@@ -173,8 +173,8 @@ export function CandleChart({
   const layout = useMemo(() => {
     const candleH = mobileTall
       ? showRsi || showMacd
-        ? 520
-        : 600
+        ? 570
+        : 650
       : showRsi || showMacd
         ? 384
         : 464
@@ -196,7 +196,7 @@ export function CandleChart({
       volume,
       rsiPane,
       macdPane,
-      totalH: Math.max(y + PAD.b, mobileTall ? 580 : 444),
+      totalH: Math.max(y + PAD.b, mobileTall ? 620 : 444),
     }
   }, [showVolume, showRsi, showMacd, mobileTall])
 
@@ -605,8 +605,8 @@ export function CandleChart({
 
   if (!model) {
     return (
-      <div className="relative w-full min-h-[444px] max-lg:min-h-[580px]">
-        <div className="h-[464px] max-lg:h-[600px] rounded-lg bg-white/[0.02] animate-pulse" />
+      <div className="relative w-full">
+        <div className="aspect-[11/7] max-lg:aspect-[11/8] w-full rounded-lg bg-white/[0.02] animate-pulse" />
       </div>
     )
   }
