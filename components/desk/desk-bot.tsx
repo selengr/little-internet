@@ -70,7 +70,7 @@ export function DeskBotPanel({
       <div className="border-t border-white/[0.06] px-3 py-3 bg-[#0a0e13] shrink-0">
         <p className="text-[11px] text-white/40 flex items-center gap-2">
           <Bot className="size-3.5 shrink-0" aria-hidden />
-          {loading ? 'Updating pilot…' : 'Loading pilot…'}
+          {loading ? 'Updating…' : 'Loading tip…'}
         </p>
       </div>
     )

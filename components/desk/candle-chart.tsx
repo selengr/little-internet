@@ -144,6 +144,7 @@ export function CandleChart({
   const [hover, setHover] = useState<number | null>(null)
   const [hoverPlotY, setHoverPlotY] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [mobileTall, setMobileTall] = useState(false)
   const [viewWindow, setViewWindow] = useState(() => windowForPreset(bars.length, zoomPreset))
   const [scrollFrac, setScrollFrac] = useState(0)
 
@@ -157,6 +158,11 @@ export function CandleChart({
 
   useEffect(() => {
     setMounted(true)
+    const mq = window.matchMedia('(max-width: 1023px)')
+    const sync = () => setMobileTall(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
   }, [])
 
   useEffect(() => {
@@ -165,7 +171,13 @@ export function CandleChart({
   }, [zoomPreset, bars.length, resetToken])
 
   const layout = useMemo(() => {
-    const candleH = showRsi || showMacd ? 384 : 464
+    const candleH = mobileTall
+      ? showRsi || showMacd
+        ? 520
+        : 600
+      : showRsi || showMacd
+        ? 384
+        : 464
     const volH = showVolume ? 52 : 0
     const rsiH = showRsi ? 68 : 0
     const macdH = showMacd ? 72 : 0
@@ -179,8 +191,14 @@ export function CandleChart({
     if (showRsi) y += rsiH + gap
     const macdPane = { top: y, h: macdH }
     if (showMacd) y += macdH
-    return { candle, volume, rsiPane, macdPane, totalH: Math.max(y + PAD.b, 444) }
-  }, [showVolume, showRsi, showMacd])
+    return {
+      candle,
+      volume,
+      rsiPane,
+      macdPane,
+      totalH: Math.max(y + PAD.b, mobileTall ? 580 : 444),
+    }
+  }, [showVolume, showRsi, showMacd, mobileTall])
 
   const slice = useMemo(() => {
     const { start, count } = viewWindow
@@ -587,8 +605,8 @@ export function CandleChart({
 
   if (!model) {
     return (
-      <div className="relative w-full min-h-[444px]">
-        <div className="h-[464px] rounded-lg bg-white/[0.02] animate-pulse" />
+      <div className="relative w-full min-h-[444px] max-lg:min-h-[580px]">
+        <div className="h-[464px] max-lg:h-[600px] rounded-lg bg-white/[0.02] animate-pulse" />
       </div>
     )
   }

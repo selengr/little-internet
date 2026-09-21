@@ -4,7 +4,7 @@ export type DeskBotAction = 'buy' | 'sell' | 'wait'
 
 export type DeskBotAdvice = {
   action: DeskBotAction
-  /** One short plain line, e.g. "Buy on a dip near support" */
+  /** One short plain line */
   tip: string
   buyFrom: number | null
   buyTo: number | null
@@ -19,7 +19,6 @@ function finite(n: number | null | undefined): n is number {
   return n != null && Number.isFinite(n) && n > 0
 }
 
-/** Ensures from ≤ to; returns null if invalid. */
 function normalizeZone(from: number | null, to: number | null): { from: number; to: number } | null {
   if (!finite(from) || !finite(to)) return null
   const lo = Math.min(from, to)
@@ -60,7 +59,7 @@ function buildSellZone(
   if (!zone) return null
   if (zone.to - zone.from < zone.to * 1e-6) {
     const mid = (zone.from + zone.to) / 2
-    const pad = Math.max(mid * 0.0001, atrAbs * 0.05)
+    const pad = Math.max(mid * 0.0001, atrAbs * 0.03)
     return { from: mid - pad, to: mid + pad }
   }
   return zone
@@ -71,7 +70,7 @@ function inZone(close: number, zone: { from: number; to: number } | null): boole
   return close >= zone.from && close <= zone.to
 }
 
-/** Educational buy/sell levels from tape — not financial advice. */
+/** Educational buy/sell levels — not financial advice. */
 export function buildDeskBotAdvice(
   bars: OhlcBar[],
   tape: TapeRead,
@@ -85,22 +84,14 @@ export function buildDeskBotAdvice(
   }
 
   if (!Array.isArray(bars) || bars.length < MIN_BARS) {
-    return {
-      action: 'wait',
-      tip: 'Not enough chart history yet — wait for more bars before acting.',
-      ...emptyZones,
-    }
+    return { action: 'wait', tip: 'Need more chart data. Wait a bit.', ...emptyZones }
   }
 
   const lastBar = bars[bars.length - 1]
   const close = finite(price) ? price : finite(lastBar?.c) ? lastBar.c : null
 
   if (!finite(close)) {
-    return {
-      action: 'wait',
-      tip: 'Live price is unavailable — wait for a quote.',
-      ...emptyZones,
-    }
+    return { action: 'wait', tip: 'Price is loading. Wait.', ...emptyZones }
   }
 
   const atrPct = finite(tape.atrPct) ? tape.atrPct : DEFAULT_ATR_PCT
@@ -122,7 +113,7 @@ export function buildDeskBotAdvice(
   if (bias === 'neutral') {
     return {
       action: 'wait',
-      tip: 'Signals are mixed — wait for trend and momentum to align.',
+      tip: 'Not clear yet. Wait.',
       buyFrom,
       buyTo,
       sellFrom,
@@ -136,51 +127,45 @@ export function buildDeskBotAdvice(
   const inSell = inZone(close, sellZone)
 
   let action: DeskBotAction = 'wait'
-  let tip = 'No clear edge — wait for price to reach a marked zone.'
+  let tip = 'No clear level. Wait.'
 
   if (bias === 'constructive') {
     if (!buyZone) {
-      action = 'wait'
-      tip = 'Uptrend, but support is unclear — wait for a defined dip level.'
+      tip = 'Going up, but no buy level yet. Wait.'
     } else if (nearHigh || inSell) {
-      action = 'wait'
-      tip = 'Uptrend, but price is high — wait for a dip into the buy zone.'
+      tip = 'Price is high. Wait to buy lower.'
     } else if (inBuy || nearLow) {
       action = 'buy'
-      tip = 'Uptrend — price is near support; the green zone is a reasonable buy area.'
+      tip = 'Good spot to buy near the green zone.'
     } else if (support != null && close <= support + atrAbs * 0.75) {
       action = 'buy'
-      tip = 'Uptrend — buy on a pullback into the green zone.'
+      tip = 'Buy if price dips to the green zone.'
     } else {
-      action = 'wait'
-      tip = 'Uptrend, but price is above the buy zone — wait for a pullback.'
+      tip = 'Going up — wait for a dip to buy.'
     }
   } else if (bias === 'cautious') {
     if (!sellZone) {
-      action = 'wait'
-      tip = 'Downtrend, but resistance is unclear — wait for a clearer rally level.'
+      tip = 'Going down, but no sell level yet. Wait.'
     } else if (nearLow || inBuy) {
-      action = 'wait'
-      tip = 'Downtrend, but price is low — wait for a bounce into the sell zone.'
+      tip = 'Price is low. Wait to sell higher.'
     } else if (inSell || nearHigh) {
       action = 'sell'
-      tip = 'Downtrend — price is near resistance; the red zone is a reasonable sell area.'
+      tip = 'Good spot to sell near the red zone.'
     } else if (resistance != null && close >= resistance - atrAbs * 0.75) {
       action = 'sell'
-      tip = 'Downtrend — sell on a bounce into the red zone.'
+      tip = 'Sell if price rises to the red zone.'
     } else {
-      action = 'wait'
-      tip = 'Downtrend, but price is below the sell zone — wait for a bounce.'
+      tip = 'Going down — wait for a bounce to sell.'
     }
   }
 
   if (action === 'buy' && !buyZone) {
     action = 'wait'
-    tip = 'Buy signal faded — no valid buy zone on this chart.'
+    tip = 'No buy zone right now. Wait.'
   }
   if (action === 'sell' && !sellZone) {
     action = 'wait'
-    tip = 'Sell signal faded — no valid sell zone on this chart.'
+    tip = 'No sell zone right now. Wait.'
   }
 
   return { action, tip, buyFrom, buyTo, sellFrom, sellTo }

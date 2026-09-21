@@ -650,9 +650,9 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
               </button>
             </div>
           </div>
-          <div className="relative p-1 flex-1 min-h-[420px]">
+          <div className="relative p-1 flex-1 min-h-[420px] max-lg:min-h-[580px]">
             {!chartMounted || (loading && !data) ? (
-              <div className="h-[460px] bg-white/[0.03] animate-pulse rounded" />
+              <div className="h-[460px] max-lg:h-[600px] bg-white/[0.03] animate-pulse rounded" />
             ) : chartSeries && data ? (
               <>
                 {loading ? (
