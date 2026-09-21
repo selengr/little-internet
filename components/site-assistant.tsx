@@ -9,8 +9,22 @@ type Msg = { role: 'user' | 'assistant'; content: string }
 
 const SUGGESTIONS = ['Books', 'Crypto', 'Something fun']
 
+/** Arabic / Persian script — used for font + RTL on chat bubbles. */
+const PERSIAN_RE =
+  /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/
+
+function hasPersian(text: string) {
+  return PERSIAN_RE.test(text)
+}
+
+const ASSISTANT_FONT_FA =
+  'var(--font-vazirmatn), "Vazirmatn", Tahoma, "Segoe UI", system-ui, sans-serif'
+/** Latin first; Vazirmatn fills Arabic/Persian glyphs when Geist lacks them. */
+const ASSISTANT_FONT =
+  'var(--font-sans), Geist, var(--font-vazirmatn), "Vazirmatn", Tahoma, system-ui, sans-serif'
+
 const SITE_PATH_RE =
-  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
 
 function linkifySitePaths(text: string): ReactNode[] {
   const nodes: ReactNode[] = []
@@ -184,6 +198,9 @@ export function SiteAssistant() {
 
   const showSuggestions = messages.length === 0 && !busy
 
+  const panelHasPersian =
+    hasPersian(input) || messages.some(m => hasPersian(m.content))
+
   return (
     <div className="pointer-events-none fixed bottom-5 right-5 z-[90] flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
       <div
@@ -196,6 +213,7 @@ export function SiteAssistant() {
             ? 'translate-y-0 scale-100 opacity-100 blur-0'
             : 'pointer-events-none invisible translate-y-3 scale-[0.92] opacity-0 blur-[2px]',
         )}
+        style={{ fontFamily: panelHasPersian ? ASSISTANT_FONT_FA : ASSISTANT_FONT }}
         aria-hidden={!open}
       >
         <div className="flex items-center justify-end px-2.5 pt-2.5">
@@ -232,11 +250,15 @@ export function SiteAssistant() {
               m.role === 'assistant' &&
               i === messages.length - 1 &&
               !m.content.trim()
+            const persian = hasPersian(m.content)
             return (
               <div
                 key={`${m.role}-${i}`}
+                dir={persian ? 'rtl' : 'auto'}
+                lang={persian ? 'fa' : undefined}
                 className={cn(
-                  'max-w-[90%] rounded-2xl px-3 py-2 text-[13px] leading-relaxed whitespace-pre-wrap',
+                  'max-w-[90%] rounded-2xl px-3 py-2 text-[13px] whitespace-pre-wrap',
+                  persian ? 'leading-[1.85] tracking-normal' : 'leading-relaxed',
                   m.role === 'user'
                     ? 'ml-auto bg-[#37352f] text-[#f7f6f3] dark:bg-[#e8e6e1] dark:text-[#2f3437]'
                     : 'bg-black/[0.045] text-black/75 dark:bg-white/[0.06] dark:text-white/80',
@@ -274,9 +296,14 @@ export function SiteAssistant() {
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Ask…"
+            placeholder={panelHasPersian ? 'بپرس…' : 'Ask…'}
             disabled={busy}
+            dir={hasPersian(input) ? 'rtl' : 'auto'}
+            lang={hasPersian(input) ? 'fa' : undefined}
             className="h-10 flex-1 rounded-xl bg-transparent px-3 text-sm outline-none placeholder:text-black/30 dark:placeholder:text-white/30"
+            style={{
+              fontFamily: hasPersian(input) ? ASSISTANT_FONT_FA : ASSISTANT_FONT,
+            }}
           />
           <button
             type="submit"
