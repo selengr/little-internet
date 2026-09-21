@@ -5,6 +5,7 @@ import {
   type OhlcBar,
 } from '@/lib/desk-indicators'
 import { fetchOnchainTape } from '@/lib/bitquery'
+import { fetchNetworkPulse } from '@/lib/etherscan'
 
 const COINGECKO = 'https://api.coingecko.com/api/v3'
 const CACHE_MS = 45_000
@@ -198,7 +199,10 @@ export async function GET(request: NextRequest) {
 
     const indicators = computeIndicators(bars)
     const tape = buildTapeRead(bars, indicators)
-    const onchain = await fetchOnchainTape(asset.id)
+    const [onchain, network] = await Promise.all([
+      fetchOnchainTape(asset.id),
+      fetchNetworkPulse(asset.id),
+    ])
 
     type MarketRow = {
       id: string
@@ -274,6 +278,7 @@ export async function GET(request: NextRequest) {
       },
       tape,
       onchain,
+      network,
       disclaimer:
         'Desk is an analysis aid for education — not financial advice. Crypto is volatile; never risk money you cannot afford to lose.',
     }
