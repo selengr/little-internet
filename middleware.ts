@@ -16,6 +16,7 @@ export async function middleware(req: NextRequest) {
     const url = req.nextUrl.clone()
     url.pathname = '/auth'
     url.searchParams.set('next', pathname)
+    url.searchParams.set('tab', 'signin')
     return NextResponse.redirect(url)
   }
 

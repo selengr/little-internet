@@ -35,7 +35,15 @@ export function FooterAuthLink() {
   }, []);
 
   useEffect(() => {
-    return refreshSession();
+    const cancel = refreshSession();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshSession();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancel();
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [refreshSession]);
 
   const onLogout = async () => {
@@ -78,7 +86,7 @@ export function FooterAuthLink() {
 
   return (
     <Link
-      href="/auth"
+      href="/auth?tab=signin"
       className="text-xs text-muted-foreground/70 hover:text-foreground/70 transition-colors tracking-widest"
     >
       Sign in

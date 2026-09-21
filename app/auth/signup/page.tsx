@@ -1,9 +1,5 @@
-const page = () => {
-  return (
-    <div>
-      Enter
-    </div>
-  );
-}
+import { redirect } from 'next/navigation'
 
-export default page;
+export default function AuthSignupRedirect() {
+  redirect('/auth?tab=signup')
+}

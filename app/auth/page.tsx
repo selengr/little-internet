@@ -16,18 +16,40 @@ function AuthPageContent() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [activeTab, setActiveTab] = useState<AuthTab>("signup");
   const { toast } = useToast();
 
   const nextPath = searchParams.get("next") || "/";
+  const tabParam = searchParams.get("tab");
+  const initialTab: AuthTab =
+    tabParam === "signin" || tabParam === "signup"
+      ? tabParam
+      : searchParams.get("next")
+        ? "signin"
+        : "signup";
+  const [activeTab, setActiveTab] = useState<AuthTab>(initialTab);
 
   const validateEmail = (value: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   };
 
   const goAfterSignIn = () => {
-    router.replace(nextPath.startsWith("/") ? nextPath : "/");
+    const dest = nextPath.startsWith("/") ? nextPath : "/";
+    router.replace(dest);
     router.refresh();
+  };
+
+  const switchToSignIn = () => {
+    setActiveTab("signin");
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", "signin");
+    router.replace(`/auth?${params.toString()}`, { scroll: false });
+  };
+
+  const handleTabChange = (tab: AuthTab) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`/auth?${params.toString()}`, { scroll: false });
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -143,7 +165,7 @@ function AuthPageContent() {
       }
 
       setPassword("");
-      setActiveTab("signin");
+      switchToSignIn();
       toast({
         title: "Account created!",
         description: "Sign in with your new account to continue.",
@@ -198,7 +220,7 @@ function AuthPageContent() {
           rememberMe={rememberMe}
           setRememberMe={setRememberMe}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           onSignIn={handleSignIn}
           onSignUp={handleSignUp}
           onSocialLogin={handleSocialLogin}
