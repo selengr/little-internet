@@ -14,7 +14,20 @@ const mono = { fontFamily: 'var(--font-cx-mono), ui-monospace, monospace' } as c
 const display = { fontFamily: 'var(--font-cx-display), Georgia, serif' } as const
 const mark = { fontFamily: 'var(--font-cx-mark), system-ui, sans-serif' } as const
 
-function Delta({ value, large }: { value: number; large?: boolean }) {
+function Delta({ value, large }: { value: number | null | undefined; large?: boolean }) {
+  if (value == null || Number.isNaN(value)) {
+    return (
+      <span
+        className={cn(
+          'tabular-nums tracking-tight text-[color:var(--cx-mute)]',
+          large ? 'text-base md:text-lg' : 'text-[11px] md:text-xs',
+        )}
+        style={mono}
+      >
+        —
+      </span>
+    )
+  }
   const up = value >= 0
   return (
     <span
@@ -103,14 +116,16 @@ export function CryptoMarket() {
     try {
       const params = new URLSearchParams({ per_page: '50' })
       if (search?.trim()) params.set('search', search.trim())
-      const res = await fetch(`/api/crypto?${params}&t=${Date.now()}`, { cache: 'no-store' })
+      const res = await fetch(`/api/crypto?${params}`, { cache: 'no-store' })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed to load')
-      setCoins(json.coins ?? [])
+      const nextCoins = Array.isArray(json.coins) ? json.coins : []
+      setCoins(nextCoins)
       if (json.global?.data) setGlobal(json.global.data)
       setError(null)
       setCountdown(30)
     } catch (err) {
+      // Keep last good coins so the page still renders when CoinGecko rate-limits
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setLoading(false)
@@ -119,8 +134,8 @@ export function CryptoMarket() {
   }, [])
 
   useEffect(() => {
-    fetchData()
-    const interval = setInterval(() => fetchData(query || undefined), REFRESH_MS)
+    void fetchData()
+    const interval = setInterval(() => void fetchData(query || undefined), REFRESH_MS)
     return () => clearInterval(interval)
   }, [fetchData, query])
 
@@ -130,25 +145,27 @@ export function CryptoMarket() {
   }, [])
 
   useEffect(() => {
-    const t = setTimeout(() => fetchData(query || undefined), 400)
+    if (!query.trim()) return
+    const t = setTimeout(() => void fetchData(query), 400)
     return () => clearTimeout(t)
   }, [query, fetchData])
 
   const sorted = useMemo(() => {
     const list = [...coins]
+    const num = (v: number | null | undefined) => (v == null || Number.isNaN(v) ? 0 : v)
     switch (sort) {
       case 'price':
-        return list.sort((a, b) => b.current_price - a.current_price)
+        return list.sort((a, b) => num(b.current_price) - num(a.current_price))
       case 'change24h':
         return list.sort(
-          (a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h,
+          (a, b) => num(b.price_change_percentage_24h) - num(a.price_change_percentage_24h),
         )
       case 'market_cap':
-        return list.sort((a, b) => b.market_cap - a.market_cap)
+        return list.sort((a, b) => num(b.market_cap) - num(a.market_cap))
       case 'volume':
-        return list.sort((a, b) => b.total_volume - a.total_volume)
+        return list.sort((a, b) => num(b.total_volume) - num(a.total_volume))
       default:
-        return list.sort((a, b) => a.market_cap_rank - b.market_cap_rank)
+        return list.sort((a, b) => num(a.market_cap_rank) - num(b.market_cap_rank))
     }
   }, [coins, sort])
 
@@ -254,22 +271,22 @@ export function CryptoMarket() {
               {[
                 {
                   label: 'Market Cap',
-                  value: formatUsd(global.total_market_cap.usd, true),
+                  value: formatUsd(global.total_market_cap?.usd, true),
                   sub: formatPct(global.market_cap_change_percentage_24h_usd),
                 },
                 {
                   label: '24h Volume',
-                  value: formatUsd(global.total_volume.usd, true),
-                  sub: `${global.markets.toLocaleString()} venues`,
+                  value: formatUsd(global.total_volume?.usd, true),
+                  sub: `${(global.markets ?? 0).toLocaleString()} venues`,
                 },
                 {
                   label: 'BTC Dom',
-                  value: `${global.market_cap_percentage.btc.toFixed(1)}%`,
-                  sub: `ETH ${global.market_cap_percentage.eth.toFixed(1)}%`,
+                  value: `${(global.market_cap_percentage?.btc ?? 0).toFixed(1)}%`,
+                  sub: `ETH ${(global.market_cap_percentage?.eth ?? 0).toFixed(1)}%`,
                 },
                 {
                   label: 'Universe',
-                  value: global.active_cryptocurrencies.toLocaleString(),
+                  value: (global.active_cryptocurrencies ?? 0).toLocaleString(),
                   sub: 'assets tracked',
                 },
               ].map((item, i) => (
@@ -323,7 +340,7 @@ export function CryptoMarket() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-2xl bg-[color:var(--cx-line)] border border-[color:var(--cx-line)]">
             {board.map((coin, i) => {
-              const up = coin.price_change_percentage_24h >= 0
+              const up = (coin.price_change_percentage_24h ?? 0) >= 0
               return (
                 <motion.div
                   key={coin.id}
@@ -337,7 +354,7 @@ export function CryptoMarket() {
                       className="text-[10px] tabular-nums text-[color:var(--cx-mute)]"
                       style={mono}
                     >
-                      {String(coin.market_cap_rank).padStart(2, '0')}
+                      {String(coin.market_cap_rank ?? '—').padStart(2, '0')}
                     </span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={coin.image} alt="" className="size-6 rounded-full" />
@@ -458,7 +475,7 @@ export function CryptoMarket() {
         <div className="divide-y divide-[color:var(--cx-line-soft)]">
           <AnimatePresence mode="popLayout">
             {sorted.map((coin, i) => {
-              const up24 = coin.price_change_percentage_24h >= 0
+              const up24 = (coin.price_change_percentage_24h ?? 0) >= 0
               return (
                 <motion.div
                   key={coin.id}
@@ -477,7 +494,7 @@ export function CryptoMarket() {
                     className="hidden lg:block text-[11px] tabular-nums text-[color:var(--cx-mute)]"
                     style={mono}
                   >
-                    {String(coin.market_cap_rank).padStart(2, '0')}
+                    {String(coin.market_cap_rank ?? '—').padStart(2, '0')}
                   </span>
 
                   <div className="flex items-center gap-3 min-w-0">

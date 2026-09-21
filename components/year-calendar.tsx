@@ -233,8 +233,9 @@ export function YearCalendar({ className }: { className?: string }) {
               transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
             }}
           >
+            {/* Always dark — theme tokens invert in dark mode and wash out the card */}
             <div
-              className="w-[360px] max-w-[calc(100vw-3rem)] px-4 py-6 bg-foreground flex flex-col my-0 gap-4 border-0 rounded-xl transition-shadow duration-200 overflow-hidden"
+              className="w-[360px] max-w-[calc(100vw-3rem)] px-4 py-6 bg-[#14181c] flex flex-col my-0 gap-4 border border-white/[0.06] rounded-xl transition-shadow duration-200 overflow-hidden"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
@@ -286,8 +287,8 @@ export function YearCalendar({ className }: { className?: string }) {
                       key={i}
                       className={`w-1 h-1 rounded-full transition-all duration-150 ${
                         isPast
-                          ? "bg-background shadow-[0_0_4px_rgba(255,255,255,0.6)]"
-                          : "bg-zinc-700"
+                          ? "bg-white/90 shadow-[0_0_4px_rgba(255,255,255,0.55)]"
+                          : "bg-zinc-600"
                       }`}
                       style={{
                         ...gradientStyle,
@@ -303,14 +304,14 @@ export function YearCalendar({ className }: { className?: string }) {
                   )
                 })}
               </div>
-              <div className="flex justify-between text-sm text-background font-mono">
+              <div className="flex justify-between text-sm text-white/85 font-mono">
                 <span>{currentYear}</span>
                 <span>{daysRemaining} days remaining</span>
               </div>
             </div>
 
             <div
-              className="absolute inset-0 bg-foreground rounded-xl"
+              className="absolute inset-0 bg-[#14181c] border border-white/[0.06] rounded-xl"
               style={{
                 boxShadow: dynamicShadow,
                 backfaceVisibility: "hidden",
@@ -321,7 +322,7 @@ export function YearCalendar({ className }: { className?: string }) {
               <div className="box-border flex h-full min-h-0 flex-col justify-between gap-2.5 overflow-hidden px-4 py-4">
                 <div className="min-w-0 space-y-2.5 text-left">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-background/45 font-mono pt-0.5">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-white/45 font-mono pt-0.5">
                       Today’s move
                     </p>
                     <div className="flex shrink-0 items-center gap-1.5">
@@ -341,8 +342,8 @@ export function YearCalendar({ className }: { className?: string }) {
                             className={cn(
                               "size-5 rounded-full border",
                               active
-                                ? "border-background ring-1 ring-inset ring-background/60"
-                                : "border-background/25",
+                                ? "border-white ring-1 ring-inset ring-white/60"
+                                : "border-white/25",
                             )}
                             style={{ backgroundColor: preset.color }}
                           />
@@ -351,33 +352,33 @@ export function YearCalendar({ className }: { className?: string }) {
                     </div>
                   </div>
 
-                  <p className="text-background text-sm leading-snug font-light">{dailyMove}</p>
+                  <p className="text-white/90 text-sm leading-snug font-light">{dailyMove}</p>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                      <div className="font-mono text-lg tabular-nums text-background leading-none">
+                    <div className="rounded-lg bg-white/10 px-2.5 py-2 min-w-0">
+                      <div className="font-mono text-lg tabular-nums text-white leading-none">
                         {yearProgress}%
                       </div>
-                      <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
+                      <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-white/45 truncate">
                         of {currentYear}
                       </div>
                     </div>
-                    <div className="rounded-lg bg-background/10 px-2.5 py-2 min-w-0">
-                      <div className="font-mono text-lg tabular-nums text-background leading-none">
+                    <div className="rounded-lg bg-white/10 px-2.5 py-2 min-w-0">
+                      <div className="font-mono text-lg tabular-nums text-white leading-none">
                         {fridaysLeft}
                       </div>
-                      <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-background/45 truncate">
+                      <div className="mt-1 text-[9px] uppercase tracking-[0.16em] text-white/45 truncate">
                         Fridays left
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <blockquote className="min-w-0 border-l border-background/25 pl-3 text-left">
-                  <p className="text-background/80 text-[12px] leading-relaxed font-light italic line-clamp-3">
+                <blockquote className="min-w-0 border-l border-white/25 pl-3 text-left">
+                  <p className="text-white/80 text-[12px] leading-relaxed font-light italic line-clamp-3">
                     “{quote.text}”
                   </p>
-                  <footer className="mt-1 text-[10px] uppercase tracking-[0.18em] text-background/40 font-mono">
+                  <footer className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/40 font-mono">
                     {quote.by}
                   </footer>
                 </blockquote>
