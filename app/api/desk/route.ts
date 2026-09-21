@@ -6,6 +6,7 @@ import {
 } from '@/lib/desk-indicators'
 import { fetchOnchainTape } from '@/lib/bitquery'
 import { fetchNetworkPulse } from '@/lib/etherscan'
+import { fetchDefiDeskSignal } from '@/lib/defillama'
 
 const COINGECKO = 'https://api.coingecko.com/api/v3'
 const CACHE_MS = 45_000
@@ -31,6 +32,76 @@ const WATCHLIST_IDS = Object.keys(ASSETS).join(',')
 
 type CacheEntry = { at: number; payload: unknown }
 const memoryCache = new Map<string, CacheEntry>()
+
+function cacheKeyFor(assetId: string, interval: string, days: number) {
+  return `desk:v3:${assetId}:${interval}:${days}`
+}
+
+function findAnyCachedPayload(assetId: string, preferInterval?: string): unknown | null {
+  if (preferInterval) {
+    for (const days of [daysForInterval(preferInterval), 90, 14, 1, 180]) {
+      const hit = memoryCache.get(cacheKeyFor(assetId, preferInterval, days))
+      if (hit?.payload) return hit.payload
+    }
+  }
+  for (const iv of ['1d', '4h', '1h', '1w']) {
+    for (const days of [daysForInterval(iv), 90, 14, 1, 180]) {
+      const hit = memoryCache.get(cacheKeyFor(assetId, iv, days))
+      if (hit?.payload) return hit.payload
+    }
+  }
+  for (const entry of memoryCache.values()) {
+    if (entry.payload) return entry.payload
+  }
+  return null
+}
+
+async function fetchBarsForDays(
+  assetId: string,
+  interval: string,
+  days: number,
+): Promise<{ bars: OhlcBar[]; prices: [number, number][]; volumes: [number, number][] }> {
+  const [ohlcRes, chartRes] = await Promise.all([
+    geckoFetch(`${COINGECKO}/coins/${assetId}/ohlc?vs_currency=usd&days=${days}`),
+    geckoFetch(`${COINGECKO}/coins/${assetId}/market_chart?vs_currency=usd&days=${days}`),
+  ])
+
+  const chartJson = chartRes.ok ? await chartRes.json() : null
+  const prices = (Array.isArray(chartJson?.prices) ? chartJson.prices : []) as [number, number][]
+  const volumes = (Array.isArray(chartJson?.total_volumes)
+    ? chartJson.total_volumes
+    : []) as [number, number][]
+
+  let bars: OhlcBar[] = []
+  if (ohlcRes.ok) {
+    const raw = (await ohlcRes.json()) as number[][]
+    bars = (Array.isArray(raw) ? raw : [])
+      .filter(row => Array.isArray(row) && row.length >= 5)
+      .map(([t, o, h, l, c]) => ({
+        t: Number(t),
+        o: Number(o),
+        h: Number(h),
+        l: Number(l),
+        c: Number(c),
+      }))
+      .filter(b => [b.o, b.h, b.l, b.c].every(n => Number.isFinite(n)))
+  }
+
+  const bucketMs = bucketMsForInterval(interval)
+  const synthetic = synthesizeOhlc(prices, volumes, bucketMs)
+  if (synthetic.length > bars.length * 1.3 || bars.length < 40) {
+    bars = synthetic.length ? synthetic : bars
+  } else {
+    bars = attachVolumes(bars, volumes)
+  }
+
+  if (!bars.length && prices.length >= 4) {
+    const finer = synthesizeOhlc(prices, volumes, Math.max(bucketMs / 4, 15 * 60 * 1000))
+    if (finer.length) bars = finer
+  }
+
+  return { bars, prices, volumes }
+}
 
 function geckoHeaders(): HeadersInit {
   const headers: HeadersInit = { Accept: 'application/json' }
@@ -140,7 +211,7 @@ export async function GET(request: NextRequest) {
   const interval = (request.nextUrl.searchParams.get('interval') ?? '1d').toLowerCase()
   const asset = ASSETS[assetKey] ?? ASSETS.bitcoin
   const days = daysForInterval(interval)
-  const cacheKey = `desk:v3:${asset.id}:${interval}:${days}`
+  const cacheKey = cacheKeyFor(asset.id, interval, days)
 
   const hit = memoryCache.get(cacheKey)
   if (hit && Date.now() - hit.at < CACHE_MS) {
@@ -150,59 +221,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const [ohlcRes, chartRes, marketsRes] = await Promise.all([
-      geckoFetch(`${COINGECKO}/coins/${asset.id}/ohlc?vs_currency=usd&days=${days}`),
-      geckoFetch(
-        `${COINGECKO}/coins/${asset.id}/market_chart?vs_currency=usd&days=${days}`,
-      ),
-      geckoFetch(
-        `${COINGECKO}/coins/markets?vs_currency=usd&ids=${WATCHLIST_IDS}&order=market_cap_desc&sparkline=true&price_change_percentage=1h,24h,7d`,
-      ),
-    ])
-
-    const chartJson = chartRes.ok ? await chartRes.json() : null
-    const prices = (Array.isArray(chartJson?.prices) ? chartJson.prices : []) as [number, number][]
-    const volumes = (Array.isArray(chartJson?.total_volumes)
-      ? chartJson.total_volumes
-      : []) as [number, number][]
-
-    let bars: OhlcBar[] = []
-    if (ohlcRes.ok) {
-      const raw = (await ohlcRes.json()) as number[][]
-      bars = (Array.isArray(raw) ? raw : [])
-        .filter(row => Array.isArray(row) && row.length >= 5)
-        .map(([t, o, h, l, c]) => ({
-          t: Number(t),
-          o: Number(o),
-          h: Number(h),
-          l: Number(l),
-          c: Number(c),
-        }))
-        .filter(b => [b.o, b.h, b.l, b.c].every(n => Number.isFinite(n)))
-    }
-
-    // Prefer denser synthetic candles when OHLC is thin
-    const synthetic = synthesizeOhlc(prices, volumes, bucketMsForInterval(interval))
-    if (synthetic.length > bars.length * 1.3 || bars.length < 40) {
-      bars = synthetic.length ? synthetic : bars
-    } else {
-      bars = attachVolumes(bars, volumes)
-    }
-
-    if (!bars.length) {
-      if (hit) return NextResponse.json(hit.payload, { headers: { 'X-Cache': 'STALE' } })
-      return NextResponse.json({ error: 'No candle data' }, { status: 502 })
-    }
-
-    // Keep chart readable — cap very long series
-    if (bars.length > 180) bars = bars.slice(-180)
-
-    const indicators = computeIndicators(bars)
-    const tape = buildTapeRead(bars, indicators)
-    const [onchain, network] = await Promise.all([
-      fetchOnchainTape(asset.id),
-      fetchNetworkPulse(asset.id),
-    ])
+    const marketsRes = await geckoFetch(
+      `${COINGECKO}/coins/markets?vs_currency=usd&ids=${WATCHLIST_IDS}&order=market_cap_desc&sparkline=true&price_change_percentage=1h,24h,7d`,
+    )
 
     type MarketRow = {
       id: string
@@ -223,6 +244,53 @@ export async function GET(request: NextRequest) {
     const markets: MarketRow[] = marketsRes.ok
       ? ((await marketsRes.json()) as MarketRow[]).filter(Boolean)
       : []
+
+    const dayCandidates = [...new Set([days, 90, 14, 1, 180])]
+    let bars: OhlcBar[] = []
+    for (const d of dayCandidates) {
+      const fetched = await fetchBarsForDays(asset.id, interval, d)
+      if (fetched.bars.length) {
+        bars = fetched.bars
+        break
+      }
+    }
+
+    if (!bars.length) {
+      const stale =
+        hit?.payload ??
+        findAnyCachedPayload(asset.id, interval)
+      if (stale) {
+        return NextResponse.json(stale, { headers: { 'X-Cache': 'STALE' } })
+      }
+    }
+
+    if (!bars.length) {
+      const spot = markets.find(m => m.id === asset.id)?.current_price
+      if (spot != null && Number.isFinite(spot) && spot > 0) {
+        const t = Date.now()
+        bars = [
+          { t: t - 86_400_000, o: spot, h: spot, l: spot, c: spot },
+          { t, o: spot, h: spot, l: spot, c: spot },
+        ]
+      } else {
+        const anyStale = findAnyCachedPayload(asset.id, interval)
+        if (anyStale) {
+          return NextResponse.json(anyStale, { headers: { 'X-Cache': 'STALE' } })
+        }
+        return NextResponse.json({ error: 'No candle data' }, { status: 502 })
+      }
+    }
+
+    // Keep chart readable — cap very long series
+    if (bars.length > 180) bars = bars.slice(-180)
+
+    const indicators = computeIndicators(bars)
+    const tape = buildTapeRead(bars, indicators)
+    const [onchain, network, defi] = await Promise.all([
+      fetchOnchainTape(asset.id),
+      fetchNetworkPulse(asset.id),
+      fetchDefiDeskSignal(asset.id),
+    ])
 
     const selected = markets.find(m => m.id === asset.id)
     const first = bars[0]
@@ -279,6 +347,7 @@ export async function GET(request: NextRequest) {
       tape,
       onchain,
       network,
+      defi,
       disclaimer:
         'Desk is an analysis aid for education — not financial advice. Crypto is volatile; never risk money you cannot afford to lose.',
     }
@@ -291,7 +360,8 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    if (hit) return NextResponse.json(hit.payload, { headers: { 'X-Cache': 'STALE' } })
+    const stale = hit?.payload ?? findAnyCachedPayload(asset.id, interval)
+    if (stale) return NextResponse.json(stale, { headers: { 'X-Cache': 'STALE' } })
     console.error('[desk]', error)
     return NextResponse.json({ error: 'Failed to load desk data' }, { status: 502 })
   }

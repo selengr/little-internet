@@ -201,8 +201,10 @@ export function buildTapeRead(bars: OhlcBar[], ind: DeskIndicators): TapeRead {
         ? 'Tape leans cautious — pressure is still on the sellers for now.'
         : 'Tape is mixed — wait for a cleaner hand before sizing up.'
 
-  // Simple recent swing levels from last ~20 bars
-  const window = bars.slice(-20)
+  // Recent swing levels from completed bars (exclude live bar so wicks do not dominate)
+  const completed =
+    bars.length > 1 ? bars.slice(-Math.min(25, bars.length), -1) : bars.slice(-Math.min(20, bars.length))
+  const window = completed.length >= 5 ? completed : bars.slice(-Math.min(20, bars.length))
   const support = window.length ? Math.min(...window.map(b => b.l)) : null
   const resistance = window.length ? Math.max(...window.map(b => b.h)) : null
 

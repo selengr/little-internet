@@ -61,15 +61,34 @@ function GuideMark({ className }: { className?: string }) {
 
 function TypingDots() {
   return (
-    <span className="inline-flex items-center gap-1 px-0.5 py-0.5" aria-hidden>
+    <span className="inline-flex items-center gap-[3px] px-0.5" aria-hidden>
       {[0, 1, 2].map(i => (
         <span
           key={i}
-          className="size-1.5 rounded-full bg-current opacity-40 animate-bounce"
-          style={{ animationDelay: `${i * 120}ms`, animationDuration: '900ms' }}
+          className="size-1.5 rounded-full bg-current opacity-50 animate-bounce"
+          style={{ animationDelay: `${i * 140}ms`, animationDuration: '820ms' }}
         />
       ))}
     </span>
+  )
+}
+
+function AssistantLoading() {
+  return (
+    <div
+      className="flex items-center gap-2.5 py-0.5"
+      aria-live="polite"
+      aria-label="Guide is thinking"
+    >
+      <span className="relative flex size-2 shrink-0">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-25" />
+        <span className="relative inline-flex size-2 rounded-full bg-current/55" />
+      </span>
+      <span className="inline-flex items-center gap-1 text-[12px] font-medium tracking-tight text-black/45 dark:text-white/50">
+        Thinking
+        <TypingDots />
+      </span>
+    </div>
   )
 }
 
@@ -100,17 +119,30 @@ export function SiteAssistant() {
     const content = text.trim()
     if (!content || busy) return
 
-    const next: Msg[] = [...messages, { role: 'user', content }]
-    setMessages(next)
+    const historyForApi = [...messages, { role: 'user' as const, content }]
+    setMessages([...historyForApi, { role: 'assistant', content: '' }])
     setInput('')
     setBusy(true)
+
+    const setAssistantContent = (text: string) => {
+      setMessages(m => {
+        const copy = [...m]
+        const last = copy.length - 1
+        if (last >= 0 && copy[last].role === 'assistant') {
+          copy[last] = { role: 'assistant', content: text }
+        } else {
+          copy.push({ role: 'assistant', content: text })
+        }
+        return copy
+      })
+    }
 
     try {
       const res = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: next.map(m => ({ role: m.role, content: m.content })),
+          messages: historyForApi.map(m => ({ role: m.role, content: m.content })),
         }),
       })
 
@@ -120,21 +152,13 @@ export function SiteAssistant() {
           typeof err?.error === 'string'
             ? err.error
             : 'Couldn’t reach the guide right now.'
-        setMessages(m => [...m, { role: 'assistant', content: message }])
+        setAssistantContent(message)
         return
       }
 
-      setMessages(m => [...m, { role: 'assistant', content: '' }])
       const reader = res.body?.getReader()
       if (!reader) {
-        setMessages(m => {
-          const copy = [...m]
-          copy[copy.length - 1] = {
-            role: 'assistant',
-            content: 'No response stream.',
-          }
-          return copy
-        })
+        setAssistantContent('No response stream.')
         return
       }
 
@@ -152,10 +176,7 @@ export function SiteAssistant() {
         })
       }
     } catch {
-      setMessages(m => [
-        ...m,
-        { role: 'assistant', content: 'Network hiccup. Try once more.' },
-      ])
+      setAssistantContent('Network hiccup. Try once more.')
     } finally {
       setBusy(false)
     }
@@ -188,7 +209,7 @@ export function SiteAssistant() {
           </button>
         </div>
 
-        <div className="max-h-[min(48vh,20rem)] space-y-2.5 overflow-y-auto px-3.5 pb-3 pt-0.5">
+        <div className="max-h-[min(52vh,23.125rem)] min-h-[11.5rem] space-y-2.5 overflow-y-auto px-3.5 pb-3 pt-0.5">
           {showSuggestions && (
             <div className="flex flex-wrap gap-1.5 py-6 justify-center">
               {SUGGESTIONS.map(s => (
@@ -206,7 +227,11 @@ export function SiteAssistant() {
           )}
 
           {messages.map((m, i) => {
-            const empty = !m.content && busy && i === messages.length - 1
+            const awaitingReply =
+              busy &&
+              m.role === 'assistant' &&
+              i === messages.length - 1 &&
+              !m.content.trim()
             return (
               <div
                 key={`${m.role}-${i}`}
@@ -215,10 +240,18 @@ export function SiteAssistant() {
                   m.role === 'user'
                     ? 'ml-auto bg-[#37352f] text-[#f7f6f3] dark:bg-[#e8e6e1] dark:text-[#2f3437]'
                     : 'bg-black/[0.045] text-black/75 dark:bg-white/[0.06] dark:text-white/80',
+                  awaitingReply &&
+                    'relative overflow-hidden border border-black/[0.06] dark:border-white/[0.08]',
                 )}
               >
-                {empty ? (
-                  <TypingDots />
+                {awaitingReply ? (
+                  <>
+                    <span
+                      className="pointer-events-none absolute inset-0 -translate-x-full animate-[assistant-shimmer_1.8s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-black/[0.04] to-transparent dark:via-white/[0.06]"
+                      aria-hidden
+                    />
+                    <AssistantLoading />
+                  </>
                 ) : m.role === 'assistant' ? (
                   linkifySitePaths(m.content)
                 ) : (

@@ -113,6 +113,22 @@ export async function POST(request: NextRequest) {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
+  function pushSseLine(controller: ReadableStreamDefaultController, line: string) {
+    const trimmed = line.trim()
+    if (!trimmed.startsWith('data:')) return
+    const data = trimmed.slice(5).trim()
+    if (!data || data === '[DONE]') return
+    try {
+      const json = JSON.parse(data)
+      const delta = json?.choices?.[0]?.delta?.content
+      if (typeof delta === 'string' && delta) {
+        controller.enqueue(encoder.encode(delta))
+      }
+    } catch {
+      /* skip partial json */
+    }
+  }
+
   const stream = new ReadableStream({
     async start(controller) {
       const reader = upstream.body!.getReader()
@@ -124,22 +140,10 @@ export async function POST(request: NextRequest) {
           buffer += decoder.decode(value, { stream: true })
           const lines = buffer.split('\n')
           buffer = lines.pop() ?? ''
-          for (const line of lines) {
-            const trimmed = line.trim()
-            if (!trimmed.startsWith('data:')) continue
-            const data = trimmed.slice(5).trim()
-            if (!data || data === '[DONE]') continue
-            try {
-              const json = JSON.parse(data)
-              const delta = json?.choices?.[0]?.delta?.content
-              if (typeof delta === 'string' && delta) {
-                controller.enqueue(encoder.encode(delta))
-              }
-            } catch {
-              /* skip partial json */
-            }
-          }
+          for (const line of lines) pushSseLine(controller, line)
         }
+        buffer += decoder.decode()
+        for (const line of buffer.split('\n')) pushSseLine(controller, line)
       } catch (err) {
         const message = err instanceof Error ? err.message : 'stream failed'
         controller.enqueue(encoder.encode(`\n\n(${message})`))

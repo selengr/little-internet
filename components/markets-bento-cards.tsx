@@ -264,42 +264,42 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
-      {/* Soon — not clickable */}
-      <MarketBentoCard
-        className="col-span-12 md:col-span-4 p-0 min-h-[240px] cursor-default select-none"
-        delay={200}
-        image={CARD_IMAGES.soon}
-        imagePosition="object-[center_40%]"
-        wash="from-[#0a1210]/45 via-[#0a1210]/60 to-[#0a1210]/94"
-      >
-        <div
-          className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6 pointer-events-none"
-          aria-disabled="true"
+      <Link href="/desk" className="col-span-12 md:col-span-4 block">
+        <MarketBentoCard
+          className="p-0 min-h-[240px] h-full cursor-pointer"
+          delay={200}
+          image={CARD_IMAGES.soon}
+          imagePosition="object-[center_40%]"
+          wash="from-[#0a1210]/45 via-[#0a1210]/60 to-[#0a1210]/94"
         >
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Markets</p>
-            <span className="text-[10px] uppercase tracking-[0.16em] text-amber-200/80">
-              Coming soon
-            </span>
-          </div>
+          <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Desk</p>
+                <LiveBadge />
+              </div>
+              <CardArrow />
+            </div>
 
-          <div className="mt-8 mb-4">
-            <p className="text-[clamp(2.4rem,5vw,3.1rem)] font-light leading-none tracking-tight text-white">
-              Soon
-            </p>
-            {/* <p className="mt-3 text-sm text-white/55 leading-relaxed max-w-[16rem]">
-              Not clickable yet — stocks, commodities, and more tools are on the way.
-            </p> */}
-          </div>
+            <div className="mt-8 mb-4">
+              <p className="text-[13px] text-white/55 mb-2 tracking-wide">Spot terminal</p>
+              <p className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white">
+                Charts
+              </p>
+              <p className="mt-2.5 text-sm text-white/55">
+                Order book · on-chain tape · gas
+              </p>
+            </div>
 
-          <div>
-            <h3 className="text-[15px] font-light text-white mb-2">More markets</h3>
-            <p className="text-sm text-white/55 leading-relaxed">
-              Stay tuned. This card is a preview only.
-            </p>
+            <div>
+              <h3 className="text-[15px] font-light text-white mb-2">Trading desk</h3>
+              <p className="text-sm text-white/55 leading-relaxed">
+                Exchange-style spot view with live candles, depth, and Etherscan transfers.
+              </p>
+            </div>
           </div>
-        </div>
-      </MarketBentoCard>
+        </MarketBentoCard>
+      </Link>
     </>
   )
 }
