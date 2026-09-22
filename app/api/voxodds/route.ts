@@ -1,42 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 const VOX = 'https://voxodds.com/api/v1'
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl
-  const action = searchParams.get('action') || 'trending'
-  const limit = Math.min(Number(searchParams.get('limit') || 8) || 8, 20)
-  const category = searchParams.get('category') || ''
-  const q = searchParams.get('q') || ''
+export type VoxMarket = {
+  id: string
+  question: string
+  category: string
+  outcomes?: string[]
+  prices: number[]
+  volume_24h?: number
+  voxodds_url?: string
+  polymarket_url?: string
+}
 
+/** Crypto-leaning prediction markets — calm, relevant to Markets (skips geopolitics). */
+export async function GET() {
   try {
-    let url = `${VOX}/trending`
-    if (action === 'markets') {
-      const params = new URLSearchParams({ limit: String(limit) })
-      if (category) params.set('category', category)
-      if (q) params.set('q', q)
-      url = `${VOX}/markets?${params}`
-    } else if (action === 'trending') {
-      url = `${VOX}/trending`
-    } else {
-      return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
-    }
-
-    const res = await fetch(url, {
+    const res = await fetch(`${VOX}/markets?category=Crypto&limit=8`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     })
-    const json = await res.json().catch(() => ({}))
     if (!res.ok) {
+      const text = await res.text().catch(() => '')
       return NextResponse.json(
-        { error: 'VoxOdds unavailable', detail: json },
-        { status: 502 },
+        { error: text || 'VoxOdds unavailable' },
+        { status: res.status >= 500 ? 502 : res.status },
       )
     }
-    return NextResponse.json(json)
+    const json = (await res.json()) as { markets?: VoxMarket[] }
+    const markets = (json.markets ?? [])
+      .filter(m => m?.question && Array.isArray(m.prices) && m.prices.length >= 2)
+      .slice(0, 6)
+      .map(m => ({
+        id: m.id,
+        question: m.question,
+        category: m.category,
+        outcomes: m.outcomes ?? ['Yes', 'No'],
+        prices: m.prices,
+        volume_24h: m.volume_24h ?? 0,
+        url: m.voxodds_url || m.polymarket_url || `https://voxodds.com/market/${m.id}`,
+      }))
+
+    return NextResponse.json(
+      { markets, source: 'voxodds.com' },
+      { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } },
+    )
   } catch (err) {
     console.error('[voxodds]', err)
     return NextResponse.json({ error: 'VoxOdds failed' }, { status: 502 })

@@ -37,7 +37,7 @@ const ASSISTANT_FONT =
   'var(--font-sans), Geist, var(--font-vazirmatn), "Vazirmatn", Tahoma, system-ui, sans-serif'
 
 const SITE_PATH_RE =
-  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|gold|forex|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
 
 function linkifySitePaths(text: string): ReactNode[] {
   const nodes: ReactNode[] = []

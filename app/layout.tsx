@@ -1,7 +1,6 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono, Vazirmatn } from 'next/font/google'
-import { Courier_Prime } from 'next/font/google'
+import { Geist, Geist_Mono, Vazirmatn, Courier_Prime } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { FaviconSwitcher } from '@/components/favicon-switcher'
@@ -18,9 +17,13 @@ import {
 } from '@/lib/site'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
-const _courierPrime = Courier_Prime({ weight: ["400", "700"], subsets: ["latin"] });
+const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
+const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
+const courierPrime = Courier_Prime({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-courier-prime',
+})
 const vazirmatn = Vazirmatn({
   subsets: ['arabic', 'latin'],
   weight: ['400', '500', '600', '700'],
@@ -153,7 +156,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${vazirmatn.variable} font-sans antialiased bg-[#f8f8f8] text-[#37352f] dark:bg-[#2f3437] dark:text-[hsla(0,0%,100%,0.9)]`}
+        className={`${geist.variable} ${geistMono.variable} ${courierPrime.variable} ${vazirmatn.variable} font-sans antialiased bg-[#f8f8f8] text-[#37352f] dark:bg-[#2f3437] dark:text-[hsla(0,0%,100%,0.9)]`}
       >
         <SeoJsonLd />
         <ThemeProvider
