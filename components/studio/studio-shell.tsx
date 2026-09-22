@@ -19,42 +19,44 @@ export function StudioShell({
     >
       <style>{`
         .studio-shell {
-          --st-bg: #eef1f4;
-          --st-fg: #12161c;
-          --st-mute: rgba(18, 22, 28, 0.55);
-          --st-panel: rgba(255, 255, 255, 0.82);
-          --st-line: rgba(18, 22, 28, 0.1);
-          --st-line-soft: rgba(18, 22, 28, 0.06);
-          --st-accent: #0f766e;
-          --st-accent-soft: rgba(15, 118, 110, 0.12);
-          --st-warm: #b45309;
-          --st-on-accent: #f4fbfa;
+          --st-bg: #e8edf2;
+          --st-fg: #0f1419;
+          --st-mute: rgba(15, 20, 25, 0.56);
+          --st-panel: rgba(255, 255, 255, 0.86);
+          --st-line: rgba(15, 20, 25, 0.1);
+          --st-line-soft: rgba(15, 20, 25, 0.06);
+          --st-accent: #0d7377;
+          --st-accent-soft: rgba(13, 115, 119, 0.12);
+          --st-warm: #c2410c;
+          --st-on-accent: #f2fbfb;
           --st-wash:
-            radial-gradient(ellipse 68% 48% at 12% -4%, rgba(15, 118, 110, 0.14), transparent 55%),
-            radial-gradient(ellipse 50% 38% at 96% 100%, rgba(180, 83, 9, 0.08), transparent 50%),
-            linear-gradient(180deg, #f5f7f9 0%, #eef1f4 48%, #e6eaef 100%);
-          --st-shadow: 0 20px 52px -28px rgba(18, 22, 28, 0.3);
+            radial-gradient(ellipse 72% 50% at 8% -6%, rgba(13, 115, 119, 0.16), transparent 56%),
+            radial-gradient(ellipse 46% 36% at 100% 8%, rgba(194, 65, 12, 0.06), transparent 48%),
+            radial-gradient(ellipse 52% 40% at 90% 100%, rgba(13, 115, 119, 0.07), transparent 52%),
+            linear-gradient(180deg, #f2f5f8 0%, #e8edf2 46%, #dde4eb 100%);
+          --st-shadow: 0 22px 56px -30px rgba(15, 20, 25, 0.32);
           --st-display: var(--font-st-display), Georgia, serif;
           --st-mark: var(--font-st-mark), system-ui, sans-serif;
           --st-mono: var(--font-st-mono), ui-monospace, monospace;
         }
 
         :is(html.dark, .dark) .studio-shell {
-          --st-bg: #171a1f;
-          --st-fg: hsla(0, 0%, 100%, 0.93);
+          --st-bg: #14181e;
+          --st-fg: hsla(0, 0%, 100%, 0.94);
           --st-mute: hsla(0, 0%, 100%, 0.52);
-          --st-panel: rgba(32, 36, 42, 0.92);
+          --st-panel: rgba(28, 33, 40, 0.94);
           --st-line: hsla(0, 0%, 100%, 0.11);
           --st-line-soft: hsla(0, 0%, 100%, 0.06);
-          --st-accent: #2dd4bf;
-          --st-accent-soft: rgba(45, 212, 191, 0.14);
-          --st-warm: #fbbf24;
-          --st-on-accent: #0c1413;
+          --st-accent: #2ec4b6;
+          --st-accent-soft: rgba(46, 196, 182, 0.14);
+          --st-warm: #fb923c;
+          --st-on-accent: #071112;
           --st-wash:
-            radial-gradient(ellipse 62% 44% at 8% 0%, rgba(45, 212, 191, 0.1), transparent 52%),
-            radial-gradient(ellipse 48% 34% at 100% 92%, rgba(251, 191, 36, 0.05), transparent 48%),
-            linear-gradient(180deg, #1b1f25 0%, #171a1f 52%, #14171c 100%);
-          --st-shadow: 0 22px 56px -24px rgba(0, 0, 0, 0.55);
+            radial-gradient(ellipse 64% 46% at 6% -2%, rgba(46, 196, 182, 0.12), transparent 54%),
+            radial-gradient(ellipse 42% 32% at 100% 6%, rgba(251, 146, 60, 0.05), transparent 46%),
+            radial-gradient(ellipse 48% 36% at 88% 100%, rgba(46, 196, 182, 0.05), transparent 50%),
+            linear-gradient(180deg, #181d24 0%, #14181e 52%, #10141a 100%);
+          --st-shadow: 0 24px 60px -26px rgba(0, 0, 0, 0.58);
         }
 
         @keyframes st-shimmer {
@@ -67,21 +69,59 @@ export function StudioShell({
         }
 
         @keyframes st-pulse-ring {
-          0% { transform: scale(0.85); opacity: 0.55; }
-          70% { transform: scale(1.35); opacity: 0; }
+          0% { transform: scale(0.88); opacity: 0.5; box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-accent) 45%, transparent); }
+          70% { transform: scale(1.28); opacity: 0; box-shadow: 0 0 0 10px transparent; }
           100% { opacity: 0; }
+        }
+
+        @keyframes st-wave {
+          0%, 100% { transform: scaleY(0.35); }
+          50% { transform: scaleY(1); }
+        }
+
+        @keyframes st-glow-in {
+          from { opacity: 0; transform: translateY(10px) scale(0.985); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
 
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden>
         <div className="absolute inset-0" style={{ background: 'var(--st-wash)' }} />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,transparent_18%,var(--st-bg)_94%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,transparent_16%,var(--st-bg)_94%)]" />
+        {/* Quiet waveform atmosphere — studio identity without clutter */}
+        <svg
+          className="absolute left-1/2 top-[18%] h-24 w-[min(92vw,42rem)] -translate-x-1/2 opacity-[0.07] dark:opacity-[0.1]"
+          viewBox="0 0 640 96"
+          fill="none"
+          aria-hidden
+        >
+          {Array.from({ length: 48 }).map((_, i) => {
+            const x = 8 + i * 13
+            const h = 12 + ((i * 17) % 53)
+            return (
+              <rect
+                key={i}
+                x={x}
+                y={(96 - h) / 2}
+                width="5"
+                height={h}
+                rx="2.5"
+                fill="currentColor"
+                className="text-[color:var(--st-accent)]"
+                style={{
+                  transformOrigin: `${x + 2.5}px 48px`,
+                  animation: `st-wave ${1.4 + (i % 5) * 0.18}s ease-in-out ${i * 0.04}s infinite`,
+                }}
+              />
+            )
+          })}
+        </svg>
         <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.045]"
+          className="absolute inset-0 opacity-[0.028] dark:opacity-[0.04]"
           style={{
             backgroundImage:
               'linear-gradient(var(--st-fg) 1px, transparent 1px), linear-gradient(90deg, var(--st-fg) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
+            backgroundSize: '44px 44px',
           }}
         />
       </div>
@@ -92,7 +132,11 @@ export function StudioShell({
           style={NAV_GLASS}
         >
           <ThemeToggle />
-          <span className="font-pixel text-[10px] tracking-[0.2em] text-black/50 dark:text-white/50 hidden sm:inline">
+          <span className="inline-flex items-center gap-2 font-pixel text-[10px] tracking-[0.2em] text-black/50 dark:text-white/50 hidden sm:inline">
+            <span className="relative flex size-1.5">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--st-accent)] opacity-55" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--st-accent)]" />
+            </span>
             STUDIO
           </span>
           <Link
