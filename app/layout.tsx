@@ -1,5 +1,5 @@
 import React from "react"
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, IBM_Plex_Sans, Vazirmatn } from 'next/font/google'
 import { Courier_Prime } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
@@ -7,6 +7,14 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { FaviconSwitcher } from '@/components/favicon-switcher'
 import { HomeIntroSkipListener } from '@/components/intro-animation'
 import { SiteAssistant } from '@/components/site-assistant'
+import { PwaRegister } from '@/components/pwa-register'
+import { SeoJsonLd } from '@/components/seo-json-ld'
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+} from '@/lib/site'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -21,37 +29,78 @@ const vazirmatn = Vazirmatn({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  applicationName: SITE_NAME,
   title: {
-    default: 'Little Internet',
-    template: '%s · Little Internet',
+    default: `${SITE_NAME} — books, crypto, poetry & live tools by Reza Karbakhsh`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    'A small corner of the web — books, languages, maps, markets, photos, poems, and other live tools by Reza.',
+  description: SITE_DESCRIPTION,
   keywords: [
     'Little Internet',
     'Reza Karbakhsh',
+    'rezakarbakhsh',
     'books',
+    'crypto',
+    'bitcoin',
+    'Desk Pilot',
+    'forex',
     'dictionary',
-    'countries',
+    'wiktionary',
     'poetry',
     'photos',
-    'tools',
+    'currency converter',
+    'free tools',
+    'AI explorer',
   ],
-  authors: [{ name: 'Reza Karbakhsh' }],
+  authors: [{ name: 'Reza Karbakhsh', url: SITE_URL }],
+  creator: 'Reza Karbakhsh',
+  publisher: 'Reza Karbakhsh',
+  category: 'technology',
+  alternates: {
+    canonical: '/',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: SITE_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   openGraph: {
-    title: 'Little Internet',
-    description:
-      'A small corner of the web — books, languages, maps, and other live tools.',
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
     type: 'website',
-    siteName: 'Little Internet',
+    locale: 'en_US',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    images: [
+      {
+        url: '/opengraph-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Little Internet by Reza Karbakhsh',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Little Internet',
-    description:
-      'A small corner of the web — books, languages, maps, and other live tools.',
+    title: `${SITE_NAME} — books, crypto & live tools`,
+    description: SITE_DESCRIPTION,
+    images: ['/twitter-image.jpg'],
   },
-
   icons: {
     icon: [
       {
@@ -65,10 +114,33 @@ export const metadata: Metadata = {
       {
         url: '/icon-dark-32x32.png',
       },
+      {
+        url: '/icons/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        url: '/icons/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
     ],
-    apple: '/apple-icon.png',
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     shortcut: '/icon-dark-32x32.png',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8f8f8' },
+    { media: '(prefers-color-scheme: dark)', color: '#2f3437' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -81,6 +153,7 @@ export default function RootLayout({
       <body
         className={`${vazirmatn.variable} font-sans antialiased bg-[#f8f8f8] text-[#37352f] dark:bg-[#2f3437] dark:text-[hsla(0,0%,100%,0.9)]`}
       >
+        <SeoJsonLd />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -89,6 +162,7 @@ export default function RootLayout({
         >
           <FaviconSwitcher />
           <HomeIntroSkipListener />
+          <PwaRegister />
           {children}
           <SiteAssistant />
         </ThemeProvider>

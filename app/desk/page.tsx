@@ -23,16 +23,18 @@ const mark = Syne({
 export const metadata = {
   title: 'Desk — Pro market analysis',
   description:
-    'Live candles, EMA, RSI, MACD, volume, and a signal meter — built for clearer market decisions.',
+    'Live candles, EMA, RSI, MACD, volume, Desk Pilot buy/sell zones, and a signal meter — clearer crypto chart decisions.',
+  alternates: { canonical: '/desk' },
   openGraph: {
     title: 'Desk — Pro market analysis',
     description:
-      'Live candles, EMA, RSI, MACD, volume, and a signal meter — built for clearer market decisions.',
+      'Live candles, EMA, RSI, MACD, volume, Desk Pilot buy/sell zones, and a signal meter — clearer crypto chart decisions.',
+    url: '/desk',
   },
   twitter: {
     title: 'Desk — Pro market analysis',
     description:
-      'Live candles, EMA, RSI, MACD, volume, and a signal meter — built for clearer market decisions.',
+      'Live candles, EMA, RSI, MACD, volume, Desk Pilot buy/sell zones, and a signal meter — clearer crypto chart decisions.',
   },
 }
 

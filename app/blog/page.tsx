@@ -10,7 +10,16 @@ import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
 export const metadata = {
   title: 'Blog',
-  description: 'Personal writing by Reza Karbakhsh — notes on building, learning, and ideas worth keeping.',
+  description:
+    'Personal writing by Reza Karbakhsh — notes on building, learning, AI, and ideas worth keeping on Little Internet.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    title: 'Blog · Little Internet',
+    description:
+      'Personal writing by Reza Karbakhsh — notes on building, learning, AI, and ideas worth keeping.',
+    url: '/blog',
+    type: 'website',
+  },
 }
 
 export const dynamic = 'force-dynamic'

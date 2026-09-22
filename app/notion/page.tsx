@@ -8,6 +8,7 @@ import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 export const metadata = {
   title: 'Notes — Mini Notion',
   description: 'Create notes that sync directly to your Notion workspace',
+  robots: { index: false, follow: false },
 }
 
 

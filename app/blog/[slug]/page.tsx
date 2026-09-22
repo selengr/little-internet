@@ -9,6 +9,7 @@ import { CustomScrollbar } from '@/components/custom-scrollbar'
 import { getPostBySlug, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import { formatBlogDate } from '@/lib/blog-date'
+import { absoluteUrl, SITE_NAME, SITE_URL } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,16 +19,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
     const post = await getPostBySlug(slug)
-    if (!post) return { title: 'Post' }
+    if (!post) return { title: 'Post', robots: { index: false } }
+    const description =
+      post.summary ?? post.introduction ?? `Read “${post.title}” on Little Internet.`
+    const url = `/blog/${post.slug}`
+    const images = post.bannerImage
+      ? [{ url: post.bannerImage, alt: post.title }]
+      : undefined
     return {
       title: post.title,
-      description: post.summary ?? post.introduction ?? undefined,
-      openGraph: post.bannerImage
-        ? { images: [{ url: post.bannerImage }] }
-        : undefined,
+      description,
+      authors: [{ name: post.authorName || 'Reza Karbakhsh' }],
+      alternates: { canonical: url },
+      openGraph: {
+        type: 'article',
+        title: post.title,
+        description,
+        url,
+        images,
+        publishedTime: post.date ?? undefined,
+        modifiedTime: post.lastEdited ?? undefined,
+        authors: [post.authorName || 'Reza Karbakhsh'],
+        tags: post.tags?.length ? post.tags : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description,
+        images: post.bannerImage ? [post.bannerImage] : undefined,
+      },
     }
   } catch {
-    return { title: 'Post' }
+    return { title: 'Post', robots: { index: false } }
   }
 }
 
@@ -53,6 +76,32 @@ export default async function BlogPostPage({ params }: Props) {
   const date = formatBlogDate(post.date)
   const banner = post.bannerImage || '/images/banners/https___west.avif'
   const author = post.authorImage || BLOG_AUTHOR_IMAGE
+  const description =
+    post.summary ?? post.introduction ?? `Read “${post.title}” on ${SITE_NAME}.`
+
+  const articleLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description,
+    image: post.bannerImage ? [post.bannerImage] : undefined,
+    datePublished: post.date ?? undefined,
+    dateModified: post.lastEdited ?? post.date ?? undefined,
+    author: {
+      '@type': 'Person',
+      name: post.authorName || 'Reza Karbakhsh',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Person',
+      name: 'Reza Karbakhsh',
+      url: SITE_URL,
+    },
+    mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
+    url: absoluteUrl(`/blog/${post.slug}`),
+    keywords: post.tags?.join(', ') || undefined,
+    wordCount: post.readingMinutes ? post.readingMinutes * 200 : undefined,
+  }
 
   return (
     <main
@@ -60,6 +109,10 @@ export default async function BlogPostPage({ params }: Props) {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+      />
       <CustomScrollbar mobileOnly />
       <BlogNav label="POST" />
 

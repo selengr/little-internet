@@ -47,7 +47,13 @@ const Banner = ({ title, banner, user, home, blog, videoReady, children }: Props
       >
         <Image
           src={bannerSrc}
-          alt={title ? String(title) : 'Banner'}
+          alt={
+            title
+              ? String(title)
+              : home
+                ? 'Little Internet home banner — Reza Karbakhsh'
+                : 'Banner'
+          }
           width={1200}
           height={480}
           priority
@@ -80,7 +86,7 @@ const Banner = ({ title, banner, user, home, blog, videoReady, children }: Props
         )}
 
         <h1 className={styles['landing-title']}>
-          {title ? title : 'rezakarbakhsh.ir'}
+          {title ? title : home ? 'Little Internet' : 'rezakarbakhsh.ir'}
         </h1>
       </div>
 

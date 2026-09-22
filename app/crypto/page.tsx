@@ -21,15 +21,20 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Crypto',
-  description: 'Live coin prices.',
+  title: 'Crypto — live Bitcoin & coin prices',
+  description:
+    'Live cryptocurrency prices, market caps, and 24h moves — Bitcoin, Ethereum, and top coins on Little Internet.',
+  alternates: { canonical: '/crypto' },
   openGraph: {
-    title: 'Crypto',
-    description: 'Live coin prices.',
+    title: 'Crypto — live Bitcoin & coin prices',
+    description:
+      'Live cryptocurrency prices, market caps, and 24h moves — Bitcoin, Ethereum, and top coins.',
+    url: '/crypto',
   },
   twitter: {
-    title: 'Crypto',
-    description: 'Live coin prices.',
+    title: 'Crypto — live Bitcoin & coin prices',
+    description:
+      'Live cryptocurrency prices, market caps, and 24h moves — Bitcoin, Ethereum, and top coins.',
   },
 }
 
