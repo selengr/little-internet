@@ -26,10 +26,10 @@ const REFRESH_MS = 45_000
 const IMAGES = {
   /** Stacked bullion — hero price card */
   hero: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=85',
-  /** Close gold coins — atmosphere band */
-  coins: 'https://images.unsplash.com/photo-1624365168968-f201cffc2c7e?auto=format&fit=crop&w=2000&q=85',
-  /** Pouring molten / warm metal — karat section */
-  molten: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=1600&q=85',
+  /** Gold coins — atmosphere band */
+  coins: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=2000&q=85',
+  /** Warm gold bars — karat side panel */
+  molten: 'https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=1600&q=85',
   /** Markets screens — handoff to crypto */
   crypto: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=1600&q=85',
 } as const
