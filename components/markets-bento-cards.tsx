@@ -15,8 +15,8 @@ const CARD_IMAGES = {
   // Cool-toned dollar field — clear “currency convert” signal
   convert:
     'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1400&q=85',
-  // Glowing trading screens — atmospheric “markets ahead”
-  soon:
+  // Glowing trading screens — charts / candles
+  charts:
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1400&q=85',
 } as const
 
@@ -264,18 +264,18 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
-      <Link href="/desk" className="col-span-12 md:col-span-4 block">
+      <Link href="/charts" className="col-span-12 md:col-span-4 block">
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"
           delay={200}
-          image={CARD_IMAGES.soon}
+          image={CARD_IMAGES.charts}
           imagePosition="object-[center_40%]"
           wash="from-[#0a1210]/45 via-[#0a1210]/60 to-[#0a1210]/94"
         >
           <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Desk</p>
+                <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Charts</p>
                 <LiveBadge />
               </div>
               <CardArrow />
@@ -283,10 +283,10 @@ export function MarketsBentoCards() {
 
             <div className="mt-auto pt-10">
               <h3 className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white">
-                Market desk
+                Live charts
               </h3>
               <p className="mt-3 text-sm text-white/55 leading-relaxed max-w-[18rem]">
-                Charts and buy/sell tips for major coins.
+                Candles and buy/sell tips for major coins.
               </p>
             </div>
           </div>

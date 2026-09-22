@@ -20,7 +20,7 @@ function DeskFallback() {
 }
 
 const LINKS = [
-  { href: '/desk', label: 'Spot' },
+  { href: '/charts', label: 'Charts' },
   { href: '/crypto', label: 'Markets' },
   { href: '/convert', label: 'Convert' },
 ] as const
@@ -67,10 +67,10 @@ export function DeskShell({
         <div className="mx-auto max-w-[1600px] flex items-center justify-between gap-3 px-2 h-9">
           <div className="flex items-center gap-4 min-w-0">
             <Link
-              href="/desk"
+              href="/charts"
               className="font-[family-name:var(--font-dk-mark)] text-[14px] font-bold tracking-tight text-white shrink-0"
             >
-              DESK
+              CHARTS
             </Link>
             <DeskNavLinks />
           </div>

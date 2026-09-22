@@ -16,7 +16,7 @@ export default function OfflinePage() {
         You’re offline
       </h1>
       <p className="mt-4 max-w-sm text-sm leading-relaxed text-black/55 dark:text-white/55">
-        This page was saved on your device. Reconnect to browse books, crypto, desk, and the rest of
+        This page was saved on your device. Reconnect to browse books, crypto, charts, and the rest of
         the site.
       </p>
       <Link

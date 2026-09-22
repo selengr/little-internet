@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local file-based auth store (hashed passwords)
 /data/users.json
+
+# visitor device logs (PII — do not commit)
+/data/visitors.txt

@@ -9,6 +9,7 @@ import { HomeIntroSkipListener } from '@/components/intro-animation'
 import { SiteAssistant } from '@/components/site-assistant'
 import { PwaRegister } from '@/components/pwa-register'
 import { SeoJsonLd } from '@/components/seo-json-ld'
+import { VisitorLogger } from '@/components/visitor-logger'
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -44,6 +45,8 @@ export const metadata: Metadata = {
     'crypto',
     'bitcoin',
     'Desk Pilot',
+    'charts',
+    'crypto charts',
     'forex',
     'dictionary',
     'wiktionary',
@@ -163,6 +166,7 @@ export default function RootLayout({
           <FaviconSwitcher />
           <HomeIntroSkipListener />
           <PwaRegister />
+          <VisitorLogger />
           {children}
           <SiteAssistant />
         </ThemeProvider>

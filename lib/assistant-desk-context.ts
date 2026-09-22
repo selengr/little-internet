@@ -36,7 +36,7 @@ const ALIASES: { re: RegExp; id: string }[] = [
 ]
 
 const CRYPTO_TOPIC =
-  /\b(crypto|cryptocurrency|coin|token|altcoin|desk|pilot|chart|candles?)\b/i
+  /\b(crypto|cryptocurrency|coin|token|altcoin|desk|pilot|chart|charts|candles?)\b/i
 
 type CacheEntry = { at: number; text: string }
 const cache = new Map<string, CacheEntry>()
@@ -120,7 +120,7 @@ async function fetchAssetPilot(assetId: string): Promise<string | null> {
     const text = [
       `${meta.name} (${meta.symbol})`,
       `Price: ${formatUsd(price)} (24h ${formatPct(change24h)})`,
-      `Desk Pilot: ${actionLabel} — ${advice.tip}`,
+      `Chart Pilot: ${actionLabel} — ${advice.tip}`,
       `Buy around: ${buy}`,
       `Sell around: ${sell}`,
       `Bias: ${tape.bias}; RSI ${tape.rsi != null ? tape.rsi.toFixed(0) : 'n/a'}`,
@@ -134,7 +134,7 @@ async function fetchAssetPilot(assetId: string): Promise<string | null> {
   }
 }
 
-/** Live Desk Pilot snapshot for the site assistant when the user asks about crypto. */
+/** Live Chart Pilot snapshot for the site assistant when the user asks about crypto. */
 export async function buildAssistantDeskContext(userText: string): Promise<string | null> {
   if (!shouldAttachDeskContext(userText)) return null
   const ids = resolveDeskAssetsFromText(userText)
@@ -145,8 +145,8 @@ export async function buildAssistantDeskContext(userText: string): Promise<strin
   }
   if (!parts.length) return null
   return [
-    'DESK PILOT LIVE DATA (from this site’s /desk analysis — educational only, not financial advice):',
+    'CHART PILOT LIVE DATA (from this site’s /charts analysis — educational only, not financial advice):',
     parts.join('\n\n'),
-    'Use this data to answer simply: say what Desk Pilot leans (buy / sell / wait), the price zones, and remind them crypto is risky. Point them to /desk for the full chart if useful.',
+    'Use this data to answer simply: say what Chart Pilot leans (buy / sell / wait), the price zones, and remind them crypto is risky. Also point them to /crypto (prices), /charts (full candles), and /convert (currency) when relevant.',
   ].join('\n\n')
 }

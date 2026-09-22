@@ -15,6 +15,20 @@ const nextConfig = {
       new URL('https://images.unsplash.com/**'),
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/desk',
+        destination: '/charts',
+        permanent: true,
+      },
+      {
+        source: '/desk/:path*',
+        destination: '/charts/:path*',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

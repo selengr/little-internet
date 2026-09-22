@@ -11,7 +11,7 @@ export const SITE_TAGLINE =
   'Books, crypto markets, poetry, photos, dictionaries, and live tools — Reza Karbakhsh’s little corner of the web.'
 
 export const SITE_DESCRIPTION =
-  'Little Internet by Reza Karbakhsh — explore books, live crypto & forex, Desk Pilot, poetry, photos, jokes, dictionaries, maps, and other free tools in one friendly place.'
+  'Little Internet by Reza Karbakhsh — explore books, live crypto & forex, charts, poetry, photos, jokes, dictionaries, maps, and other free tools in one friendly place.'
 
 /** Public routes included in the sitemap (excludes auth, account, test, offline). */
 export const SITEMAP_ROUTES: {
@@ -23,7 +23,7 @@ export const SITEMAP_ROUTES: {
   { path: '/blog', changeFrequency: 'daily', priority: 0.9 },
   { path: '/books', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/crypto', changeFrequency: 'hourly', priority: 0.85 },
-  { path: '/desk', changeFrequency: 'hourly', priority: 0.85 },
+  { path: '/charts', changeFrequency: 'hourly', priority: 0.85 },
   { path: '/convert', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/forex', changeFrequency: 'hourly', priority: 0.75 },
   { path: '/photos', changeFrequency: 'weekly', priority: 0.7 },

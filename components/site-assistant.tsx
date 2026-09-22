@@ -9,6 +9,19 @@ type Msg = { role: 'user' | 'assistant'; content: string }
 
 const SUGGESTIONS = ['Books', 'Crypto', 'Something fun']
 
+const CRYPTO_TOOL_LINKS = [
+  { href: '/crypto', label: 'Crypto' },
+  { href: '/charts', label: 'Charts' },
+  { href: '/convert', label: 'Convert' },
+] as const
+
+const CRYPTO_ASK_RE =
+  /\b(crypto|bitcoin|btc|eth|ethereum|coin|token|chart|charts|convert|forex|buy|sell)\b/i
+
+function isCryptoAsk(text: string) {
+  return CRYPTO_ASK_RE.test(text) || /^crypto$/i.test(text.trim())
+}
+
 /** Arabic / Persian script — used for font + RTL on chat bubbles. */
 const PERSIAN_RE =
   /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/
@@ -24,7 +37,7 @@ const ASSISTANT_FONT =
   'var(--font-sans), Geist, var(--font-vazirmatn), "Vazirmatn", Tahoma, system-ui, sans-serif'
 
 const SITE_PATH_RE =
-  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
 
 function linkifySitePaths(text: string): ReactNode[] {
   const nodes: ReactNode[] = []
@@ -197,6 +210,8 @@ export function SiteAssistant() {
   }
 
   const showSuggestions = messages.length === 0 && !busy
+  const showCryptoTools =
+    !busy && messages.some(m => m.role === 'user' && isCryptoAsk(m.content))
 
   const panelHasPersian =
     hasPersian(input) || messages.some(m => hasPersian(m.content))
@@ -282,6 +297,19 @@ export function SiteAssistant() {
               </div>
             )
           })}
+          {showCryptoTools && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {CRYPTO_TOOL_LINKS.map(tool => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="rounded-full border border-black/[0.1] dark:border-white/[0.12] bg-black/[0.02] dark:bg-white/[0.04] px-3 py-1.5 text-[12px] text-black/55 dark:text-white/55 transition-colors hover:border-black/20 hover:text-black/80 dark:hover:border-white/25 dark:hover:text-white/80"
+                >
+                  {tool.label}
+                </Link>
+              ))}
+            </div>
+          )}
           <div ref={bottomRef} />
         </div>
 
