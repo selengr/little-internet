@@ -1,29 +1,27 @@
-import { Cormorant_Garamond, Syne } from 'next/font/google'
-import type { Metadata } from 'next'
-import { GoldVault } from '@/components/gold-vault'
+import { Instrument_Serif, JetBrains_Mono } from 'next/font/google'
+import { GoldShell } from '@/components/gold-shell'
 
-const display = Cormorant_Garamond({
+const display = Instrument_Serif({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: '400',
   style: ['normal', 'italic'],
-  variable: '--font-gold-display',
+  variable: '--font-gd-display',
 })
 
-const mark = Syne({
+const mono = JetBrains_Mono({
   subsets: ['latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-gold-mark',
+  weight: ['400', '500', '600'],
+  variable: '--font-gd-mono',
 })
 
-export const metadata: Metadata = {
-  title: 'Gold — live XAU vault',
+export const metadata = {
+  title: 'Gold — live XAU price',
   description:
-    'Live gold spot, karat-by-gram prices, forward futures curve, and the Dino.markets morning tape — then continue to crypto.',
+    'Live gold spot price, karat per gram, recent path, and forward curve — plus crypto prediction markets.',
   alternates: { canonical: '/gold' },
   openGraph: {
-    title: 'Gold — live XAU vault',
-    description:
-      'Live gold spot, karat-by-gram prices, forward futures curve, and the Dino morning tape.',
+    title: 'Gold — live XAU price',
+    description: 'Live gold spot, karat pricing, and a quiet look at the metal market.',
     url: '/gold',
   },
 }
@@ -31,9 +29,5 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default function GoldPage() {
-  return (
-    <main className={`${display.variable} ${mark.variable}`}>
-      <GoldVault />
-    </main>
-  )
+  return <GoldShell fontVars={`${display.variable} ${mono.variable}`} />
 }

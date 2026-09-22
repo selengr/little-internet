@@ -9,10 +9,13 @@ import { formatPct, formatUsd } from '@/lib/crypto-format'
 const REFRESH_MS = 30_000
 
 const CARD_IMAGES = {
+  // Gold bitcoin on dark keyboard — premium, readable under text
   crypto:
     'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=1400&q=85',
+  // Cool-toned dollar field — clear “currency convert” signal
   convert:
     'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1400&q=85',
+  // Glowing trading screens — charts / candles
   charts:
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1400&q=85',
 } as const
@@ -171,6 +174,7 @@ export function MarketsBentoCards() {
 
   return (
     <>
+      {/* Crypto — live BTC hero */}
       <Link href="/crypto" className="col-span-12 md:col-span-4 block">
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"
@@ -220,6 +224,7 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
+      {/* Convert — live USD → IRR */}
       <Link href="/convert" className="col-span-12 md:col-span-4 block">
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"

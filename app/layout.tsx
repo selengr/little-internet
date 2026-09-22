@@ -1,6 +1,6 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono, IBM_Plex_Sans, Vazirmatn } from 'next/font/google'
+import { Geist, Geist_Mono, Vazirmatn } from 'next/font/google'
 import { Courier_Prime } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -21,7 +21,6 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 const _courierPrime = Courier_Prime({ weight: ["400", "700"], subsets: ["latin"] });
-const _ibmPlexSans = IBM_Plex_Sans({ weight: ["300", "400", "500", "600"], subsets: ["latin"] });
 const vazirmatn = Vazirmatn({
   subsets: ['arabic', 'latin'],
   weight: ['400', '500', '600', '700'],

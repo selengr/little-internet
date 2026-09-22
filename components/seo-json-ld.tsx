@@ -44,7 +44,7 @@ export function SeoJsonLd() {
     name: 'Little Internet tools',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Crypto markets', url: absoluteUrl('/crypto') },
-      { '@type': 'ListItem', position: 2, name: 'Gold vault', url: absoluteUrl('/gold') },
+      { '@type': 'ListItem', position: 2, name: 'Gold', url: absoluteUrl('/gold') },
       { '@type': 'ListItem', position: 3, name: 'Charts', url: absoluteUrl('/charts') },
       { '@type': 'ListItem', position: 4, name: 'Books', url: absoluteUrl('/books') },
       { '@type': 'ListItem', position: 5, name: 'Blog', url: absoluteUrl('/blog') },
