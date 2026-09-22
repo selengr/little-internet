@@ -622,7 +622,7 @@ export function StudioView() {
             className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--st-mute)]"
             style={{ fontFamily: 'var(--st-mono)' }}
           >
-            Live · Pronunciation
+            Live · 
           </span>
         </div>
 
@@ -734,12 +734,12 @@ export function StudioView() {
 
             <div className="mt-3 flex flex-col gap-3 border-t border-[color:var(--st-line-soft)] pt-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-2">
-                <span
+                {/* <span
                   className="text-[9px] tracking-[0.18em] text-[color:var(--st-mute)]"
                   style={{ fontFamily: 'var(--st-mono)' }}
                 >
                   ACCENT BUS
-                </span>
+                </span> */}
                 <div
                   className="inline-flex rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-rack)] p-0.5"
                   role="group"
