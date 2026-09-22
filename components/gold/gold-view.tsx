@@ -23,8 +23,16 @@ type VoxRow = {
 
 const REFRESH_MS = 45_000
 
-const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=85'
+const IMAGES = {
+  /** Stacked bullion — hero price card */
+  hero: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=85',
+  /** Close gold coins — atmosphere band */
+  coins: 'https://images.unsplash.com/photo-1624365168968-f201cffc2c7e?auto=format&fit=crop&w=2000&q=85',
+  /** Pouring molten / warm metal — karat section */
+  molten: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&w=1600&q=85',
+  /** Markets screens — handoff to crypto */
+  crypto: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=1600&q=85',
+} as const
 
 const mono = { fontFamily: 'var(--font-cx-mono), ui-monospace, monospace' } as const
 const display = { fontFamily: 'var(--font-cx-display), Georgia, serif' } as const
@@ -44,6 +52,104 @@ function money(n: string | number | null | undefined, digits = 2) {
 function pctLabel(n: number) {
   const sign = n > 0 ? '+' : ''
   return `${sign}${n.toFixed(2)}%`
+}
+
+function Bone({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-md bg-[color:var(--cx-fg)]/[0.07]',
+        className,
+      )}
+    >
+      <div className="absolute inset-0 -translate-x-full animate-[gd-shimmer_1.6s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-[color:var(--cx-fg)]/[0.08] to-transparent" />
+    </div>
+  )
+}
+
+function GoldSkeleton() {
+  return (
+    <div className="space-y-0" aria-busy aria-label="Loading gold prices">
+      <style>{`
+        @keyframes gd-shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mb-10 md:mb-14">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
+          <div className="max-w-xl w-full space-y-4">
+            <Bone className="h-3 w-24" />
+            <Bone className="h-14 md:h-[4.5rem] w-[min(100%,18rem)] rounded-lg" />
+            <Bone className="h-4 w-full max-w-sm" />
+            <Bone className="h-4 w-2/3 max-w-xs" />
+          </div>
+          <div className="w-full max-w-sm rounded-2xl border border-[color:var(--cx-line)] overflow-hidden bg-[color:var(--cx-panel)] shadow-[var(--cx-shadow)]">
+            <Bone className="h-36 w-full rounded-none" />
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between">
+                <div className="space-y-2">
+                  <Bone className="h-4 w-16" />
+                  <Bone className="h-3 w-24" />
+                </div>
+                <Bone className="h-4 w-12 rounded-full" />
+              </div>
+              <Bone className="h-10 w-40" />
+              <div className="flex justify-between items-center">
+                <Bone className="h-5 w-16" />
+                <Bone className="h-9 w-[7.5rem]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="relative h-28 md:h-36 w-full overflow-hidden border-y border-[color:var(--cx-line)]">
+        <Bone className="absolute inset-0 rounded-none" />
+      </div>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-12">
+        <div className="overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)]">
+          <div className="grid grid-cols-2 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'px-4 py-6 space-y-3',
+                  i % 2 === 1 && 'border-l border-[color:var(--cx-line-soft)]',
+                  i >= 2 && 'border-t md:border-t-0 border-[color:var(--cx-line-soft)]',
+                  i === 2 && 'md:border-l',
+                )}
+              >
+                <Bone className="h-3 w-14" />
+                <Bone className="h-7 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-12 md:mt-16">
+        <Bone className="h-3 w-20 mb-3" />
+        <Bone className="h-9 w-48 mb-6" />
+        <div className="grid sm:grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] p-4 space-y-4"
+            >
+              <Bone className="h-10 w-full" />
+              <Bone className="h-1.5 w-full rounded-full" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-14 md:mt-20 mb-4">
+        <Bone className="h-36 w-full rounded-2xl" />
+      </section>
+    </div>
+  )
 }
 
 function Sparkline({ bars }: { bars: GoldBar[] }) {
@@ -138,19 +244,7 @@ export function GoldView() {
     ]
   }, [data])
 
-  if (loading && !data) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-10 space-y-6">
-        <div className="h-16 w-48 bg-[color:var(--cx-fg)]/10 animate-pulse" />
-        <div className="h-24 w-full max-w-xl bg-[color:var(--cx-fg)]/10 animate-pulse" />
-        <div className="grid md:grid-cols-4 gap-px">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 bg-[color:var(--cx-fg)]/8 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    )
-  }
+  if (loading && !data) return <GoldSkeleton />
 
   if (error && !data) {
     return (
@@ -164,8 +258,8 @@ export function GoldView() {
 
   return (
     <div className="space-y-0">
-      {/* Hero — crypto layout */}
-      <section className="max-w-6xl mx-auto px-6 md:px-10 mb-10 md:mb-14">
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mb-10 md:mb-12">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -196,14 +290,14 @@ export function GoldView() {
             transition={{ delay: 0.12, duration: 0.55 }}
             className="relative overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] backdrop-blur-sm min-w-[min(100%,320px)] w-full max-w-sm shadow-[var(--cx-shadow)]"
           >
-            <div className="relative h-36 overflow-hidden">
+            <div className="relative h-40 overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={HERO_IMAGE}
+                src={IMAGES.hero}
                 alt="Gold bullion bars"
-                className="absolute inset-0 w-full h-full object-cover object-center"
+                className="absolute inset-0 w-full h-full object-cover object-[center_40%] scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--cx-panel)] via-[color:var(--cx-panel)]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--cx-panel)] via-[color:var(--cx-panel)]/50 to-black/10" />
             </div>
 
             <div className="relative px-6 pb-6 pt-1">
@@ -257,41 +351,95 @@ export function GoldView() {
         </motion.div>
       </section>
 
-      {/* Karat ledger — crypto global strip style */}
+      {/* Atmosphere band */}
+      <div className="relative h-32 md:h-44 w-full overflow-hidden border-y border-[color:var(--cx-line)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={IMAGES.coins}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-[color:var(--cx-bg)]/55 dark:bg-[color:var(--cx-bg)]/65" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--cx-bg)] via-transparent to-[color:var(--cx-bg)]" />
+        <div className="relative h-full max-w-6xl mx-auto px-6 md:px-10 flex items-center">
+          <p
+            className="text-[11px] md:text-sm uppercase tracking-[0.28em] text-[color:var(--cx-fg)]/80"
+            style={mono}
+          >
+            Troy ounce · karat · prediction tape
+          </p>
+        </div>
+      </div>
+
+      {/* Karat + molten visual */}
       {karats.length > 0 && (
-        <section className="max-w-6xl mx-auto px-6 md:px-10 mt-2 md:mt-4">
-          <div className="overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)]">
-            <div className="grid grid-cols-2 md:grid-cols-4">
-              {karats.map((row, i) => (
-                <div
-                  key={row.k}
-                  className={cn(
-                    'px-4 py-5 md:py-6',
-                    i % 2 === 1 && 'border-l border-[color:var(--cx-line-soft)]',
-                    i >= 2 && 'border-t md:border-t-0 border-[color:var(--cx-line-soft)]',
-                    i === 2 && 'md:border-l',
-                  )}
+        <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-14">
+          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-4 md:gap-5">
+            <div className="overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)]">
+              <div className="px-4 pt-5 pb-2 md:px-5">
+                <p
+                  className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-1"
+                  style={mono}
                 >
-                  <p
-                    className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
-                    style={mono}
+                  Per gram
+                </p>
+                <h2 className="text-xl md:text-2xl tracking-tight" style={display}>
+                  Karat ladder
+                </h2>
+              </div>
+              <div className="grid grid-cols-2">
+                {karats.map((row, i) => (
+                  <div
+                    key={row.k}
+                    className={cn(
+                      'px-4 py-5 md:px-5 md:py-6',
+                      i % 2 === 1 && 'border-l border-[color:var(--cx-line-soft)]',
+                      i >= 2 && 'border-t border-[color:var(--cx-line-soft)]',
+                    )}
                   >
-                    {row.k} / g
-                  </p>
-                  <p
-                    className="text-xl md:text-2xl tabular-nums tracking-tight text-[color:var(--cx-fg)]"
-                    style={mono}
-                  >
-                    {money(row.v)}
-                  </p>
-                </div>
-              ))}
+                    <p
+                      className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
+                      style={mono}
+                    >
+                      {row.k}
+                    </p>
+                    <p
+                      className="text-xl md:text-2xl tabular-nums tracking-tight text-[color:var(--cx-fg)]"
+                      style={mono}
+                    >
+                      {money(row.v)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative min-h-[220px] overflow-hidden rounded-2xl border border-[color:var(--cx-line)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={IMAGES.molten}
+                alt="Gold texture"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                <p
+                  className="text-[10px] uppercase tracking-[0.24em] text-white/60 mb-2"
+                  style={mono}
+                >
+                  Metal value
+                </p>
+                <p className="text-white text-lg md:text-xl font-light leading-snug" style={display}>
+                  Purity-adjusted grams from live spot
+                </p>
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* VoxOdds — compact */}
+      {/* VoxOdds */}
       {odds.length > 0 && (
         <section className="max-w-6xl mx-auto px-6 md:px-10 mt-12 md:mt-16">
           <div className="flex items-end justify-between gap-4 mb-5">
@@ -346,31 +494,39 @@ export function GoldView() {
         </section>
       )}
 
-      {/* Next → crypto */}
+      {/* Next → crypto with image */}
       <section className="max-w-6xl mx-auto px-6 md:px-10 mt-14 md:mt-20 mb-4">
-        <div className="rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] px-6 py-8 md:px-8 md:py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div>
-            <p
-              className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
-              style={mono}
+        <div className="relative overflow-hidden rounded-2xl border border-[color:var(--cx-line)] min-h-[200px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={IMAGES.crypto}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover object-[center_35%]"
+          />
+          <div className="absolute inset-0 bg-[#0f1419]/72" />
+          <div className="relative px-6 py-10 md:px-10 md:py-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <p
+                className="text-[10px] uppercase tracking-[0.28em] text-white/55 mb-2"
+                style={mono}
+              >
+                Next
+              </p>
+              <h2 className="text-2xl md:text-3xl tracking-tight text-white" style={display}>
+                Crypto markets
+              </h2>
+              <p className="mt-1 text-sm text-white/60">Bitcoin, Ethereum, and the live tape.</p>
+            </div>
+            <Link
+              href="/crypto"
+              className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[13px] font-medium tracking-wide bg-white text-[#10141a] hover:bg-white/90 transition-colors"
+              style={mark}
             >
-              Next
-            </p>
-            <h2 className="text-2xl md:text-3xl tracking-tight" style={display}>
-              Crypto markets
-            </h2>
-            <p className="mt-1 text-sm text-[color:var(--cx-mute)]">
-              Bitcoin, Ethereum, and the live tape.
-            </p>
+              Open crypto
+              <ArrowRight className="size-4" />
+            </Link>
           </div>
-          <Link
-            href="/crypto"
-            className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[13px] font-medium tracking-wide bg-[color:var(--cx-fg)] text-[color:var(--cx-bg)] hover:opacity-90 transition-opacity"
-            style={mark}
-          >
-            Open crypto
-            <ArrowRight className="size-4" />
-          </Link>
         </div>
       </section>
     </div>
