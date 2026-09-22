@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/theme-provider'
 
 const LIGHT_ICON = '/icon-light-32x32.png'
 const DARK_ICON = '/icon-dark-32x32.png'

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/theme-provider'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'

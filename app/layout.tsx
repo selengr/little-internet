@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Vazirmatn, Courier_Prime } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeScript } from '@/components/theme-script'
 import { FaviconSwitcher } from '@/components/favicon-switcher'
 import { HomeIntroSkipListener } from '@/components/intro-animation'
 import { SiteAssistant } from '@/components/site-assistant'
@@ -155,6 +156,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <ThemeScript storageKey="light-theme" defaultTheme="light" />
       <body
         className={`${geist.variable} ${geistMono.variable} ${courierPrime.variable} ${vazirmatn.variable} font-sans antialiased bg-[#f8f8f8] text-[#37352f] dark:bg-[#2f3437] dark:text-[hsla(0,0%,100%,0.9)]`}
       >
