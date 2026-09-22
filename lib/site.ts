@@ -30,6 +30,7 @@ export const SITEMAP_ROUTES: {
   { path: '/photos', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/poetry', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/dictionary', changeFrequency: 'weekly', priority: 0.7 },
+  { path: '/studio', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/wiktionary', changeFrequency: 'weekly', priority: 0.65 },
   { path: '/countries', changeFrequency: 'monthly', priority: 0.65 },
   { path: '/location', changeFrequency: 'monthly', priority: 0.6 },

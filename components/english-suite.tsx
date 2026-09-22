@@ -91,10 +91,10 @@ const ENGLISH_TOOLS: Tool[] = [
   {
     n: '04',
     title: 'Pronunciation Studio',
-    whisper: 'Soon',
-    desc: 'Accent training with studio-quality voice comparisons — coming next.',
-    href: null,
-    live: false,
+    whisper: 'Hear it',
+    desc: 'Type a word and hear real people say it in authentic videos — US, UK, AUS.',
+    href: '/studio',
+    live: true,
     // Vinyl / music atmosphere — sound and voice
     image:
       'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1800&q=85',
@@ -301,7 +301,7 @@ export function EnglishSuiteSection() {
               {'Enjoy English.'}
             </RevealText>
             <p className="mt-5 text-sm md:text-base text-muted-foreground leading-relaxed max-w-md">
-              Language tools dressed like posters — dictionary and Wiktionary live now.
+              Language tools dressed like posters — dictionary, Wiktionary, and pronunciation studio.
             </p>
           </div>
           <p
