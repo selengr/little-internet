@@ -12,14 +12,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import {
   AlertCircle,
   Clock3,
-  ExternalLink,
   Mic2,
   Play,
   RotateCcw,
   Search,
   Sparkles,
+  Volume2,
   X,
-  Youtube,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type {
@@ -92,21 +91,21 @@ function ShimmerBlock({ className }: { className?: string }) {
 
 function ResultsSkeleton() {
   return (
-    <div className="space-y-3" aria-busy aria-label="Searching for clips">
+    <div className="space-y-3.5" aria-busy aria-label="Searching for clips">
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-[color:var(--st-line)] bg-[color:var(--st-panel)] p-4 md:p-5"
+          className="rounded-[1.35rem] border border-[color:var(--st-line)] bg-[color:var(--st-panel)] p-3.5 sm:p-4"
           style={{ animation: `st-fade-up 0.5s ease ${i * 70}ms both` }}
         >
-          <div className="flex gap-3">
-            <ShimmerBlock className="size-11 shrink-0 rounded-xl" />
-            <div className="min-w-0 flex-1 space-y-2.5">
-              <ShimmerBlock className="h-4 w-[88%]" />
-              <ShimmerBlock className="h-3.5 w-[62%]" />
+          <div className="flex gap-3.5">
+            <ShimmerBlock className="size-[4.25rem] shrink-0 rounded-xl sm:size-[4.75rem]" />
+            <div className="min-w-0 flex-1 space-y-2.5 py-1">
+              <ShimmerBlock className="h-3 w-20" />
+              <ShimmerBlock className="h-4 w-[90%]" />
               <div className="flex gap-2 pt-1">
-                <ShimmerBlock className="h-6 w-16 rounded-full" />
-                <ShimmerBlock className="h-6 w-28 rounded-full" />
+                <ShimmerBlock className="h-6 w-14 rounded-full" />
+                <ShimmerBlock className="h-6 w-24 rounded-full" />
               </div>
             </div>
           </div>
@@ -198,7 +197,7 @@ function MetaChips({ hit }: { hit: SayItVidHit }) {
       </span>
       {hit.channel_name ? (
         <span className="inline-flex max-w-[16rem] items-center gap-1.5 truncate">
-          <Youtube className="size-3 shrink-0 opacity-70" />
+          <Volume2 className="size-3 shrink-0 opacity-70" />
           <span className="truncate">{hit.channel_name}</span>
         </span>
       ) : null}
@@ -212,143 +211,235 @@ function MetaChips({ hit }: { hit: SayItVidHit }) {
   )
 }
 
+function thumbUrl(videoId: string) {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+}
+
+function embedUrl(videoId: string, startSec: number, replayKey: number) {
+  const start = Math.max(0, Math.floor(startSec))
+  // Regular youtube.com embed (not nocookie) + load only after a user tap reduces bot walls.
+  // replayKey busts cache so Replay remounts cleanly.
+  const origin =
+    typeof window !== 'undefined' ? encodeURIComponent(window.location.origin) : ''
+  return `https://www.youtube.com/embed/${videoId}?start=${start}&autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1${origin ? `&origin=${origin}` : ''}&rk=${replayKey}`
+}
+
+function ListenBars({ className }: { className?: string }) {
+  return (
+    <span className={cn('inline-flex h-3.5 items-end gap-[3px]', className)} aria-hidden>
+      {[0, 1, 2, 3].map(i => (
+        <span
+          key={i}
+          className="w-[2.5px] rounded-full bg-current"
+          style={{
+            height: '100%',
+            animation: `st-listen ${0.7 + i * 0.12}s ease-in-out ${i * 0.1}s infinite`,
+          }}
+        />
+      ))}
+    </span>
+  )
+}
+
 function ClipCard({
   hit,
   query,
   active,
-  onPlay,
+  mediaOn,
+  replayKey,
+  take,
+  onSelect,
+  onStartMedia,
+  onReplay,
+  onClose,
   index,
 }: {
   hit: SayItVidHit
   query: string
   active: boolean
-  onPlay: () => void
+  mediaOn: boolean
+  replayKey: number
+  take: number
+  onSelect: () => void
+  onStartMedia: () => void
+  onReplay: () => void
+  onClose: () => void
   index: number
 }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!active) return
+    const t = window.setTimeout(() => {
+      cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 60)
+    return () => window.clearTimeout(t)
+  }, [active])
+
   return (
-    <button
-      type="button"
-      onClick={onPlay}
-      aria-pressed={active}
-      aria-label={`Play clip: ${hit.text}`}
+    <div
+      ref={cardRef}
       className={cn(
-        'group w-full rounded-2xl border text-left transition-all duration-300',
-        'bg-[color:var(--st-panel)] border-[color:var(--st-line)]',
-        'hover:border-[color:var(--st-accent)]/35 hover:shadow-[var(--st-shadow)]',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--st-accent)]/40',
-        active &&
-          'border-[color:var(--st-accent)]/55 shadow-[var(--st-shadow)] ring-1 ring-[color:var(--st-accent)]/30',
+        'overflow-hidden rounded-[1.35rem] border bg-[color:var(--st-panel)] backdrop-blur-sm transition-all duration-300',
+        active
+          ? 'border-[color:var(--st-accent)]/45 shadow-[var(--st-shadow)] ring-1 ring-[color:var(--st-accent)]/20'
+          : 'border-[color:var(--st-line)] hover:border-[color:var(--st-accent)]/28 hover:shadow-[var(--st-shadow)]',
       )}
-      style={{ animation: `st-fade-up 0.55s ease ${Math.min(index, 8) * 55}ms both` }}
+      style={{ animation: `st-fade-up 0.55s ease ${Math.min(index, 8) * 50}ms both` }}
     >
-      <div className="flex gap-3.5 p-4 md:gap-4 md:p-5">
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-expanded={active}
+        aria-label={active ? `Selected take ${take}: ${hit.text}` : `Open take ${take}: ${hit.text}`}
+        className="group flex w-full gap-3.5 p-3.5 text-left sm:gap-4 sm:p-4 md:p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--st-accent)]/40"
+      >
         <div
-          className={cn(
-            'relative flex size-11 shrink-0 items-center justify-center rounded-xl border transition-colors duration-300',
-            active
-              ? 'border-[color:var(--st-accent)] bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)]'
-              : 'border-[color:var(--st-line)] bg-[color:var(--st-accent-soft)] text-[color:var(--st-accent)] group-hover:border-[color:var(--st-accent)]/40',
-          )}
+          className="relative size-[4.25rem] shrink-0 overflow-hidden rounded-xl sm:size-[4.75rem]"
+          style={{ background: 'var(--st-thumb)' }}
         >
-          {!active && (
-            <span
-              className="pointer-events-none absolute inset-0 rounded-xl"
-              style={{ animation: 'st-pulse-ring 2.2s ease-out infinite' }}
-              aria-hidden
-            />
-          )}
-          <Play className={cn('size-4', active && 'fill-current')} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={thumbUrl(hit.video_id)}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10" />
+          <span
+            className={cn(
+              'absolute bottom-1.5 left-1.5 inline-flex items-center justify-center rounded-md px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-white/95',
+              'bg-black/55 backdrop-blur-sm',
+            )}
+            style={{ fontFamily: 'var(--st-mono)' }}
+          >
+            {String(take).padStart(2, '0')}
+          </span>
+          <span
+            className={cn(
+              'absolute inset-0 flex items-center justify-center transition-opacity',
+              active ? 'opacity-0' : 'opacity-100',
+            )}
+          >
+            <span className="inline-flex size-9 items-center justify-center rounded-full bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)] shadow-lg ring-2 ring-[color:var(--st-on-accent)]/35">
+              <Play className="size-3.5 fill-current translate-x-[1px]" />
+            </span>
+          </span>
         </div>
 
-        <div className="min-w-0 flex-1 space-y-3">
+        <div className="min-w-0 flex-1 space-y-2.5 py-0.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span
+              className={cn(
+                'text-[10px] font-semibold uppercase tracking-[0.16em]',
+                active ? 'text-[color:var(--st-accent)]' : 'text-[color:var(--st-mute)]',
+              )}
+            >
+              {active ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <ListenBars className="text-[color:var(--st-accent)]" />
+                  Open now
+                </span>
+              ) : (
+                `Take ${String(take).padStart(2, '0')}`
+              )}
+            </span>
+            <span className="text-[10px] text-[color:var(--st-mute)]/70" style={{ fontFamily: 'var(--st-mono)' }}>
+              {Math.max(1, Math.round(hit.duration))}s
+            </span>
+          </div>
           <TranscriptLine hit={hit} query={query} size="sm" />
           <MetaChips hit={hit} />
         </div>
-      </div>
-    </button>
-  )
-}
+      </button>
 
-function PlayerPanel({
-  hit,
-  query,
-  onClose,
-  onReplay,
-  replayKey,
-}: {
-  hit: SayItVidHit
-  query: string
-  onClose: () => void
-  onReplay: () => void
-  replayKey: number
-}) {
-  const start = Math.max(0, Math.floor(hit.start_time))
-  const end = Math.max(start + 1, Math.ceil(hit.start_time + (hit.duration || 6)))
-  const src = `https://www.youtube-nocookie.com/embed/${hit.video_id}?start=${start}&end=${end}&autoplay=1&rel=0&modestbranding=1`
-  const watchUrl = `https://www.youtube.com/watch?v=${hit.video_id}&t=${start}s`
+      <AnimatePresence initial={false}>
+        {active ? (
+          <motion.div
+            key="panel"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t border-[color:var(--st-line-soft)]"
+          >
+            <div className="space-y-4 px-4 pb-4 pt-4 md:px-5 md:pb-5">
+              <div className="flex items-start justify-between gap-3">
+                <blockquote className="min-w-0 flex-1">
+                  <TranscriptLine hit={hit} query={query} size="lg" />
+                </blockquote>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-[color:var(--st-line)] text-[color:var(--st-mute)] transition-colors hover:text-[color:var(--st-fg)]"
+                  aria-label="Close clip"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
 
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 16, scale: 0.985 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 10, scale: 0.99 }}
-      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-      className="overflow-hidden rounded-2xl border border-[color:var(--st-line)] bg-[color:var(--st-panel)] shadow-[var(--st-shadow)]"
-    >
-      <div className="border-b border-[color:var(--st-line-soft)] px-4 py-3.5 md:px-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[color:var(--st-mute)]">
-              Now playing
-            </p>
-            <TranscriptLine hit={hit} query={query} size="lg" />
-            <div className="mt-3">
-              <MetaChips hit={hit} />
+              <div
+                className="relative aspect-video overflow-hidden rounded-2xl shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--st-fg)_8%,transparent)]"
+                style={{ background: 'var(--st-thumb)' }}
+              >
+                {!mediaOn ? (
+                  <button
+                    type="button"
+                    onClick={onStartMedia}
+                    className="group/play absolute inset-0 flex items-center justify-center"
+                    aria-label="Play this clip"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={thumbUrl(hit.video_id)}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover opacity-85 transition-all duration-500 group-hover/play:scale-[1.02] group-hover/play:opacity-95"
+                    />
+                    <span className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-black/30" />
+                    <span className="relative z-[1] flex flex-col items-center gap-3">
+                      <span className="inline-flex size-16 items-center justify-center rounded-full bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)] shadow-[0_12px_40px_-8px_color-mix(in_srgb,var(--st-accent)_65%,transparent)] transition-transform duration-300 group-hover/play:scale-105">
+                        <Play className="size-6 fill-current translate-x-[2px]" />
+                      </span>
+                      <span
+                        className="rounded-full bg-black/45 px-3.5 py-1.5 text-[12px] font-medium tracking-wide text-white/95 backdrop-blur-md"
+                        style={{ fontFamily: 'var(--st-mark)' }}
+                      >
+                        Play · starts at the word
+                      </span>
+                    </span>
+                  </button>
+                ) : (
+                  <iframe
+                    key={`${hit.id}-${replayKey}`}
+                    title={`Pronunciation clip: ${hit.text}`}
+                    src={embedUrl(hit.video_id, hit.start_time, replayKey)}
+                    className="absolute inset-0 h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {mediaOn ? (
+                  <button
+                    type="button"
+                    onClick={onReplay}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[color:var(--st-accent)] px-3.5 py-2.5 text-[12px] font-medium text-[color:var(--st-on-accent)] transition-opacity hover:opacity-90"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    Hear again
+                  </button>
+                ) : null}
+                <p className="max-w-sm text-[11px] leading-snug text-[color:var(--st-mute)]">
+                  Prefer another voice? Close this take and open the next one.
+                </p>
+              </div>
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-[color:var(--st-line)] text-[color:var(--st-mute)] transition-colors hover:border-[color:var(--st-line)] hover:text-[color:var(--st-fg)]"
-            aria-label="Close player"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        <div className="mt-3.5 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onReplay}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[color:var(--st-line)] bg-[color:var(--st-bg)]/55 px-3 py-2 text-[12px] font-medium text-[color:var(--st-fg)]/85 transition-colors hover:border-[color:var(--st-accent)]/40 hover:text-[color:var(--st-fg)]"
-          >
-            <RotateCcw className="size-3.5 text-[color:var(--st-accent)]" />
-            Replay clip
-          </button>
-          <a
-            href={watchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[color:var(--st-line)] bg-[color:var(--st-bg)]/55 px-3 py-2 text-[12px] font-medium text-[color:var(--st-fg)]/85 transition-colors hover:border-[color:var(--st-accent)]/40 hover:text-[color:var(--st-fg)]"
-          >
-            <ExternalLink className="size-3.5 opacity-70" />
-            Open on YouTube
-          </a>
-        </div>
-      </div>
-
-      <div className="relative aspect-video bg-black/90">
-        <iframe
-          key={`${hit.id}-${replayKey}-${src}`}
-          title={`Pronunciation clip: ${hit.text}`}
-          src={src}
-          className="absolute inset-0 h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
   )
 }
 
@@ -410,12 +501,11 @@ export function StudioView() {
   const [total, setTotal] = useState<number | null>(null)
   const [quota, setQuota] = useState<SayItVidQuota | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [mediaOn, setMediaOn] = useState(false)
   const [replayKey, setReplayKey] = useState(0)
   const [searchedWord, setSearchedWord] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const playerRef = useRef<HTMLDivElement>(null)
 
-  const activeHit = hits.find(h => h.id === activeId) ?? null
   const remainingLabel = quotaCopy(quota?.remaining)
   const resetsLabel = formatResetsIn(quota?.resets_in_seconds)
   const quotaExhausted = quota != null && quota.remaining <= 0
@@ -445,6 +535,7 @@ export function StudioView() {
       setErrorKind(null)
       setBooted(true)
       setActiveId(null)
+      setMediaOn(false)
       setSearchedWord(term)
 
       try {
@@ -480,6 +571,11 @@ export function StudioView() {
         if (!(json.hits?.length > 0)) {
           setErrorKind('empty')
           setError(`No clips found for “${term}”. Try a different word or accent.`)
+        } else {
+          // Open the first take so the booth is one tap from Play
+          setActiveId(json.hits[0].id)
+          setMediaOn(false)
+          setReplayKey(0)
         }
       } catch {
         setHits([])
@@ -498,34 +594,53 @@ export function StudioView() {
     void search(query)
   }
 
-  const playHit = (hit: SayItVidHit) => {
-    setReplayKey(0)
+  const selectHit = (hit: SayItVidHit) => {
+    if (activeId === hit.id) {
+      setActiveId(null)
+      setMediaOn(false)
+      return
+    }
     setActiveId(hit.id)
-    requestAnimationFrame(() => {
-      playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    })
+    setMediaOn(false)
+    setReplayKey(0)
   }
 
   const activeAccent = ACCENTS.find(a => a.id === accent)
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6">
-      {/* First viewport: brand + plain promise + search as the action */}
-      <header className="mb-7 md:mb-9" style={{ animation: 'st-fade-up 0.6s ease both' }}>
-        <p className="mb-4 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-[color:var(--st-mute)]">
-          <Mic2 className="size-3.5 text-[color:var(--st-accent)]" />
-          Pronunciation practice
-        </p>
+      <header className="mb-8 md:mb-10" style={{ animation: 'st-fade-up 0.6s ease both' }}>
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <span
+            className="inline-flex items-center gap-2 rounded-lg border border-[color:var(--st-line)] bg-[color:var(--st-rack)] px-2.5 py-1.5"
+            style={{ fontFamily: 'var(--st-mono)' }}
+          >
+            <span className="size-1.5 rounded-full bg-[color:var(--st-signal)] shadow-[0_0_8px_var(--st-signal)]" />
+            <span className="text-[9px] tracking-[0.2em] text-[color:var(--st-mute)]">CH · PRONUNCIATION</span>
+          </span>
+          <span
+            className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--st-mute)]"
+            style={{ fontFamily: 'var(--st-mono)' }}
+          >
+            Live · Pronunciation
+          </span>
+        </div>
 
         <h1
-          className="text-[clamp(2.6rem,8vw,4rem)] font-semibold leading-[0.98] tracking-tight text-[color:var(--st-fg)]"
+          className="text-[clamp(2.9rem,9vw,4.5rem)] font-semibold leading-[0.92] tracking-tight text-[color:var(--st-fg)]"
           style={{ fontFamily: 'var(--st-mark)' }}
         >
-          Studio
+          Magic{' '}
+          <span
+            className="text-[color:var(--st-accent)]"
+            style={{ fontFamily: 'var(--st-display)', fontStyle: 'italic', fontWeight: 400 }}
+          >
+            Studio
+          </span>
         </h1>
-        <p className="mt-3 max-w-lg text-base leading-relaxed text-[color:var(--st-mute)] md:text-[17px]">
-          Type an English word. Hear real people say it in short video clips — American, British, or
-          Australian.
+        <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[color:var(--st-mute)] md:text-base">
+          A quiet booth for real speech. Type a word, open a take, tap Play — hear how people actually
+          say it.
         </p>
       </header>
 
@@ -534,99 +649,155 @@ export function StudioView() {
         className="relative z-10"
         style={{ animation: 'st-fade-up 0.65s ease 70ms both' }}
       >
-        <label htmlFor="studio-word" className="sr-only">
-          English word to hear
-        </label>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[color:var(--st-mute)]" />
-            <input
-              id="studio-word"
-              ref={inputRef}
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Type a word — try schedule or tomato"
-              autoComplete="off"
-              spellCheck={false}
-              className={cn(
-                'h-14 w-full rounded-2xl border border-[color:var(--st-line)] bg-[color:var(--st-panel)]',
-                'pl-11 pr-4 text-[16px] text-[color:var(--st-fg)] shadow-[var(--st-shadow)]',
-                'placeholder:text-[color:var(--st-mute)]/70',
-                'outline-none transition-shadow focus:border-[color:var(--st-accent)]/45 focus:ring-2 focus:ring-[color:var(--st-accent)]/20',
-              )}
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading || !query.trim() || quotaExhausted}
-            className={cn(
-              'h-14 shrink-0 rounded-2xl px-6 text-sm font-medium tracking-wide transition-all duration-200',
-              'bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)]',
-              'hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-45',
-              'sm:min-w-[8rem]',
-            )}
-            style={{ fontFamily: 'var(--st-mark)' }}
-          >
-            {loading ? 'Searching…' : 'Hear it'}
-          </button>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="mb-2 text-[11px] text-[color:var(--st-mute)]">
-              Accent
-              {activeAccent ? (
-                <span className="text-[color:var(--st-fg)]/55"> · {activeAccent.plain}</span>
-              ) : null}
-            </p>
-            <div
-              className="inline-flex rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-panel)] p-1"
-              role="group"
-              aria-label="Accent filter"
-            >
-              {ACCENTS.map(opt => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  title={opt.plain}
-                  onClick={() => {
-                    setAccent(opt.id)
-                    if (booted && searchedWord) void search(searchedWord, opt.id)
+        {/* Rack console */}
+        <div className="overflow-hidden rounded-[1.35rem] border border-[color:var(--st-line)] bg-[color:var(--st-panel)] shadow-[var(--st-shadow)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[color:var(--st-line-soft)] bg-[color:var(--st-rack)] px-3.5 py-2 sm:px-4">
+            <div className="flex items-center gap-2">
+              <span
+                className="size-2 rounded-full"
+                style={{
+                  background: 'var(--st-on-air-dot)',
+                  animation: 'st-on-air 1.8s ease-in-out infinite',
+                }}
+              />
+              <span className="size-2 rounded-full bg-[color:var(--st-accent)]/80" />
+              <span className="size-2 rounded-full bg-[color:var(--st-signal)]/70" />
+              <span
+                className="ml-2 text-[9px] tracking-[0.22em] text-[color:var(--st-mute)]"
+                style={{ fontFamily: 'var(--st-mono)' }}
+              >
+                INPUT · WORD ENGINE
+              </span>
+            </div>
+            <div className="hidden items-end gap-[3px] sm:flex" aria-hidden>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="w-[3px] rounded-sm bg-[color:var(--st-accent)]/70"
+                  style={{
+                    height: `${8 + ((i * 7) % 14)}px`,
+                    animation: `st-listen ${0.65 + (i % 5) * 0.1}s ease-in-out ${i * 0.05}s infinite`,
                   }}
-                  className={cn(
-                    'rounded-full px-3.5 py-1.5 text-[11px] tracking-[0.12em] uppercase transition-colors',
-                    accent === opt.id
-                      ? 'bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)]'
-                      : 'text-[color:var(--st-mute)] hover:text-[color:var(--st-fg)]',
-                  )}
-                >
-                  {opt.short}
-                </button>
+                />
               ))}
             </div>
           </div>
 
-          {remainingLabel ? (
-            <p
-              className={cn(
-                'text-[12px] sm:text-right',
-                quotaExhausted ? 'text-[color:var(--st-warm)]' : 'text-[color:var(--st-mute)]',
-              )}
-              style={{ fontFamily: 'var(--st-mono)' }}
-            >
-              {remainingLabel}
-              {resetsLabel && quotaExhausted ? (
-                <span className="mt-0.5 block text-[11px] opacity-80">{resetsLabel}</span>
+          <div className="p-3 sm:p-3.5">
+            <label htmlFor="studio-word" className="sr-only">
+              English word to hear
+            </label>
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch">
+              <div className="relative min-w-0 flex-1">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[color:var(--st-mute)]" />
+                <input
+                  id="studio-word"
+                  ref={inputRef}
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Type a word to hear…"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className={cn(
+                    'h-12 w-full rounded-xl border border-[color:var(--st-line)] bg-[color:var(--st-rack)]',
+                    'pl-10 pr-4 text-[16px] text-[color:var(--st-fg)]',
+                    'placeholder:text-[color:var(--st-mute)]/55',
+                    'outline-none transition-shadow focus:border-[color:var(--st-accent)]/45 focus:ring-2 focus:ring-[color:var(--st-accent)]/20',
+                  )}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !query.trim() || quotaExhausted}
+                className={cn(
+                  'inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium tracking-wide transition-all duration-200',
+                  'bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)]',
+                  'hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45',
+                  'sm:min-w-[9rem]',
+                  'shadow-[0_0_28px_-8px_color-mix(in_srgb,var(--st-accent)_55%,transparent)]',
+                )}
+                style={{ fontFamily: 'var(--st-mark)' }}
+              >
+                {loading ? (
+                  <>
+                    <ListenBars />
+                    Searching…
+                  </>
+                ) : (
+                  <>
+                    <Mic2 className="size-3.5 opacity-90" />
+                    Hear it
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-col gap-3 border-t border-[color:var(--st-line-soft)] pt-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className="text-[9px] tracking-[0.18em] text-[color:var(--st-mute)]"
+                  style={{ fontFamily: 'var(--st-mono)' }}
+                >
+                  ACCENT BUS
+                </span>
+                <div
+                  className="inline-flex rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-rack)] p-0.5"
+                  role="group"
+                  aria-label="Accent filter"
+                >
+                  {ACCENTS.map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      title={opt.plain}
+                      onClick={() => {
+                        setAccent(opt.id)
+                        if (booted && searchedWord) void search(searchedWord, opt.id)
+                      }}
+                      className={cn(
+                        'rounded-full px-3 py-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors',
+                        accent === opt.id
+                          ? 'bg-[color:var(--st-accent)] text-[color:var(--st-on-accent)]'
+                          : 'text-[color:var(--st-mute)] hover:text-[color:var(--st-fg)]',
+                      )}
+                    >
+                      {opt.short}
+                    </button>
+                  ))}
+                </div>
+                {activeAccent && activeAccent.id !== 'all' ? (
+                  <span className="text-[11px] text-[color:var(--st-fg)]/55">{activeAccent.plain}</span>
+                ) : null}
+              </div>
+
+              {remainingLabel ? (
+                <p
+                  className={cn(
+                    'text-[11px] sm:text-right',
+                    quotaExhausted ? 'text-[color:var(--st-warm)]' : 'text-[color:var(--st-mute)]',
+                  )}
+                  style={{ fontFamily: 'var(--st-mono)' }}
+                >
+                  {remainingLabel}
+                  {resetsLabel && quotaExhausted ? (
+                    <span className="mt-0.5 block text-[10px] opacity-80">{resetsLabel}</span>
+                  ) : null}
+                </p>
               ) : null}
-            </p>
-          ) : null}
+            </div>
+          </div>
         </div>
       </form>
 
       {!booted && (
         <div style={{ animation: 'st-fade-up 0.6s ease 130ms both' }}>
-          <div className="mt-7 flex flex-wrap gap-2">
-            <span className="mr-1 self-center text-[12px] text-[color:var(--st-mute)]">Try:</span>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <span
+              className="mr-1 self-center text-[10px] tracking-[0.18em] text-[color:var(--st-mute)]"
+              style={{ fontFamily: 'var(--st-mono)' }}
+            >
+              PATCH
+            </span>
             {QUICK_WORDS.map(word => (
               <button
                 key={word}
@@ -636,7 +807,7 @@ export function StudioView() {
                   setQuery(word)
                   void search(word)
                 }}
-                className="rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-panel)] px-3.5 py-1.5 text-[13px] text-[color:var(--st-mute)] transition-colors hover:border-[color:var(--st-accent)]/35 hover:text-[color:var(--st-fg)] disabled:opacity-40"
+                className="rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-panel)]/80 px-3.5 py-1.5 text-[13px] text-[color:var(--st-mute)] transition-all hover:border-[color:var(--st-accent)]/45 hover:text-[color:var(--st-fg)] hover:shadow-[0_0_20px_-8px_color-mix(in_srgb,var(--st-accent)_45%,transparent)] disabled:opacity-40"
                 style={{ fontFamily: 'var(--st-display)', fontStyle: 'italic' }}
               >
                 {word}
@@ -644,51 +815,33 @@ export function StudioView() {
             ))}
           </div>
 
-          <ol className="mt-8 grid gap-3 text-[13px] text-[color:var(--st-mute)] sm:grid-cols-3">
+          <ol className="mt-9 grid gap-3 text-[13px] text-[color:var(--st-mute)] sm:grid-cols-3">
             {[
-              { n: '1', t: 'Type a word', d: 'Any everyday English word works.' },
-              { n: '2', t: 'Pick an accent', d: 'Or leave it on Any.' },
-              { n: '3', t: 'Tap a clip', d: 'Watch the moment they say it.' },
+              { n: '01', t: 'Type a word', d: 'Anything you want to hear spoken out loud.' },
+              { n: '02', t: 'Pick a take', d: 'Each row is a real recorded moment.' },
+              { n: '03', t: 'Hit Play', d: 'Expand the take and listen right here.' },
             ].map(step => (
               <li
                 key={step.n}
-                className="rounded-2xl border border-[color:var(--st-line-soft)] bg-[color:var(--st-panel)]/55 px-4 py-3.5"
+                className="rounded-[1.15rem] border border-[color:var(--st-line-soft)] bg-[color:var(--st-panel)]/70 px-4 py-4"
               >
                 <span
-                  className="mb-1.5 block text-[10px] tracking-[0.18em] text-[color:var(--st-accent)]"
+                  className="mb-2 block text-[10px] tracking-[0.2em] text-[color:var(--st-accent)]"
                   style={{ fontFamily: 'var(--st-mono)' }}
                 >
                   {step.n}
                 </span>
-                <span className="block text-[color:var(--st-fg)]/85" style={{ fontFamily: 'var(--st-mark)' }}>
+                <span className="block text-[color:var(--st-fg)]/90" style={{ fontFamily: 'var(--st-mark)' }}>
                   {step.t}
                 </span>
-                <span className="mt-0.5 block leading-relaxed">{step.d}</span>
+                <span className="mt-1 block leading-relaxed">{step.d}</span>
               </li>
             ))}
           </ol>
         </div>
       )}
 
-      <div
-        ref={playerRef}
-        className={cn('mt-8 md:mt-10', activeHit && 'md:sticky md:top-[5.25rem] md:z-20')}
-      >
-        <AnimatePresence mode="wait">
-          {activeHit ? (
-            <PlayerPanel
-              key={activeHit.id}
-              hit={activeHit}
-              query={searchedWord}
-              replayKey={replayKey}
-              onClose={() => setActiveId(null)}
-              onReplay={() => setReplayKey(k => k + 1)}
-            />
-          ) : null}
-        </AnimatePresence>
-      </div>
-
-      <div className="mt-8">
+      <div className="mt-9 md:mt-11">
         {loading ? <ResultsSkeleton /> : null}
 
         {!loading && error && errorKind === 'quota' ? (
@@ -702,7 +855,7 @@ export function StudioView() {
         {!loading && error && errorKind === 'empty' ? (
           <StatusPanel
             tone="neutral"
-            title="No clips for that word"
+            title="No takes in the library"
             body={error}
             action={
               <>
@@ -716,7 +869,7 @@ export function StudioView() {
                         setQuery(word)
                         void search(word)
                       }}
-                      className="rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-bg)]/50 px-3.5 py-1.5 text-[13px] text-[color:var(--st-mute)] transition-colors hover:border-[color:var(--st-accent)]/35 hover:text-[color:var(--st-fg)]"
+                      className="rounded-full border border-[color:var(--st-line)] bg-[color:var(--st-rack)] px-3.5 py-1.5 text-[13px] text-[color:var(--st-mute)] transition-colors hover:border-[color:var(--st-accent)]/35 hover:text-[color:var(--st-fg)]"
                       style={{ fontFamily: 'var(--st-display)', fontStyle: 'italic' }}
                     >
                       {word}
@@ -730,7 +883,7 @@ export function StudioView() {
         {!loading && error && errorKind === 'error' ? (
           <StatusPanel
             tone="error"
-            title="Couldn’t load clips"
+            title="Engine hiccup"
             body={error}
             action={
               searchedWord ? (
@@ -740,7 +893,7 @@ export function StudioView() {
                   className="rounded-xl bg-[color:var(--st-accent)] px-4 py-2.5 text-[13px] font-medium text-[color:var(--st-on-accent)] transition-opacity hover:opacity-90"
                   style={{ fontFamily: 'var(--st-mark)' }}
                 >
-                  Try again
+                  Re-try
                 </button>
               ) : null
             }
@@ -749,31 +902,46 @@ export function StudioView() {
 
         {!loading && !error && hits.length > 0 ? (
           <div>
-            <div className="mb-4 flex items-end justify-between gap-3">
+            <div className="mb-5 flex items-end justify-between gap-4">
               <div>
                 <p
-                  className="text-2xl tracking-tight text-[color:var(--st-fg)]"
+                  className="text-[10px] tracking-[0.22em] text-[color:var(--st-mute)] mb-1.5"
+                  style={{ fontFamily: 'var(--st-mono)' }}
+                >
+                  MULTITRACK · RESULTS
+                </p>
+                <p
+                  className="text-[clamp(1.75rem,5vw,2.35rem)] tracking-tight text-[color:var(--st-fg)]"
                   style={{ fontFamily: 'var(--st-display)', fontStyle: 'italic' }}
                 >
                   {searchedWord}
                 </p>
-                <p className="mt-1 text-[12px] text-[color:var(--st-mute)]">
-                  {hits.length} clip{hits.length === 1 ? '' : 's'}
-                  {total != null && total > hits.length ? ` · about ${total} found` : ''}
+                <p className="mt-1.5 text-[12px] text-[color:var(--st-mute)]">
+                  {hits.length} take{hits.length === 1 ? '' : 's'}
+                  {total != null && total > hits.length ? ` · ~${total} in the vault` : ''}
                   {' · '}
-                  tap one to hear it
+                  take 01 is armed — tap Play
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {hits.map((hit, i) => (
                 <ClipCard
                   key={hit.id}
                   hit={hit}
                   query={searchedWord}
                   active={hit.id === activeId}
-                  onPlay={() => playHit(hit)}
+                  mediaOn={hit.id === activeId && mediaOn}
+                  replayKey={replayKey}
+                  take={i + 1}
+                  onSelect={() => selectHit(hit)}
+                  onStartMedia={() => setMediaOn(true)}
+                  onReplay={() => setReplayKey(k => k + 1)}
+                  onClose={() => {
+                    setActiveId(null)
+                    setMediaOn(false)
+                  }}
                   index={i}
                 />
               ))}
@@ -782,8 +950,8 @@ export function StudioView() {
         ) : null}
       </div>
 
-      <p className="mt-12 text-center text-[11px] leading-relaxed text-[color:var(--st-mute)]/80">
-        Clips come from public videos via SayItVid. Playback opens on YouTube.
+      <p className="mt-14 text-center text-[11px] leading-relaxed text-[color:var(--st-mute)]/70">
+        Takes open in the rack. If a clip won’t play, try the next take.
       </p>
     </div>
   )

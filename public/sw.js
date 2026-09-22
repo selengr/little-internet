@@ -1,5 +1,5 @@
 /* Little Internet service worker — network-first pages, cache-first static assets. */
-const CACHE_VERSION = 'li-v1'
+const CACHE_VERSION = 'li-v2'
 const PRECACHE = `${CACHE_VERSION}-precache`
 const RUNTIME = `${CACHE_VERSION}-runtime`
 

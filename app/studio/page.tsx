@@ -22,22 +22,21 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Studio — hear real English pronunciation',
+  title: 'Magic Studio — hear real English pronunciation',
   description:
-    'Type an English word and hear real people say it in authentic videos — US, UK, and Australian accents on Little Internet.',
+    'Step into the booth. Dial a word. Hear real people say it in authentic videos — US, UK, and Australian accents.',
   keywords: [
     'English pronunciation',
-    'pronunciation practice',
+    'pronunciation studio',
     'accent training',
     'hear English words',
-    'YouTube pronunciation',
     'SayItVid',
   ],
   alternates: { canonical: '/studio' },
   openGraph: {
-    title: 'Studio — hear real English pronunciation',
+    title: 'Magic Studio — hear real English pronunciation',
     description:
-      'Type an English word. Hear real people say it in authentic videos — US, UK, and Australian accents.',
+      'Step into the booth. Dial a word. Hear real people say it in authentic videos.',
     url: '/studio',
   },
 }

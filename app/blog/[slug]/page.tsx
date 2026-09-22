@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import Banner from '@/components/views/banner/banner'
 import { BlogMarkdown } from '@/components/blog/blog-markdown'
 import { BlogNav } from '@/components/blog/blog-nav'
@@ -109,8 +110,10 @@ export default async function BlogPostPage({ params }: Props) {
       dir="ltr"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}
     >
-      <script
+      <Script
+        id={`article-ld-${slug}`}
         type="application/ld+json"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
       />
       <CustomScrollbar mobileOnly />

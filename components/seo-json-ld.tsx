@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from '@/lib/site'
 
 /** Sitewide JSON-LD for Google rich results (WebSite + Person + ItemList of tools). */
@@ -59,8 +60,10 @@ export function SeoJsonLd() {
   const payload = [website, person, tools]
 
   return (
-    <script
+    <Script
+      id="seo-json-ld"
       type="application/ld+json"
+      strategy="beforeInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(payload) }}
     />
   )
