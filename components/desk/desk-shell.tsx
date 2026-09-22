@@ -4,20 +4,8 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DeskView } from '@/components/desk/desk-view'
+import { DeskSkeleton } from '@/components/desk/desk-skeleton'
 import { cn } from '@/lib/utils'
-
-function DeskFallback() {
-  return (
-    <div className="mx-auto max-w-[1600px] px-1.5 sm:px-2">
-      <div className="h-10 rounded border border-white/[0.06] bg-white/[0.03] animate-pulse mb-1" />
-      <div className="grid grid-cols-12 gap-1">
-        <div className="col-span-12 lg:col-span-2 h-[520px] rounded border border-white/[0.06] bg-white/[0.03] animate-pulse" />
-        <div className="col-span-12 lg:col-span-7 h-[520px] rounded border border-white/[0.06] bg-white/[0.03] animate-pulse" />
-        <div className="col-span-12 lg:col-span-3 h-[520px] rounded border border-white/[0.06] bg-white/[0.03] animate-pulse" />
-      </div>
-    </div>
-  )
-}
 
 const LINKS = [
   { href: '/charts', label: 'Charts' },
@@ -84,7 +72,7 @@ export function DeskShell({
       </header>
 
       <div className="pt-1 pb-3">
-        <Suspense fallback={<DeskFallback />}>
+        <Suspense fallback={<DeskSkeleton />}>
           <DeskView initialAsset={initialAsset} initialInterval={initialInterval} />
         </Suspense>
       </div>

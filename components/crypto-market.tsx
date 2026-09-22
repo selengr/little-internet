@@ -101,6 +101,129 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'volume', label: 'Vol' },
 ]
 
+function Bone({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-md bg-[color:var(--cx-fg)]/[0.07]',
+        className,
+      )}
+    >
+      <div className="absolute inset-0 -translate-x-full animate-[cx-shimmer_1.6s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-[color:var(--cx-fg)]/[0.08] to-transparent" />
+    </div>
+  )
+}
+
+function CryptoSkeleton() {
+  return (
+    <div className="space-y-0" aria-busy aria-label="Loading crypto markets">
+      <style>{`
+        @keyframes cx-shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mb-10 md:mb-14">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
+          <div className="max-w-xl w-full space-y-4">
+            <Bone className="h-3 w-20" />
+            <Bone className="h-14 md:h-[4.5rem] w-[min(100%,16rem)] rounded-lg" />
+            <Bone className="h-4 w-full max-w-md" />
+            <Bone className="h-4 w-2/3 max-w-xs" />
+          </div>
+          <div className="w-full max-w-sm rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] shadow-[var(--cx-shadow)] px-6 py-6 md:px-8 md:py-7 space-y-4">
+            <div className="flex items-center gap-3">
+              <Bone className="size-9 rounded-full" />
+              <div className="space-y-2">
+                <Bone className="h-4 w-24" />
+                <Bone className="h-3 w-16" />
+              </div>
+            </div>
+            <Bone className="h-10 w-40" />
+            <div className="flex justify-between items-center">
+              <Bone className="h-5 w-16" />
+              <Bone className="h-9 w-[7.5rem]" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="relative h-12 w-full overflow-hidden border-y border-[color:var(--cx-line)] bg-[color:var(--cx-tape)]">
+        <Bone className="absolute inset-0 rounded-none" />
+      </div>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-12">
+        <div className="overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)]">
+          <div className="grid grid-cols-2 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'px-4 py-6 space-y-3',
+                  i % 2 === 1 && 'border-l border-[color:var(--cx-line-soft)]',
+                  i >= 2 && 'border-t md:border-t-0 border-[color:var(--cx-line-soft)]',
+                  i === 2 && 'md:border-l',
+                )}
+              >
+                <Bone className="h-3 w-16" />
+                <Bone className="h-7 w-24" />
+                <Bone className="h-3 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-14">
+        <Bone className="h-3 w-16 mb-2" />
+        <Bone className="h-8 w-40 mb-5" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-2xl bg-[color:var(--cx-line)] border border-[color:var(--cx-line)]">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-[color:var(--cx-panel)] p-4 md:p-5 space-y-4 min-h-[160px]">
+              <div className="flex justify-between">
+                <Bone className="h-3 w-6" />
+                <Bone className="size-6 rounded-full" />
+              </div>
+              <Bone className="h-3 w-12" />
+              <Bone className="h-4 w-20" />
+              <div className="pt-4 space-y-2">
+                <Bone className="h-6 w-24" />
+                <div className="flex justify-between">
+                  <Bone className="h-3 w-12" />
+                  <Bone className="h-6 w-16" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-10 md:mt-14 mb-4">
+        <Bone className="h-8 w-full max-w-xl mb-6" />
+        <div className="flex flex-wrap gap-2 mb-6">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Bone key={i} className="h-8 w-16 rounded-full" />
+          ))}
+        </div>
+        <div className="space-y-0 divide-y divide-[color:var(--cx-line-soft)]">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 py-4">
+              <Bone className="size-8 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Bone className="h-4 w-32" />
+                <Bone className="h-3 w-16" />
+              </div>
+              <Bone className="h-4 w-20 hidden sm:block" />
+              <Bone className="h-4 w-12 hidden md:block" />
+              <Bone className="h-6 w-16 hidden lg:block" />
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export function CryptoMarket() {
   const [coins, setCoins] = useState<CoinMarket[]>([])
   const [global, setGlobal] = useState<GlobalMarketData['data'] | null>(null)
@@ -173,18 +296,7 @@ export function CryptoMarket() {
   const board = sorted.slice(0, 5)
 
   if (loading && coins.length === 0) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-10 space-y-6">
-        <div className="h-16 w-48 bg-[color:var(--cx-fg)]/10 animate-pulse" />
-        <div className="h-24 w-full max-w-xl bg-[color:var(--cx-fg)]/10 animate-pulse" />
-        <div className="h-12 w-full bg-[color:var(--cx-fg)]/8 animate-pulse" />
-        <div className="grid md:grid-cols-5 gap-px">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-40 bg-[color:var(--cx-fg)]/8 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    )
+    return <CryptoSkeleton />
   }
 
   return (

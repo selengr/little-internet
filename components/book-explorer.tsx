@@ -165,7 +165,96 @@ function InsightMeter({
 }
 
 function SkeletonBlock({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse bg-[color:var(--bk-fg)]/10', className)} />
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-md bg-[color:var(--bk-fg)]/[0.07]',
+        className,
+      )}
+    >
+      <div className="absolute inset-0 -translate-x-full animate-[bk-shimmer_1.6s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-[color:var(--bk-fg)]/[0.09] to-transparent" />
+      <style>{`
+        @keyframes bk-shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+function BookStageSkeleton() {
+  return (
+    <div aria-busy aria-label="Loading book">
+      <div className="grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_240px] gap-8 lg:gap-10 items-start">
+        <aside className="flex justify-center lg:justify-start">
+          <SkeletonBlock className="w-[160px] sm:w-[200px] md:w-[220px] aspect-[2/3] rounded-lg shadow-[var(--bk-shadow)]" />
+        </aside>
+
+        <div className="min-w-0 space-y-8">
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <SkeletonBlock className="h-7 w-20 rounded-full" />
+              <SkeletonBlock className="h-7 w-24 rounded-full" />
+            </div>
+            <SkeletonBlock className="h-11 md:h-14 w-[min(100%,22rem)] rounded-lg" />
+            <SkeletonBlock className="h-5 w-48" />
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-px overflow-hidden rounded-xl border border-[color:var(--bk-line)] bg-[color:var(--bk-line)]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-[color:var(--bk-panel)] px-3 py-4 space-y-2">
+                <SkeletonBlock className="h-2.5 w-12" />
+                <SkeletonBlock className="h-5 w-10" />
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2 border-b border-[color:var(--bk-line)] pb-px">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonBlock key={i} className="h-8 w-20 rounded-t-md" />
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock className="h-4 w-[95%]" />
+            <SkeletonBlock className="h-4 w-[88%]" />
+            <SkeletonBlock className="h-4 w-[70%]" />
+            <SkeletonBlock className="h-28 w-full rounded-xl mt-4" />
+          </div>
+        </div>
+
+        <aside className="hidden lg:block space-y-4">
+          <SkeletonBlock className="h-3 w-24" />
+          <div className="rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] p-4 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <SkeletonBlock className="size-10 rounded shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <SkeletonBlock className="h-3 w-full" />
+                  <SkeletonBlock className="h-2.5 w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+
+      <section className="mt-14 md:mt-20">
+        <SkeletonBlock className="h-3 w-24 mb-2" />
+        <SkeletonBlock className="h-8 w-44 mb-6" />
+        <div className="flex gap-4 sm:gap-5 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="shrink-0 w-28 sm:w-32 space-y-3">
+              <SkeletonBlock className="w-full h-[10.5rem] sm:h-48 rounded-md" />
+              <SkeletonBlock className="h-4 w-full" />
+              <SkeletonBlock className="h-3 w-2/3" />
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
 }
 
 export function BookExplorer() {
@@ -531,11 +620,13 @@ export function BookExplorer() {
       )}
 
       {/* ── BOOK STAGE ─────────────────────────────────────────────────── */}
+      {loadingBook ? (
+        <BookStageSkeleton />
+      ) : (
+      <>
       <div className="relative z-0 grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_240px] gap-8 lg:gap-10 items-start">
         <aside className="flex justify-center lg:justify-start order-1">
-          {loadingBook ? (
-            <SkeletonBlock className="w-[160px] sm:w-[200px] md:w-[220px] aspect-[2/3]" />
-          ) : book ? (
+          {book ? (
             <div className="lg:sticky lg:top-28">
               <Cover id={book.coverId} title={book.title} size="lg" isbn={book.isbn} />
             </div>
@@ -543,14 +634,7 @@ export function BookExplorer() {
         </aside>
 
         <div className="min-w-0 order-2">
-          {loadingBook ? (
-            <div className="space-y-4">
-              <SkeletonBlock className="h-10 w-4/5" />
-              <SkeletonBlock className="h-5 w-1/3" />
-              <SkeletonBlock className="h-28 w-full" />
-              <SkeletonBlock className="h-48 w-full" />
-            </div>
-          ) : book ? (
+          {book ? (
             <motion.div
               key={book.workKey}
               initial={{ opacity: 0, y: 10 }}
@@ -778,9 +862,7 @@ export function BookExplorer() {
 
         {/* Pulse — desktop sidebar; stacks on mobile after content */}
         <aside className="order-3">
-          {loadingBook ? (
-            <SkeletonBlock className="h-72 w-full" />
-          ) : book ? (
+          {book ? (
             <div className="lg:sticky lg:top-28 space-y-4">
               <div className="rounded-2xl border border-[color:var(--bk-line)] bg-[color:var(--bk-panel)] backdrop-blur-sm p-5 shadow-[var(--bk-shadow)]">
                 <div className="flex items-center justify-between mb-6">
@@ -892,7 +974,7 @@ export function BookExplorer() {
       </div>
 
       {/* Similar shelf */}
-      {(similar.length > 0 || loadingBook) && (
+      {similar.length > 0 && (
         <section className="mt-14 md:mt-20">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -908,11 +990,7 @@ export function BookExplorer() {
             </div>
           </div>
           <div className="flex gap-4 sm:gap-5 overflow-x-auto pb-3 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {loadingBook
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <SkeletonBlock key={i} className="shrink-0 w-28 sm:w-32 h-52" />
-                ))
-              : similar.map(s => (
+            {similar.map(s => (
                   <button
                     key={s.workKey}
                     type="button"
@@ -939,6 +1017,8 @@ export function BookExplorer() {
                 ))}
           </div>
         </section>
+      )}
+      </>
       )}
 
       {/* Mobile share */}

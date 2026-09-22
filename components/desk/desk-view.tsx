@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { CandleChart } from '@/components/desk/candle-chart'
 import { DeskBotPanel } from '@/components/desk/desk-bot'
+import { DeskSkeleton } from '@/components/desk/desk-skeleton'
 import { formatPct, formatUsd } from '@/lib/crypto-format'
 import { buildDeskBotAdvice } from '@/lib/desk-bot'
 import { cn } from '@/lib/utils'
@@ -395,6 +396,10 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
 
   const botAdviceLoading = Boolean(data && loading && botAdvice == null)
 
+  if (loading && !data) {
+    return <DeskSkeleton />
+  }
+
   return (
     <div className="mx-auto max-w-[1600px] px-1.5 sm:px-2 space-y-1">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded border border-white/[0.07] bg-[#0d1117] px-2.5 py-1.5">
@@ -651,8 +656,12 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
             </div>
           </div>
           <div className="relative p-1 flex-1 max-lg:flex-none min-h-0">
-            {!chartMounted || (loading && !data) ? (
-              <div className="aspect-[11/7] max-lg:aspect-[11/8] w-full bg-white/[0.03] animate-pulse rounded" />
+            {!chartMounted ? (
+              <div className="relative aspect-[11/7] max-lg:aspect-[11/8] w-full overflow-hidden rounded">
+                <div className="absolute inset-0 bg-white/[0.03]" />
+                <div className="absolute inset-0 -translate-x-full animate-[dk-shimmer_1.5s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+                <style>{`@keyframes dk-shimmer { 100% { transform: translateX(100%); } }`}</style>
+              </div>
             ) : chartSeries && data ? (
               <>
                 {loading ? (
