@@ -68,7 +68,7 @@ export function GoldShell({ fontVars }: { fontVars: string }) {
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--cx-up)] opacity-60" />
               <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--cx-up)]" />
             </span>
-            GOLD
+            XAU DESK
           </span>
           <Link
             href="/"

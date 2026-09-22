@@ -21,14 +21,14 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Gold price — live ounce & jewelry purity',
+  title: 'Gold price desk — live spot, bid/ask & karat board',
   description:
-    'Live gold price per ounce, jewelry purity prices per gram, and what traders think happens next on Little Internet.',
+    'Live gold spot price per ounce with buy and sell quotes, change vs previous close, jewelry purity prices per gram, and forward outlook on Little Internet.',
   alternates: { canonical: '/gold' },
   openGraph: {
-    title: 'Gold price — live ounce & jewelry purity',
+    title: 'Gold price desk — live spot, bid/ask & karat board',
     description:
-      'Live gold price per ounce, jewelry purity by karat, and trader outlook markets.',
+      'Live gold spot with bid/ask, session chart, karat product board, and forward prices.',
     url: '/gold',
   },
 }
