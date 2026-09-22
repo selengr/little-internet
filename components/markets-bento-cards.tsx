@@ -18,7 +18,19 @@ const CARD_IMAGES = {
   // Glowing trading screens — charts / candles
   charts:
     'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1400&q=85',
+  // Soft gold metal texture — precious metals
+  gold: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=85',
 } as const
+
+type GoldApi = {
+  gold?: {
+    price: number | null
+    changePct: number | null
+    gram24k: number | null
+    isStale?: boolean
+  } | null
+  silver?: { price: number | null } | null
+}
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -107,6 +119,7 @@ export function MarketsBentoCards() {
   const [btc, setBtc] = useState<CoinMarket | null>(null)
   const [eth, setEth] = useState<CoinMarket | null>(null)
   const [usdIrr, setUsdIrr] = useState<{ rate: number; changePct: number | null } | null>(null)
+  const [metals, setMetals] = useState<GoldApi | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -114,13 +127,15 @@ export function MarketsBentoCards() {
 
     async function load() {
       try {
-        const [cryptoRes, usdIrrRes] = await Promise.all([
+        const [cryptoRes, usdIrrRes, goldRes] = await Promise.all([
           fetch('/api/crypto?per_page=5', { cache: 'no-store' }),
           fetch('/api/forex?action=rate&base=USD&quote=IRR', { cache: 'no-store' }),
+          fetch('/api/gold', { cache: 'no-store' }),
         ])
 
         const cryptoJson = await cryptoRes.json()
         const usdIrrJson = await usdIrrRes.json()
+        const goldJson = goldRes.ok ? ((await goldRes.json()) as GoldApi) : null
 
         if (!cancelled) {
           const coins: CoinMarket[] = cryptoJson.coins ?? []
@@ -134,6 +149,8 @@ export function MarketsBentoCards() {
                 typeof usdIrrJson.meta?.changePct === 'number' ? usdIrrJson.meta.changePct : null,
             })
           }
+
+          if (goldJson?.gold || goldJson?.silver) setMetals(goldJson)
         }
       } catch {
         // keep last good data
@@ -172,10 +189,28 @@ export function MarketsBentoCards() {
       ? `${usdIrr.changePct >= 0 ? '+' : ''}${usdIrr.changePct.toFixed(2)}%`
       : null
 
+  const goldPrice =
+    loading && !metals?.gold
+      ? '—'
+      : metals?.gold?.price != null
+        ? formatUsd(metals.gold.price)
+        : '—'
+  const goldPctNum = metals?.gold?.changePct ?? null
+  const goldPct =
+    goldPctNum != null && Number.isFinite(goldPctNum) ? formatPct(goldPctNum) : null
+  const silverPrice =
+    metals?.silver?.price != null ? formatUsd(metals.silver.price) : null
+  const gram24k =
+    metals?.gold?.gram24k != null
+      ? `$${metals.gold.gram24k.toLocaleString(undefined, { maximumFractionDigits: 2 })}/g`
+      : null
+
+  const cardSpan = 'col-span-12 sm:col-span-6 xl:col-span-3 block'
+
   return (
     <>
       {/* Crypto — live BTC hero */}
-      <Link href="/crypto" className="col-span-12 md:col-span-4 block">
+      <Link href="/crypto" className={cardSpan}>
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"
           delay={120}
@@ -224,8 +259,50 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
+      {/* Gold — live XAU */}
+      <Link href="/gold" className={cardSpan}>
+        <MarketBentoCard
+          className="p-0 min-h-[240px] h-full cursor-pointer"
+          delay={140}
+          image={CARD_IMAGES.gold}
+          imagePosition="object-[center_45%]"
+          wash="from-[#1a1208]/50 via-[#120e08]/60 to-[#0c0a06]/96"
+        >
+          <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <p className="text-[10px] tracking-[0.22em] uppercase text-white/50">Gold</p>
+                <LiveBadge />
+              </div>
+              <CardArrow />
+            </div>
+
+            <div className="mt-8 mb-4">
+              <p className="text-[13px] text-white/55 mb-2 tracking-wide">XAU · troy oz</p>
+              <p className="text-[clamp(1.85rem,4vw,2.35rem)] font-light leading-none tracking-tight text-white tabular-nums">
+                {goldPrice}
+              </p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/55">
+                {goldPct ? (
+                  <span style={{ color: pctColor(goldPctNum ?? NaN) }}>{goldPct}</span>
+                ) : null}
+                {silverPrice ? <span>Silver {silverPrice}</span> : null}
+                {gram24k ? <span>24K {gram24k}</span> : null}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[15px] font-light text-white mb-2">Live gold & silver</h3>
+              <p className="text-sm text-white/55 leading-relaxed">
+                Spot metals plus per-gram karat prices — the classic side of the market.
+              </p>
+            </div>
+          </div>
+        </MarketBentoCard>
+      </Link>
+
       {/* Convert — live USD → IRR */}
-      <Link href="/convert" className="col-span-12 md:col-span-4 block">
+      <Link href="/convert" className={cardSpan}>
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"
           delay={160}
@@ -264,7 +341,7 @@ export function MarketsBentoCards() {
         </MarketBentoCard>
       </Link>
 
-      <Link href="/charts" className="col-span-12 md:col-span-4 block">
+      <Link href="/charts" className={cardSpan}>
         <MarketBentoCard
           className="p-0 min-h-[240px] h-full cursor-pointer"
           delay={200}

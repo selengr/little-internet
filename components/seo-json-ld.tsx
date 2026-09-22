@@ -44,13 +44,14 @@ export function SeoJsonLd() {
     name: 'Little Internet tools',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Crypto markets', url: absoluteUrl('/crypto') },
-      { '@type': 'ListItem', position: 2, name: 'Charts', url: absoluteUrl('/charts') },
-      { '@type': 'ListItem', position: 3, name: 'Books', url: absoluteUrl('/books') },
-      { '@type': 'ListItem', position: 4, name: 'Blog', url: absoluteUrl('/blog') },
-      { '@type': 'ListItem', position: 5, name: 'Poetry', url: absoluteUrl('/poetry') },
-      { '@type': 'ListItem', position: 6, name: 'Photos', url: absoluteUrl('/photos') },
-      { '@type': 'ListItem', position: 7, name: 'Dictionary', url: absoluteUrl('/dictionary') },
-      { '@type': 'ListItem', position: 8, name: 'Currency convert', url: absoluteUrl('/convert') },
+      { '@type': 'ListItem', position: 2, name: 'Gold & silver', url: absoluteUrl('/gold') },
+      { '@type': 'ListItem', position: 3, name: 'Charts', url: absoluteUrl('/charts') },
+      { '@type': 'ListItem', position: 4, name: 'Books', url: absoluteUrl('/books') },
+      { '@type': 'ListItem', position: 5, name: 'Blog', url: absoluteUrl('/blog') },
+      { '@type': 'ListItem', position: 6, name: 'Poetry', url: absoluteUrl('/poetry') },
+      { '@type': 'ListItem', position: 7, name: 'Photos', url: absoluteUrl('/photos') },
+      { '@type': 'ListItem', position: 8, name: 'Dictionary', url: absoluteUrl('/dictionary') },
+      { '@type': 'ListItem', position: 9, name: 'Currency convert', url: absoluteUrl('/convert') },
     ],
   }
 
