@@ -21,13 +21,14 @@ const mark = Syne({
 })
 
 export const metadata = {
-  title: 'Gold — live XAU spot & karat',
+  title: 'Gold price — live ounce & jewelry purity',
   description:
-    'Live gold spot price, karat per gram, and crypto prediction odds on Little Internet.',
+    'Live gold price per ounce, jewelry purity prices per gram, and what traders think happens next on Little Internet.',
   alternates: { canonical: '/gold' },
   openGraph: {
-    title: 'Gold — live XAU spot & karat',
-    description: 'Live gold spot, karat ladder, and crypto prediction odds.',
+    title: 'Gold price — live ounce & jewelry purity',
+    description:
+      'Live gold price per ounce, jewelry purity by karat, and trader outlook markets.',
     url: '/gold',
   },
 }
