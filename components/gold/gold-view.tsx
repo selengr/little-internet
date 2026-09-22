@@ -2,29 +2,33 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowUpRight, Loader2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { GoldBar, GoldCarat, GoldHorizon, GoldSpot } from '@/lib/goldprice'
+import type { GoldBar, GoldCarat, GoldSpot } from '@/lib/goldprice'
 
 type GoldPayload = {
   spot: GoldSpot
   carat: GoldCarat | null
   bars: GoldBar[]
-  horizons: GoldHorizon[]
-  spot_usd: string | null
 }
 
 type VoxRow = {
   id: string
   question: string
-  category: string
   outcomes: string[]
   prices: number[]
-  volume_24h: number
   url: string
 }
 
 const REFRESH_MS = 45_000
+
+const HERO_IMAGE =
+  'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=85'
+
+const mono = { fontFamily: 'var(--font-cx-mono), ui-monospace, monospace' } as const
+const display = { fontFamily: 'var(--font-cx-display), Georgia, serif' } as const
+const mark = { fontFamily: 'var(--font-cx-mark), system-ui, sans-serif' } as const
 
 function money(n: string | number | null | undefined, digits = 2) {
   const v = typeof n === 'string' ? Number(n) : n
@@ -37,56 +41,38 @@ function money(n: string | number | null | undefined, digits = 2) {
   }).format(v)
 }
 
-function pct(n: string | number | null | undefined) {
-  const v = typeof n === 'string' ? Number(n) : n
-  if (v == null || !Number.isFinite(v)) return null
-  const sign = v > 0 ? '+' : ''
-  return `${sign}${v.toFixed(2)}%`
+function pctLabel(n: number) {
+  const sign = n > 0 ? '+' : ''
+  return `${sign}${n.toFixed(2)}%`
 }
 
 function Sparkline({ bars }: { bars: GoldBar[] }) {
-  const points = bars
-    .map(b => Number(b.close))
-    .filter(n => Number.isFinite(n))
+  const points = bars.map(b => Number(b.close)).filter(Number.isFinite)
   if (points.length < 2) return null
-
-  const w = 320
-  const h = 64
+  const w = 120
+  const h = 36
   const min = Math.min(...points)
   const max = Math.max(...points)
   const span = max - min || 1
-  const coords = points.map((p, i) => {
-    const x = (i / (points.length - 1)) * w
-    const y = h - ((p - min) / span) * (h - 8) - 4
-    return `${x.toFixed(1)},${y.toFixed(1)}`
-  })
-  const path = `M ${coords.join(' L ')}`
+  const d = points
+    .map((p, i) => {
+      const x = (i / (points.length - 1)) * w
+      const y = h - ((p - min) / span) * (h - 4) - 2
+      return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
+    })
+    .join(' ')
   const up = points[points.length - 1] >= points[0]
-
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-sm h-16" aria-hidden>
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-[7.5rem] h-9" aria-hidden>
       <path
-        d={path}
+        d={d}
         fill="none"
-        stroke={up ? 'var(--gd-up)' : 'var(--gd-down)'}
-        strokeWidth="2"
+        stroke={up ? 'var(--cx-up)' : 'var(--cx-down)'}
+        strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity="0.9"
       />
     </svg>
-  )
-}
-
-function OddsBar({ yes }: { yes: number }) {
-  const y = Math.round(Math.min(1, Math.max(0, yes)) * 100)
-  return (
-    <div className="h-1.5 w-full rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-      <div
-        className="h-full rounded-full bg-[color:var(--gd-metal)] transition-[width] duration-700"
-        style={{ width: `${y}%` }}
-      />
-    </div>
   )
 }
 
@@ -110,7 +96,7 @@ export function GoldView() {
         if (cancelled) return
         if (!goldRes.ok) throw new Error(goldJson.error || 'Gold failed')
         setData(goldJson as GoldPayload)
-        setOdds(Array.isArray(voxJson.markets) ? voxJson.markets : [])
+        setOdds(Array.isArray(voxJson.markets) ? voxJson.markets.slice(0, 4) : [])
         setError(null)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load')
@@ -127,18 +113,19 @@ export function GoldView() {
     }
   }, [])
 
-  const change = useMemo(() => {
+  const changePct = useMemo(() => {
     if (!data?.spot) return null
-    if (data.spot.chp != null) return pct(data.spot.chp)
+    if (data.spot.chp != null) {
+      const n = Number(data.spot.chp)
+      return Number.isFinite(n) ? n : null
+    }
     const closes = data.bars.map(b => Number(b.close)).filter(Number.isFinite)
     if (closes.length < 2) return null
     const last = closes[closes.length - 1]
     const prev = closes[closes.length - 2]
     if (!prev) return null
-    return pct(((last - prev) / prev) * 100)
+    return ((last - prev) / prev) * 100
   }, [data])
-
-  const changeUp = change ? !change.startsWith('-') : true
 
   const karats = useMemo(() => {
     const c = data?.carat
@@ -151,250 +138,241 @@ export function GoldView() {
     ]
   }, [data])
 
-  return (
-    <div className="mx-auto max-w-5xl px-6 md:px-10">
-      {/* Hero — one composition */}
-      <header className="relative pt-6 pb-16 md:pb-24 text-center">
-        <p
-          className="text-[11px] uppercase tracking-[0.32em] mb-6"
-          style={{ color: 'var(--gd-mute)' }}
-        >
-          Spot · Troy ounce
-        </p>
+  if (loading && !data) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 md:px-10 space-y-6">
+        <div className="h-16 w-48 bg-[color:var(--cx-fg)]/10 animate-pulse" />
+        <div className="h-24 w-full max-w-xl bg-[color:var(--cx-fg)]/10 animate-pulse" />
+        <div className="grid md:grid-cols-4 gap-px">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-28 bg-[color:var(--cx-fg)]/8 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
-        {loading && !data ? (
-          <div className="flex justify-center py-16" aria-live="polite">
-            <Loader2 className="size-6 animate-spin" style={{ color: 'var(--gd-metal)' }} />
-          </div>
-        ) : error && !data ? (
-          <p className="text-sm py-16" style={{ color: 'var(--gd-mute)' }}>
-            {error}
-          </p>
-        ) : (
-          <>
-            <h1
-              className="font-[family-name:var(--font-gd-display)] font-light tracking-tight leading-[0.92] text-[clamp(3.5rem,12vw,7.5rem)] tabular-nums"
+  if (error && !data) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-20 text-sm text-[color:var(--cx-mute)]">
+        {error}
+      </div>
+    )
+  }
+
+  const up = (changePct ?? 0) >= 0
+
+  return (
+    <div className="space-y-0">
+      {/* Hero — crypto layout */}
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mb-10 md:mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10"
+        >
+          <div className="max-w-xl">
+            <p
+              className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--cx-mute)] mb-3"
+              style={mono}
             >
-              {money(data?.spot.price)}
+              Markets
+            </p>
+            <h1
+              className="text-[clamp(2.75rem,10vw,5.5rem)] leading-[0.9] tracking-tight text-[color:var(--cx-fg)]"
+              style={display}
+            >
+              Live gold
             </h1>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
-              <span className="tracking-wide" style={{ color: 'var(--gd-mute)' }}>
-                XAU / USD
-              </span>
-              {change ? (
-                <span
-                  className="tabular-nums font-medium"
-                  style={{ color: changeUp ? 'var(--gd-up)' : 'var(--gd-down)' }}
-                >
-                  {change}
-                </span>
-              ) : null}
-              {data?.spot.is_stale ? (
-                <span className="text-[11px] uppercase tracking-wider text-amber-600/80 dark:text-amber-300/80">
-                  Stale
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-emerald-700/80 dark:text-emerald-300/80">
-                  <span className="size-1.5 rounded-full bg-current" />
+            <p className="mt-3 text-sm text-[color:var(--cx-mute)] max-w-md">
+              Spot XAU, karat per gram, and what crypto traders are pricing next.
+            </p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.12, duration: 0.55 }}
+            className="relative overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] backdrop-blur-sm min-w-[min(100%,320px)] w-full max-w-sm shadow-[var(--cx-shadow)]"
+          >
+            <div className="relative h-36 overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={HERO_IMAGE}
+                alt="Gold bullion bars"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--cx-panel)] via-[color:var(--cx-panel)]/40 to-transparent" />
+            </div>
+
+            <div className="relative px-6 pb-6 pt-1">
+              <div className="pointer-events-none absolute top-0 left-3 size-3 border-l border-t border-[color:var(--cx-signal)] rounded-tl-sm" />
+              <div className="pointer-events-none absolute top-0 right-3 size-3 border-r border-t border-[color:var(--cx-signal)] rounded-tr-sm" />
+
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div>
+                  <p className="text-sm text-[color:var(--cx-fg)]" style={mark}>
+                    Gold
+                  </p>
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em] text-[color:var(--cx-mute)]"
+                    style={mono}
+                  >
+                    XAU · USD / oz
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-[color:var(--cx-up)]">
+                  <span className="relative flex size-1.5">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--cx-up)] opacity-55" />
+                    <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--cx-up)]" />
+                  </span>
                   Live
                 </span>
-              )}
-            </div>
-            <div className="mt-10 flex justify-center">
-              <Sparkline bars={data?.bars ?? []} />
-            </div>
-            <p className="mt-3 text-[11px] tracking-wide" style={{ color: 'var(--gd-mute)' }}>
-              ~30 day close
-            </p>
-          </>
-        )}
-      </header>
+              </div>
 
-      {/* Karat — one job */}
+              <p
+                className="text-[clamp(1.8rem,5vw,2.75rem)] font-bold tabular-nums tracking-tight leading-none text-[color:var(--cx-fg)]"
+                style={mono}
+              >
+                {money(data?.spot.price)}
+              </p>
+              <div className="mt-3 flex items-center justify-between gap-4">
+                {changePct != null ? (
+                  <span
+                    className="text-base md:text-lg font-semibold tabular-nums"
+                    style={{ ...mono, color: up ? 'var(--cx-up)' : 'var(--cx-down)' }}
+                  >
+                    {pctLabel(changePct)}
+                  </span>
+                ) : (
+                  <span className="text-[color:var(--cx-mute)]" style={mono}>
+                    —
+                  </span>
+                )}
+                <Sparkline bars={data?.bars ?? []} />
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Karat ledger — crypto global strip style */}
       {karats.length > 0 && (
-        <section className="mb-20 md:mb-28">
-          <div className="flex items-end justify-between gap-4 mb-6">
+        <section className="max-w-6xl mx-auto px-6 md:px-10 mt-2 md:mt-4">
+          <div className="overflow-hidden rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)]">
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              {karats.map((row, i) => (
+                <div
+                  key={row.k}
+                  className={cn(
+                    'px-4 py-5 md:py-6',
+                    i % 2 === 1 && 'border-l border-[color:var(--cx-line-soft)]',
+                    i >= 2 && 'border-t md:border-t-0 border-[color:var(--cx-line-soft)]',
+                    i === 2 && 'md:border-l',
+                  )}
+                >
+                  <p
+                    className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
+                    style={mono}
+                  >
+                    {row.k} / g
+                  </p>
+                  <p
+                    className="text-xl md:text-2xl tabular-nums tracking-tight text-[color:var(--cx-fg)]"
+                    style={mono}
+                  >
+                    {money(row.v)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* VoxOdds — compact */}
+      {odds.length > 0 && (
+        <section className="max-w-6xl mx-auto px-6 md:px-10 mt-12 md:mt-16">
+          <div className="flex items-end justify-between gap-4 mb-5">
             <div>
               <p
-                className="text-[10px] uppercase tracking-[0.28em] mb-2"
-                style={{ color: 'var(--gd-mute)' }}
+                className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
+                style={mono}
               >
-                Per gram
+                Prediction
               </p>
-              <h2 className="font-[family-name:var(--font-gd-display)] text-2xl md:text-3xl font-light tracking-tight">
-                Karat ladder
+              <h2
+                className="text-2xl md:text-3xl tracking-tight text-[color:var(--cx-fg)]"
+                style={display}
+              >
+                Crypto odds
               </h2>
             </div>
           </div>
-          <div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-px rounded-2xl overflow-hidden border"
-            style={{ borderColor: 'var(--gd-line)', background: 'var(--gd-line)' }}
-          >
-            {karats.map(row => (
-              <div
-                key={row.k}
-                className="px-5 py-6 text-center"
-                style={{ background: 'var(--gd-panel)' }}
-              >
-                <p
-                  className="text-[10px] uppercase tracking-[0.2em] mb-2"
-                  style={{ color: 'var(--gd-mute)' }}
-                >
-                  {row.k}
-                </p>
-                <p className="text-lg md:text-xl tabular-nums font-light tracking-tight">
-                  {money(row.v)}
-                </p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 text-[11px]" style={{ color: 'var(--gd-mute)' }}>
-            Metal value only — not a jewelry retail quote.
-          </p>
-        </section>
-      )}
-
-      {/* Forward — quiet strip */}
-      {(data?.horizons?.length ?? 0) > 0 && (
-        <section className="mb-20 md:mb-28">
-          <p
-            className="text-[10px] uppercase tracking-[0.28em] mb-2"
-            style={{ color: 'var(--gd-mute)' }}
-          >
-            Futures curve
-          </p>
-          <h2 className="font-[family-name:var(--font-gd-display)] text-2xl md:text-3xl font-light tracking-tight mb-6">
-            Ahead
-          </h2>
-          <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
-            {data!.horizons.map(h => (
-              <div
-                key={h.expiry}
-                className="min-w-[9.5rem] rounded-2xl border px-4 py-4"
-                style={{ borderColor: 'var(--gd-line)', background: 'var(--gd-panel)' }}
-              >
-                <p className="text-[10px] tabular-nums mb-2" style={{ color: 'var(--gd-mute)' }}>
-                  {h.expiry}
-                </p>
-                <p className="text-lg tabular-nums font-light">{money(h.futures?.settle_usd)}</p>
-                <p className="mt-1 text-[11px]" style={{ color: 'var(--gd-mute)' }}>
-                  {h.futures?.contract}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* VoxOdds */}
-      <section className="mb-16 md:mb-24">
-        <div className="mb-6">
-          <p
-            className="text-[10px] uppercase tracking-[0.28em] mb-2"
-            style={{ color: 'var(--gd-mute)' }}
-          >
-            VoxOdds · Polymarket
-          </p>
-          <h2 className="font-[family-name:var(--font-gd-display)] text-2xl md:text-3xl font-light tracking-tight">
-            What the crowd prices
-          </h2>
-          <p className="mt-2 text-sm max-w-md" style={{ color: 'var(--gd-mute)' }}>
-            Live crypto prediction markets — odds, not advice.
-          </p>
-        </div>
-
-        {odds.length === 0 ? (
-          <p className="text-sm" style={{ color: 'var(--gd-mute)' }}>
-            Odds quietly offline right now.
-          </p>
-        ) : (
-          <ul className="space-y-3">
-            {odds.slice(0, 5).map(m => {
+          <div className="grid sm:grid-cols-2 gap-3">
+            {odds.map(m => {
               const yes = m.prices[0] ?? 0
-              const label = m.outcomes?.[0] ?? 'Yes'
               return (
-                <li key={m.id}>
-                  <a
-                    href={m.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col gap-3 rounded-2xl border px-4 py-4 transition-colors hover:border-[color:var(--gd-metal)]/40"
-                    style={{ borderColor: 'var(--gd-line)', background: 'var(--gd-panel)' }}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-[15px] leading-snug font-light">{m.question}</p>
-                      <ArrowUpRight
-                        className="size-4 shrink-0 opacity-35 group-hover:opacity-80 transition-opacity"
-                        style={{ color: 'var(--gd-metal)' }}
+                <a
+                  key={m.id}
+                  href={m.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] px-4 py-4 transition-colors hover:border-[color:var(--cx-signal)]/50"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <p className="text-sm leading-snug text-[color:var(--cx-fg)]">{m.question}</p>
+                    <ArrowUpRight className="size-4 shrink-0 text-[color:var(--cx-mute)] group-hover:text-[color:var(--cx-signal)]" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-1.5 rounded-full bg-[color:var(--cx-line-soft)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[color:var(--cx-signal)]"
+                        style={{ width: `${Math.round(yes * 100)}%` }}
                       />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <OddsBar yes={yes} />
-                      </div>
-                      <span className="text-sm tabular-nums shrink-0" style={{ color: 'var(--gd-metal)' }}>
-                        {Math.round(yes * 100)}% {label}
-                      </span>
-                    </div>
-                  </a>
-                </li>
+                    <span
+                      className="text-sm tabular-nums text-[color:var(--cx-fg)] shrink-0"
+                      style={mono}
+                    >
+                      {Math.round(yes * 100)}%
+                    </span>
+                  </div>
+                </a>
               )
             })}
-          </ul>
-        )}
-        <p className="mt-4 text-[11px]" style={{ color: 'var(--gd-mute)' }}>
-          Data via{' '}
-          <a href="https://voxodds.com" className="underline underline-offset-2" target="_blank" rel="noopener noreferrer">
-            voxodds.com
-          </a>
-          . Attribute Polymarket / Kalshi.
-        </p>
-      </section>
+          </div>
+        </section>
+      )}
 
-      {/* Surprise CTA → crypto */}
-      <section className="relative mb-10 overflow-hidden rounded-[1.75rem] border" style={{ borderColor: 'var(--gd-line)' }}>
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(154,123,60,0.22) 0%, transparent 42%, rgba(143,184,0,0.18) 100%)',
-          }}
-        />
-        <div className="relative px-6 py-12 md:px-12 md:py-16 text-center md:text-left flex flex-col md:flex-row md:items-end md:justify-between gap-8">
-          <div className="max-w-md">
+      {/* Next → crypto */}
+      <section className="max-w-6xl mx-auto px-6 md:px-10 mt-14 md:mt-20 mb-4">
+        <div className="rounded-2xl border border-[color:var(--cx-line)] bg-[color:var(--cx-panel)] px-6 py-8 md:px-8 md:py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div>
             <p
-              className="text-[10px] uppercase tracking-[0.28em] mb-3"
-              style={{ color: 'var(--gd-mute)' }}
+              className="text-[10px] uppercase tracking-[0.28em] text-[color:var(--cx-mute)] mb-2"
+              style={mono}
             >
-              Next room
+              Next
             </p>
-            <h2 className="font-[family-name:var(--font-gd-display)] text-3xl md:text-4xl font-light tracking-tight leading-tight">
-              Leave the vault.
-              <br />
-              Enter the tape.
+            <h2 className="text-2xl md:text-3xl tracking-tight" style={display}>
+              Crypto markets
             </h2>
-            <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--gd-mute)' }}>
-              Live Bitcoin, Ethereum, and the rest of the market — still pulsing.
+            <p className="mt-1 text-sm text-[color:var(--cx-mute)]">
+              Bitcoin, Ethereum, and the live tape.
             </p>
           </div>
           <Link
             href="/crypto"
-            className={cn(
-              'inline-flex items-center justify-center gap-2 self-center md:self-auto',
-              'rounded-full px-6 py-3.5 text-sm font-medium tracking-wide',
-              'bg-[#1c1916] text-[#f7f5f1] dark:bg-[#e8e6e1] dark:text-[#2f3437]',
-              'transition-transform hover:scale-[1.03] active:scale-[0.98]',
-            )}
+            className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[13px] font-medium tracking-wide bg-[color:var(--cx-fg)] text-[color:var(--cx-bg)] hover:opacity-90 transition-opacity"
+            style={mark}
           >
             Open crypto
-            <ArrowUpRight className="size-4" />
+            <ArrowRight className="size-4" />
           </Link>
         </div>
       </section>
-
-      <p className="pb-10 text-center text-[10px] tracking-wide" style={{ color: 'var(--gd-mute)' }}>
-        Prices via goldprice.dev · educational only
-      </p>
     </div>
   )
 }

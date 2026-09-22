@@ -6,46 +6,55 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { GoldView } from '@/components/gold/gold-view'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
+/** Same chrome as crypto — shared tokens + glass header. */
 export function GoldShell({ fontVars }: { fontVars: string }) {
   return (
     <main
-      className={`${fontVars} gold-shell relative min-h-screen overflow-x-clip bg-[var(--gd-bg)] text-[var(--gd-fg)]`}
+      className={`${fontVars} crypto-shell gold-shell relative min-h-screen overflow-x-clip bg-[var(--cx-bg)] text-[var(--cx-fg)]`}
     >
       <style>{`
-        .gold-shell {
-          --gd-bg: #f7f5f1;
-          --gd-fg: #1c1916;
-          --gd-mute: rgba(28, 25, 22, 0.5);
-          --gd-line: rgba(28, 25, 22, 0.1);
-          --gd-panel: rgba(255, 252, 247, 0.72);
-          --gd-metal: #9a7b3c;
-          --gd-metal-soft: rgba(154, 123, 60, 0.14);
-          --gd-up: #2f6b45;
-          --gd-down: #a53d32;
-          --gd-wash:
-            radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 175, 95, 0.22), transparent 55%),
-            radial-gradient(ellipse 45% 35% at 100% 80%, rgba(154, 123, 60, 0.08), transparent 50%),
-            linear-gradient(180deg, #faf8f4 0%, #f7f5f1 45%, #f0ebe3 100%);
+        .crypto-shell {
+          --cx-bg: #f3f5f7;
+          --cx-fg: #10141a;
+          --cx-mute: rgba(16, 20, 26, 0.52);
+          --cx-panel: rgba(255, 255, 255, 0.8);
+          --cx-line: rgba(16, 20, 26, 0.11);
+          --cx-line-soft: rgba(16, 20, 26, 0.06);
+          --cx-up: #1a7a4c;
+          --cx-down: #c23b2e;
+          --cx-signal: #c4a35a;
+          --cx-signal-ink: #10141a;
+          --cx-tape: rgba(16, 20, 26, 0.035);
+          --cx-wash:
+            radial-gradient(ellipse 70% 48% at 0% 0%, rgba(196, 163, 90, 0.14), transparent 55%),
+            radial-gradient(ellipse 50% 40% at 100% 100%, rgba(16, 20, 26, 0.05), transparent 50%),
+            linear-gradient(180deg, #f8fafb 0%, #f3f5f7 50%, #ebeef2 100%);
+          --cx-shadow: 0 18px 50px -28px rgba(16, 20, 26, 0.28);
         }
-        :is(html.dark, .dark) .gold-shell {
-          --gd-bg: #2f3437;
-          --gd-fg: hsla(0, 0%, 100%, 0.92);
-          --gd-mute: hsla(0, 0%, 100%, 0.5);
-          --gd-line: hsla(0, 0%, 100%, 0.1);
-          --gd-panel: rgba(55, 60, 64, 0.78);
-          --gd-metal: #d4af5f;
-          --gd-metal-soft: rgba(212, 175, 95, 0.12);
-          --gd-up: #3dd68c;
-          --gd-down: #ff6b5a;
-          --gd-wash:
-            radial-gradient(ellipse 70% 45% at 50% -8%, rgba(212, 175, 95, 0.14), transparent 52%),
-            radial-gradient(ellipse 40% 30% at 0% 100%, rgba(212, 175, 95, 0.05), transparent 48%),
-            linear-gradient(180deg, #32383b 0%, #2f3437 55%, #2c3134 100%);
+
+        :is(html.dark, .dark) .crypto-shell {
+          --cx-bg: #2f3437;
+          --cx-fg: hsla(0, 0%, 100%, 0.92);
+          --cx-mute: hsla(0, 0%, 100%, 0.52);
+          --cx-panel: rgba(55, 60, 65, 0.9);
+          --cx-line: hsla(0, 0%, 100%, 0.12);
+          --cx-line-soft: hsla(0, 0%, 100%, 0.07);
+          --cx-up: #3dd68c;
+          --cx-down: #ff6b5a;
+          --cx-signal: #d4af5f;
+          --cx-signal-ink: #1a1e22;
+          --cx-tape: hsla(0, 0%, 100%, 0.04);
+          --cx-wash:
+            radial-gradient(ellipse 65% 45% at 0% 0%, rgba(212, 175, 95, 0.1), transparent 52%),
+            radial-gradient(ellipse 50% 35% at 100% 90%, rgba(61, 214, 140, 0.04), transparent 48%),
+            linear-gradient(180deg, #32383b 0%, #2f3437 50%, #2c3134 100%);
+          --cx-shadow: 0 22px 56px -24px rgba(0, 0, 0, 0.55);
         }
       `}</style>
 
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden>
-        <div className="absolute inset-0" style={{ background: 'var(--gd-wash)' }} />
+        <div className="absolute inset-0" style={{ background: 'var(--cx-wash)' }} />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,transparent_20%,var(--cx-bg)_92%)]" />
       </div>
 
       <div className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
@@ -56,8 +65,8 @@ export function GoldShell({ fontVars }: { fontVars: string }) {
           <ThemeToggle />
           <span className="inline-flex items-center gap-2 font-pixel text-[10px] tracking-[0.2em] text-black/50 dark:text-white/50 hidden sm:inline">
             <span className="relative flex size-1.5">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--gd-metal)] opacity-55" />
-              <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--gd-metal)]" />
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[color:var(--cx-up)] opacity-60" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-[color:var(--cx-up)]" />
             </span>
             GOLD
           </span>
@@ -72,7 +81,7 @@ export function GoldShell({ fontVars }: { fontVars: string }) {
         </div>
       </div>
 
-      <div className="pt-24 pb-8 md:pt-28">
+      <div className="pt-24 pb-16 md:pt-28">
         <GoldView />
       </div>
     </main>
