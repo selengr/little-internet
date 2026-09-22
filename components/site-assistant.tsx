@@ -11,13 +11,12 @@ const SUGGESTIONS = ['Books', 'Crypto', 'Something fun']
 
 const CRYPTO_TOOL_LINKS = [
   { href: '/crypto', label: 'Crypto' },
-  { href: '/gold', label: 'Gold' },
   { href: '/charts', label: 'Charts' },
   { href: '/convert', label: 'Convert' },
 ] as const
 
 const CRYPTO_ASK_RE =
-  /\b(crypto|bitcoin|btc|eth|ethereum|coin|token|chart|charts|convert|forex|buy|sell|gold|silver|xau|xag)\b/i
+  /\b(crypto|bitcoin|btc|eth|ethereum|coin|token|chart|charts|convert|forex|buy|sell)\b/i
 
 function isCryptoAsk(text: string) {
   return CRYPTO_ASK_RE.test(text) || /^crypto$/i.test(text.trim())
@@ -38,7 +37,7 @@ const ASSISTANT_FONT =
   'var(--font-sans), Geist, var(--font-vazirmatn), "Vazirmatn", Tahoma, system-ui, sans-serif'
 
 const SITE_PATH_RE =
-  /(?<![A-Za-z0-9/])(\/(?:books|crypto|forex|gold|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|gold|forex|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
 
 function linkifySitePaths(text: string): ReactNode[] {
   const nodes: ReactNode[] = []

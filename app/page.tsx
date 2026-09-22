@@ -215,7 +215,7 @@ export default function AgenticPage() {
               </RevealText>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs md:pb-1">
-              Live Bitcoin, gold, currency convert, and charts — prices that move while you watch.
+              Live gold, currency convert, and crypto — prices that move while you watch.
             </p>
           </div>
 

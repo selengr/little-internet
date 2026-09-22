@@ -23,7 +23,7 @@ export const SITEMAP_ROUTES: {
   { path: '/blog', changeFrequency: 'daily', priority: 0.9 },
   { path: '/books', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/crypto', changeFrequency: 'hourly', priority: 0.85 },
-  { path: '/gold', changeFrequency: 'hourly', priority: 0.8 },
+  { path: '/gold', changeFrequency: 'hourly', priority: 0.88 },
   { path: '/charts', changeFrequency: 'hourly', priority: 0.85 },
   { path: '/convert', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/forex', changeFrequency: 'hourly', priority: 0.75 },
