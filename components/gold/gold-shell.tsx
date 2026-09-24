@@ -6,7 +6,6 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { GoldView } from '@/components/gold/gold-view'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
-/** Same chrome as crypto — shared tokens + glass header. */
 export function GoldShell({ fontVars }: { fontVars: string }) {
   return (
     <main
