@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Instrument_Serif, JetBrains_Mono, Syne } from 'next/font/google'
 import { StudioShell } from '@/components/studio/studio-shell'
 import { StudioView } from '@/components/studio/studio-view'
@@ -44,7 +45,9 @@ export const metadata = {
 export default function StudioPage() {
   return (
     <StudioShell fontVars={`${display.variable} ${mono.variable} ${mark.variable}`}>
-      <StudioView />
+      <Suspense fallback={null}>
+        <StudioView />
+      </Suspense>
     </StudioShell>
   )
 }

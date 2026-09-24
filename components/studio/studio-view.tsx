@@ -8,6 +8,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   AlertCircle,
@@ -505,6 +506,7 @@ export function StudioView() {
   const [replayKey, setReplayKey] = useState(0)
   const [searchedWord, setSearchedWord] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const searchParams = useSearchParams()
 
   const remainingLabel = quotaCopy(quota?.remaining)
   const resetsLabel = formatResetsIn(quota?.resets_in_seconds)
@@ -513,6 +515,11 @@ export function StudioView() {
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
+
+  useEffect(() => {
+    const q = searchParams.get('q')?.trim()
+    if (q) setQuery(q)
+  }, [searchParams])
 
   useEffect(() => {
     const ctrl = new AbortController()

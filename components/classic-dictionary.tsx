@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import type { DictionaryEntry } from '@/types/dictionary'
 import { cn } from '@/lib/utils'
+import { PronunciationStudioSuggest } from '@/components/pronunciation-studio-suggest'
 
 const QUICK_WORDS = [
   'serendipity',
@@ -471,6 +472,8 @@ export function ClassicDictionary() {
           </motion.article>
         ) : null}
       </AnimatePresence>
+
+      <PronunciationStudioSuggest word={entry?.word ?? (query.trim() || undefined)} />
     </div>
   )
 }

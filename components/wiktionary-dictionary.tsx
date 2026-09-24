@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import type { WiktionaryEntry, Pronunciation, WiktionaryTranslation } from '@/types/wiktionary'
+import { PronunciationStudioSuggest } from '@/components/pronunciation-studio-suggest'
 import { cn } from '@/lib/utils'
 
 const QUICK_WORDS = ['hello', 'love', 'water', 'friend', 'peace', 'world']
@@ -789,6 +790,8 @@ export function WiktionaryDictionary() {
           </motion.article>
         ) : null}
       </AnimatePresence>
+
+      <PronunciationStudioSuggest word={entry?.word ?? (query.trim() || undefined)} />
     </div>
   )
 }
