@@ -53,7 +53,14 @@ export function DeskShell({
     >
       <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-[#0b0e11]/98 backdrop-blur-sm">
         <div className="mx-auto max-w-[1600px] flex items-center justify-between gap-3 px-2 h-9">
-          <div className="flex items-center gap-4 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              href="/"
+              className="hidden sm:inline-flex items-center font-pixel text-[9px] tracking-[0.22em] text-white/35 hover:text-white/70 transition-colors shrink-0"
+            >
+              LITTLE INTERNET
+            </Link>
+            <span className="hidden sm:block h-3 w-px bg-white/10 shrink-0" aria-hidden />
             <Link
               href="/charts"
               className="font-[family-name:var(--font-dk-mark)] text-[14px] font-bold tracking-tight text-white shrink-0"
