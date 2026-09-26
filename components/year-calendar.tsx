@@ -145,11 +145,14 @@ export function YearCalendar({ className }: { className?: string }) {
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {
+      /* already released */
     }
+    // One tap: keep remaining dots filled a few seconds after lift (not instant clear)
     clearWaveLater(e.pointerType === "touch" ? 3800 : 1600)
   }
 
   const handleGridPointerLeave = () => {
+    // Don't clear on leave while actively painting / holding
     if (painting.current) return
     clearWaveLater(1200)
   }

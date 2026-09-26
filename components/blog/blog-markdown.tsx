@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+/** Lightweight markdown → React (no extra deps). Covers headings, lists, code, links, images, paragraphs. */
 export function BlogMarkdown({ markdown }: { markdown: string }) {
   if (!markdown?.trim()) return null
   const blocks = splitBlocks(markdown.trim())

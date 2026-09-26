@@ -218,6 +218,8 @@ function thumbUrl(videoId: string) {
 
 function embedUrl(videoId: string, startSec: number, replayKey: number) {
   const start = Math.max(0, Math.floor(startSec))
+  // Regular youtube.com embed (not nocookie) + load only after a user tap reduces bot walls.
+  // replayKey busts cache so Replay remounts cleanly.
   const origin =
     typeof window !== 'undefined' ? encodeURIComponent(window.location.origin) : ''
   return `https://www.youtube.com/embed/${videoId}?start=${start}&autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1${origin ? `&origin=${origin}` : ''}&rk=${replayKey}`
