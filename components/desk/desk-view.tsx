@@ -203,7 +203,7 @@ export function DeskView({ initialAsset, initialInterval }: DeskViewProps) {
         }
       }
     } catch {
-      /* ignore */
+     
     } finally {
       prefsReady.current = true
     }
