@@ -14,10 +14,11 @@ export interface SayItVidHit {
   text: string
   start_time: number
   duration: number
-  accent: string
-  channel_name: string
-  text_before: string
-  text_after: string
+  // sayitvid returns null for these when a clip has no metadata
+  accent: string | null
+  channel_name: string | null
+  text_before: string | null
+  text_after: string | null
 }
 
 export interface SayItVidSearchResponse {

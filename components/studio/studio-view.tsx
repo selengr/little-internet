@@ -45,16 +45,16 @@ function formatTimestamp(seconds: number) {
   return `${m}:${r.toString().padStart(2, '0')}`
 }
 
-function accentLabel(accent: string) {
-  const a = accent.trim().toUpperCase()
+function accentLabel(accent: string | null | undefined) {
+  const a = (accent ?? '').trim().toUpperCase()
   if (a === 'US' || a === 'USA') return 'American'
   if (a === 'UK' || a === 'GB') return 'British'
   if (a === 'AUS' || a === 'AU' || a === 'AUSTRALIA') return 'Australian'
   return a || 'Unknown accent'
 }
 
-function accentShort(accent: string) {
-  const a = accent.trim().toUpperCase()
+function accentShort(accent: string | null | undefined) {
+  const a = (accent ?? '').trim().toUpperCase()
   if (a === 'US' || a === 'USA') return 'US'
   if (a === 'UK' || a === 'GB') return 'UK'
   if (a === 'AUS' || a === 'AU' || a === 'AUSTRALIA') return 'AUS'
