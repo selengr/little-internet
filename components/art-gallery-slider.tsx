@@ -36,8 +36,8 @@ export function ArtGallerySlider({
   const [slideWidth, setSlideWidth] = useState(432)
 
   useEffect(() => {
-    // step = card width + gap → 350 + 64 (desktop) / 300 + 32 (mobile)
-    const update = () => setSlideWidth(window.innerWidth > 768 ? 414 : 332)
+    // step = card width + gap → 350 + 64 (desktop) / 176 + 32 (mobile)
+    const update = () => setSlideWidth(window.innerWidth > 768 ? 414 : 208)
     update()
     window.addEventListener("resize", update)
     return () => window.removeEventListener("resize", update)
@@ -137,7 +137,7 @@ export function ArtGallerySlider({
   const isBooks = variant === "books"
 
   return (
-    <div className="relative h-full w-full overflow-x-clip pt-14 pb-6 md:py-10 bg-[#0c0f12] dark:bg-[#080a0c] overscroll-x-contain">
+    <div className="relative h-full w-full overflow-x-clip pt-[84px] pb-[52px] md:py-10 bg-[#0c0f12] dark:bg-[#080a0c] overscroll-x-contain">
       {/* Stage atmosphere — cards unchanged */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -177,11 +177,11 @@ export function ArtGallerySlider({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/25 to-transparent" />
 
-      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-8">
+      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-5 md:p-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           {isBooks ? (
             <div>
-              <h2 className="font-serif text-2xl md:text-4xl font-light tracking-tight text-white/90 max-w-md leading-snug">
+              <h2 className="font-serif text-xl md:text-4xl font-light tracking-tight text-white/90 max-w-md leading-snug">
                 Find a book worth
                 <span className="block italic text-white/60">reading tonight</span>
               </h2>
@@ -214,18 +214,18 @@ export function ArtGallerySlider({
       </header>
 
       {booksLoading ? (
-        <div className="relative flex h-full min-h-[390px] w-full items-center md:min-h-[410px]">
-          <div className="flex items-center gap-8 pl-[calc(50%-150px)] md:gap-16 md:pl-[calc(50%-175px)]">
-            <Skeleton className="h-[300px] w-[300px] shrink-0 rounded-2xl bg-white/8 opacity-40 md:h-[350px] md:w-[350px]" />
+        <div className="relative flex h-full w-full items-center md:min-h-[410px]">
+          <div className="flex items-center gap-8 pl-[calc(50%-88px)] md:gap-16 md:pl-[calc(50%-175px)]">
+            <Skeleton className="h-44 w-44 shrink-0 rounded-2xl bg-white/8 opacity-40 md:h-[350px] md:w-[350px]" />
             <div className="relative shrink-0">
-              <Skeleton className="h-[300px] w-[300px] rounded-2xl bg-white/12 md:h-[350px] md:w-[350px]" />
-              <div className="absolute inset-x-3 bottom-3 space-y-2 p-6">
+              <Skeleton className="h-44 w-44 rounded-2xl bg-white/12 md:h-[350px] md:w-[350px]" />
+              <div className="absolute inset-x-2 bottom-2 space-y-2 p-3 md:inset-x-3 md:bottom-3 md:p-6">
                 <Skeleton className="h-3 w-12 rounded bg-white/10" />
-                <Skeleton className="h-7 w-48 rounded-lg bg-white/12 md:h-8 md:w-56" />
-                <Skeleton className="h-4 w-32 rounded bg-white/8" />
+                <Skeleton className="h-5 w-28 rounded-lg bg-white/12 md:h-8 md:w-56" />
+                <Skeleton className="h-3 w-20 rounded bg-white/8 md:h-4 md:w-32" />
               </div>
             </div>
-            <Skeleton className="h-[300px] w-[300px] shrink-0 rounded-2xl bg-white/8 opacity-40 md:h-[350px] md:w-[350px]" />
+            <Skeleton className="h-44 w-44 shrink-0 rounded-2xl bg-white/8 opacity-40 md:h-[350px] md:w-[350px]" />
           </div>
           <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -237,7 +237,7 @@ export function ArtGallerySlider({
           </div>
         </div>
       ) : items.length === 0 ? (
-        <div className="flex h-full min-h-[390px] items-center justify-center text-white/40 text-sm md:min-h-[410px]">
+        <div className="flex h-full items-center justify-center text-white/40 text-sm md:min-h-[410px]">
           No books with covers found
         </div>
       ) : (
@@ -254,7 +254,7 @@ export function ArtGallerySlider({
           onTouchEnd={handleDragEnd}
         >
           <motion.div
-            className="flex items-center gap-8 pl-[calc(50%-150px)] will-change-transform md:gap-16 md:pl-[calc(50%-175px)]"
+            className="flex items-center gap-8 pl-[calc(50%-88px)] will-change-transform md:gap-16 md:pl-[calc(50%-175px)]"
             animate={{
               x: -currentIndex * slideWidth + dragX,
             }}
