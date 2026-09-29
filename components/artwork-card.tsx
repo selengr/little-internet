@@ -120,7 +120,7 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
               {artwork.year > 0 ? artwork.year : "Book"}
             </motion.p>
             <motion.h2
-              className="line-clamp-2 font-serif text-base font-bold leading-tight text-white md:line-clamp-none md:text-3xl md:leading-normal"
+              className="line-clamp-2 font-serif text-base/tight font-bold text-white md:line-clamp-none md:text-3xl"
               animate={{ y: isHovered ? -5 : 0 }}
               transition={{ duration: 0.3, delay: 0.05 }}
             >
