@@ -37,7 +37,7 @@ const ASSISTANT_FONT =
   'var(--font-sans), Geist, var(--font-vazirmatn), "Vazirmatn", Tahoma, system-ui, sans-serif'
 
 const SITE_PATH_RE =
-  /(?<![A-Za-z0-9/])(\/(?:books|crypto|gold|forex|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
+  /(?<![A-Za-z0-9/])(\/(?:books|crypto|gold|forex|charts|desk|jokes|poetry|animal-facts|cat|location|dictionary|photos|blog|lyrics|music|countries|convert|qr|studio|art|wiktionary|notion|auth|account)(?:\/[\w\-./]*)?)/g
 
 function linkifySitePaths(text: string): ReactNode[] {
   const nodes: ReactNode[] = []
@@ -51,7 +51,7 @@ function linkifySitePaths(text: string): ReactNode[] {
       <Link
         key={`${path}-${i++}`}
         href={path}
-        className="underline underline-offset-2 decoration-current/35 hover:decoration-current transition-colors"
+        className="font-medium text-blue-600 underline underline-offset-2 decoration-blue-600/40 hover:text-blue-700 hover:decoration-blue-700 dark:text-blue-400 dark:decoration-blue-400/40 dark:hover:text-blue-300 dark:hover:decoration-blue-300 transition-colors"
       >
         {path}
       </Link>,
