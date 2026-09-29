@@ -137,7 +137,7 @@ export function ArtGallerySlider({
   const isBooks = variant === "books"
 
   return (
-    <div className="relative h-full w-full overflow-x-clip py-10 bg-[#0c0f12] dark:bg-[#080a0c] overscroll-x-contain">
+    <div className="relative h-full w-full overflow-x-clip pt-14 pb-6 md:py-10 bg-[#0c0f12] dark:bg-[#080a0c] overscroll-x-contain">
       {/* Stage atmosphere — cards unchanged */}
       <AnimatePresence mode="wait">
         <motion.div
