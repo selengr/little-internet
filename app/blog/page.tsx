@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { getBlogConfigStatus, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import Banner from '@/components/views/banner/banner'
 import { BlogCard } from '@/components/blog/blog-card'
+import { BlogGridSkeleton } from '@/components/blog/blog-card-skeleton'
 import { CustomScrollbar } from '@/components/custom-scrollbar'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
@@ -48,39 +50,57 @@ function BlogListNav() {
   )
 }
 
-export default async function BlogPage() {
-  const status = await getBlogConfigStatus()
+/** Fetches from Notion; streamed in behind a skeleton so the nav and banner render immediately. */
+async function BlogPostGrid() {
+  // Run the config check and the posts query in parallel rather than one after the other.
+  const [status, result] = await Promise.all([
+    getBlogConfigStatus(),
+    listPublishedPosts(48).then(
+      posts => ({ posts, error: null }),
+      (err: unknown) => ({
+        posts: [],
+        error: err instanceof Error ? err.message : 'Failed to load posts',
+      }),
+    ),
+  ])
 
   if (!status.ready) {
     return (
-      <main className="relative min-h-screen bg-background text-foreground">
-        <CustomScrollbar mobileOnly />
-        <BlogListNav />
-        <div
-          className="mx-auto max-w-lg px-6 pt-36 pb-20 text-center"
-          style={{ fontFamily: '-apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-        >
-          <h1 className="text-3xl font-semibold tracking-tight">Blog unavailable</h1>
-          <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed">{status.message}</p>
-          <p className="mt-6 text-[13px] text-muted-foreground leading-relaxed">
-            On Vercel: Project → Settings → Environment Variables → add{' '}
-            <code className="text-foreground">NOTION_API_KEY</code> and{' '}
-            <code className="text-foreground">NOTION_BLOG_DATABASE_ID</code> for Production, then
-            redeploy.
-          </p>
-        </div>
-      </main>
+      <div className="mx-auto max-w-lg py-10 text-center">
+        <h2 className="text-2xl font-semibold tracking-tight">Blog unavailable</h2>
+        <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed">{status.message}</p>
+        <p className="mt-6 text-[13px] text-muted-foreground leading-relaxed">
+          On Vercel: Project → Settings → Environment Variables → add{' '}
+          <code className="text-foreground">NOTION_API_KEY</code> and{' '}
+          <code className="text-foreground">NOTION_BLOG_DATABASE_ID</code> for Production, then
+          redeploy.
+        </p>
+      </div>
     )
   }
 
-  let posts: Awaited<ReturnType<typeof listPublishedPosts>> = []
-  let error: string | null = null
-  try {
-    posts = await listPublishedPosts(48)
-  } catch (err) {
-    error = err instanceof Error ? err.message : 'Failed to load posts'
+  const { posts, error } = result
+
+  if (error) return <p className="text-sm text-red-500 text-center">{error}</p>
+
+  if (posts.length === 0) {
+    return (
+      <p className="text-[15px] text-muted-foreground text-center py-20">No published posts yet.</p>
+    )
   }
 
+  return (
+    <div className="flex flex-wrap justify-between items-stretch gap-y-12 gap-x-[4%] mt-4">
+      {posts.map(post => (
+        <div key={post.id} className="w-full min-[712px]:w-[48%]">
+          <BlogCard post={post} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function BlogPage() {
   return (
     <main
       className="relative min-h-screen bg-background text-foreground overflow-x-clip"
@@ -109,21 +129,9 @@ export default async function BlogPage() {
       </section>
 
       <section className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 pt-10 sm:pt-14 pb-28">
-        {error ? (
-          <p className="text-sm text-red-500 text-center">{error}</p>
-        ) : posts.length === 0 ? (
-          <p className="text-[15px] text-muted-foreground text-center py-20">
-            No published posts yet.
-          </p>
-        ) : (
-          <div className="flex flex-wrap justify-between items-stretch gap-y-12 gap-x-[4%] mt-4">
-            {posts.map(post => (
-              <div key={post.id} className="w-full min-[712px]:w-[48%]">
-                <BlogCard post={post} />
-              </div>
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<BlogGridSkeleton />}>
+          <BlogPostGrid />
+        </Suspense>
       </section>
     </main>
   )
