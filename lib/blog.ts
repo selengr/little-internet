@@ -1,3 +1,5 @@
+import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import type { BlogConfigStatus, BlogPost, BlogPostMeta, BlogPostStatus } from '@/types/blog'
 import {
   BLOG_AUTHOR_IMAGE,
@@ -394,7 +396,7 @@ export async function listPublishedPosts(limit = 48): Promise<BlogPostMeta[]> {
   return (json.results ?? []).map(mapNotionPageToMeta).filter(isPublicBlogPost)
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+async function fetchPostMetaBySlug(slug: string): Promise<BlogPostMeta | null> {
   if (!getDatabaseId()) throw new Error('NOTION_BLOG_DATABASE_ID is not set')
 
   const { res, json } = await queryDataSource({
@@ -408,13 +410,24 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!res.ok || !json.results?.length) {
     const all = await listPublishedPosts(100)
     const meta = all.find(p => p.slug === slug)
-    if (!meta || !isPublicBlogPost(meta)) return null
-    const markdown = await getPageMarkdown(meta.id)
-    return { ...meta, markdown }
+    return meta && isPublicBlogPost(meta) ? meta : null
   }
 
   const meta = mapNotionPageToMeta(json.results[0])
-  if (!isPublicBlogPost(meta)) return null
+  return isPublicBlogPost(meta) ? meta : null
+}
+
+/**
+ * A post's properties (no body). Cached for 30s like getPageMarkdown, and deduped per request
+ * so generateMetadata and the page share one Notion query.
+ */
+export const getPostMetaBySlug = cache(
+  unstable_cache(fetchPostMetaBySlug, ['blog-post-meta-by-slug'], { revalidate: 30 }),
+)
+
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const meta = await getPostMetaBySlug(slug)
+  if (!meta) return null
   const markdown = await getPageMarkdown(meta.id)
   return { ...meta, markdown }
 }
@@ -433,18 +446,31 @@ export async function getPageMarkdown(pageId: string): Promise<string> {
 }
 
 export async function incrementPostViews(pageId: string, current: number) {
+  // Read the live count first: the page's `current` can be up to 30s old (cached post meta),
+  // and writing stale + 1 would drop views from other readers.
+  let latest = current
+  const pageRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    headers: notionHeaders(),
+    cache: 'no-store',
+  })
+  if (pageRes.ok) {
+    const page = await pageRes.json()
+    latest = parseNumber(page.properties?.Views ?? null) ?? current
+  }
+
+  const next = Math.max(latest, current) + 1
   const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: 'PATCH',
     headers: notionHeaders(),
     body: JSON.stringify({
       properties: {
-        Views: { number: current + 1 },
+        Views: { number: next },
       },
     }),
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json.message ?? 'Failed to update views')
-  return current + 1
+  return next
 }
 
 export async function createBlogPost(input: {

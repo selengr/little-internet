@@ -1,13 +1,15 @@
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import Banner from '@/components/views/banner/banner'
+import { BlogArticleSkeleton } from '@/components/blog/blog-article-skeleton'
 import { BlogMarkdown } from '@/components/blog/blog-markdown'
 import { BlogNav } from '@/components/blog/blog-nav'
 import { BlogTagList } from '@/components/blog/blog-tag'
 import { ViewCounter } from '@/components/blog/view-counter'
 import { CustomScrollbar } from '@/components/custom-scrollbar'
-import { getPostBySlug, listPublishedPosts } from '@/lib/blog'
+import { getPageMarkdown, getPostMetaBySlug, listPublishedPosts } from '@/lib/blog'
 import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import { formatBlogDate } from '@/lib/blog-date'
 import { absoluteUrl, SITE_NAME, SITE_URL } from '@/lib/site'
@@ -19,7 +21,7 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
-    const post = await getPostBySlug(slug)
+    const post = await getPostMetaBySlug(slug)
     if (!post) return { title: 'Post', robots: { index: false } }
     const description =
       post.summary ?? post.introduction ?? `Read “${post.title}” on Little Internet.`
@@ -64,11 +66,25 @@ export async function generateStaticParams() {
   }
 }
 
+/** The post body; streamed in behind a skeleton so the banner doesn't wait for it. */
+async function PostBody({ pageId }: { pageId: string }) {
+  try {
+    const markdown = await getPageMarkdown(pageId)
+    return <BlogMarkdown markdown={markdown} />
+  } catch {
+    return (
+      <p className="text-[15px] text-muted-foreground">
+        This post couldn&apos;t be loaded right now. Please refresh the page in a moment.
+      </p>
+    )
+  }
+}
+
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   let post
   try {
-    post = await getPostBySlug(slug)
+    post = await getPostMetaBySlug(slug)
   } catch {
     notFound()
   }
@@ -164,7 +180,9 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         <div className="text-[17px] sm:text-[18px] leading-[1.65] tracking-[-0.01em] [&_.blog-prose]:text-[inherit] [&_.blog-prose]:leading-[inherit]">
-          <BlogMarkdown markdown={post.markdown} />
+          <Suspense fallback={<BlogArticleSkeleton />}>
+            <PostBody pageId={post.id} />
+          </Suspense>
         </div>
 
         {post.conclusion && (
