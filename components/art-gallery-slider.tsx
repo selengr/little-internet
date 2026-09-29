@@ -214,7 +214,7 @@ export function ArtGallerySlider({
       </header>
 
       {booksLoading ? (
-        <div className="relative flex h-full min-h-[420px] w-full items-center">
+        <div className="relative flex h-full min-h-[390px] w-full items-center md:min-h-[410px]">
           <div className="flex items-center gap-8 pl-[calc(50%-150px)] md:gap-16 md:pl-[calc(50%-175px)]">
             <Skeleton className="h-[300px] w-[300px] shrink-0 rounded-2xl bg-white/8 opacity-40 md:h-[350px] md:w-[350px]" />
             <div className="relative shrink-0">
@@ -237,7 +237,7 @@ export function ArtGallerySlider({
           </div>
         </div>
       ) : items.length === 0 ? (
-        <div className="flex h-full min-h-[420px] items-center justify-center text-white/40 text-sm">
+        <div className="flex h-full min-h-[390px] items-center justify-center text-white/40 text-sm md:min-h-[410px]">
           No books with covers found
         </div>
       ) : (

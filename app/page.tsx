@@ -189,7 +189,7 @@ export default function AgenticPage() {
 
       <HomeLatestPosts />
 
-      <section className="relative min-h-[520px] h-[55vh] w-full overflow-x-clip border-y border-border">
+      <section className="relative min-h-[470px] h-[calc(55vh-50px)] md:min-h-[490px] md:h-[calc(55vh-30px)] w-full overflow-x-clip border-y border-border">
         <ArtGallerySlider variant="books" />
       </section>
     
