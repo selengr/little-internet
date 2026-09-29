@@ -36,8 +36,8 @@ export function BlogCardSkeleton() {
           </div>
           {/* .metaRow takes its height from a 12px text line; the zero-width space keeps it */}
           <div className={cardStyles.metaRow}>
-            <span>{'​'}</span>
             <div className={styles.line} style={{ width: 150 }} />
+            <span>{'​'}</span>
           </div>
         </div>
 
