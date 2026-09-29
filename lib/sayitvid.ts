@@ -11,19 +11,13 @@ export function getSayItVidApiKey(): string | null {
   return key || null
 }
 
-async function sayitvidFetch(path: string, init?: RequestInit) {
-  const key = getSayItVidApiKey()
-  if (!key) {
-    return { ok: false as const, status: 503, body: null, missingKey: true as const }
-  }
-
+async function sayitvidFetchOnce(path: string, key: string, init?: RequestInit) {
   let res: Response
   try {
     res = await fetch(`${SAYITVID_BASE}${path}`, {
       ...init,
       headers: {
         Accept: 'application/json',
-        // Cloudflare in front of sayitvid.com tends to challenge Node's default user agent.
         'User-Agent': 'LittleInternet/1.0 (+https://rezakarbakhsh.ir)',
         'X-API-Key': key,
         ...(init?.headers ?? {}),
@@ -33,7 +27,7 @@ async function sayitvidFetch(path: string, init?: RequestInit) {
     })
   } catch (err) {
     console.error('[sayitvid] request failed', path.split('?')[0], err)
-    return { ok: false as const, status: 0, body: null, missingKey: false as const }
+    return { ok: false as const, status: 0, body: null, transient: true }
   }
 
   const text = await res.text().catch(() => '')
@@ -49,7 +43,26 @@ async function sayitvidFetch(path: string, init?: RequestInit) {
     console.error('[sayitvid] upstream error', path.split('?')[0], res.status, text.slice(0, 300))
   }
 
-  return { ok: res.ok, status: res.status, body, missingKey: false as const }
+  // sayitvid.com sits behind Cloudflare, which intermittently answers server requests from
+  // Vercel with a 403 "Just a moment..." HTML challenge instead of the API's JSON.
+  const challenged = res.status === 403 && body === null
+  return { ok: res.ok, status: res.status, body, transient: challenged || res.status >= 500 }
+}
+
+async function sayitvidFetch(path: string, init?: RequestInit) {
+  const key = getSayItVidApiKey()
+  if (!key) {
+    return { ok: false as const, status: 503, body: null, missingKey: true as const }
+  }
+
+  let result = await sayitvidFetchOnce(path, key, init)
+  if (!result.ok && result.transient) {
+    // The Cloudflare challenge comes and goes, so one short retry usually gets through.
+    await new Promise(resolve => setTimeout(resolve, 600))
+    result = await sayitvidFetchOnce(path, key, init)
+  }
+
+  return { ok: result.ok, status: result.status, body: result.body, missingKey: false as const }
 }
 
 /** sayitvid errors look like { error: { message, code } }; older/other shapes use strings. */
