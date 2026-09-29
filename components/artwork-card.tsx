@@ -65,7 +65,7 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
         <div className="absolute inset-0 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm" />
 
         {/* Image container */}
-        <div className="relative h-44 w-44 overflow-hidden rounded-2xl p-2 md:h-[350px] md:w-[350px] md:p-3">
+        <div className="relative h-[300px] w-[300px] overflow-hidden rounded-2xl p-3 md:h-[350px] md:w-[350px]">
           {!imgFailed ? (
             <motion.img
               key={imgSrc}
@@ -93,7 +93,7 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
 
           {/* Gradient overlay for text */}
           <motion.div
-            className="absolute inset-x-2 bottom-2 rounded-b-xl md:inset-x-3 md:bottom-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+            className="absolute inset-x-3 bottom-3 rounded-b-xl bg-gradient-to-t from-black/80 via-black/40 to-transparent"
             initial={{ opacity: 0, height: "30%" }}
             animate={{
               opacity: isActive ? 1 : 0,
@@ -104,7 +104,7 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
 
           {/* Artwork info */}
           <motion.div
-            className="absolute inset-x-2 bottom-2 select-none p-3 md:inset-x-3 md:bottom-3 md:p-6"
+            className="absolute inset-x-3 bottom-3 select-none p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{
               opacity: isActive ? 1 : 0,
@@ -113,21 +113,21 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
             transition={{ duration: 0.4, delay: isActive ? 0.1 : 0 }}
           >
             <motion.p
-              className="mb-0.5 font-mono text-[10px] uppercase tracking-widest text-white/50 md:mb-1 md:text-xs"
+              className="mb-1 font-mono text-xs uppercase tracking-widest text-white/50"
               animate={{ y: isHovered ? -5 : 0 }}
               transition={{ duration: 0.3 }}
             >
               {artwork.year > 0 ? artwork.year : "Book"}
             </motion.p>
             <motion.h2
-              className="line-clamp-2 font-serif text-base/tight font-bold text-white md:line-clamp-none md:text-3xl"
+              className="font-serif text-2xl font-bold text-white md:text-3xl"
               animate={{ y: isHovered ? -5 : 0 }}
               transition={{ duration: 0.3, delay: 0.05 }}
             >
               {artwork.title}
             </motion.h2>
             <motion.p
-              className="mt-1 text-xs text-white/70 md:mt-2 md:text-sm"
+              className="mt-2 text-sm text-white/70"
               initial={{ opacity: 0, y: 10 }}
               animate={{
                 opacity: isHovered ? 1 : 0,
@@ -143,7 +143,7 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
 
       {/* Reflection effect */}
       <motion.div
-        className="absolute -bottom-10 left-3 right-3 h-10 md:-bottom-20 md:h-20 overflow-hidden rounded-2xl opacity-20 blur-sm"
+        className="absolute -bottom-20 left-3 right-3 h-20 overflow-hidden rounded-2xl opacity-20 blur-sm"
         style={{
           background: `linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)`,
           transform: "scaleY(-1)",
