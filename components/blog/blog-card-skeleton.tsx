@@ -1,47 +1,60 @@
+import type { CSSProperties } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import styles from './blog-card.module.css'
+
+// Exact sizes live in inline styles (not arbitrary Tailwind values) so they always apply.
+const bar = (width: string, height: string): CSSProperties => ({ width, height })
 
 /** Placeholder with the same box sizes as BlogCard, so the grid doesn't shift when posts load. */
 export function BlogCardSkeleton() {
   return (
     <div className={styles.card} aria-hidden>
-      <Skeleton className="h-[198px] w-full rounded-2xl" />
+      {/* Same as .imageWrap: 198px tall, 1rem radius */}
+      <Skeleton style={{ width: '100%', height: 198, borderRadius: '1rem' }} />
 
       <section className={styles.body}>
-        {/* Two title lines: matches .title (clamp font-size, 1.2 line-height, 4px padding) */}
+        {/* Same as .title: clamp font-size, two 1.2em lines + 4px padding top and bottom */}
         <div
-          className="flex flex-col justify-center gap-[0.4em] py-1"
-          style={{ fontSize: 'clamp(1.35rem, 2.4vw, 2rem)', minHeight: 'calc(1.2em * 2 + 8px)' }}
+          className="flex flex-col justify-center"
+          style={{
+            fontSize: 'clamp(1.35rem, 2.4vw, 2rem)',
+            minHeight: 'calc(1.2em * 2 + 8px)',
+            padding: '4px 0',
+            gap: '0.4em',
+          }}
         >
-          <Skeleton className="h-[0.8em] w-[92%]" />
-          <Skeleton className="h-[0.8em] w-[58%]" />
+          <Skeleton style={bar('92%', '0.8em')} />
+          <Skeleton style={bar('58%', '0.8em')} />
         </div>
 
         <div className={styles.details}>
-          {/* Two summary lines: matches .description (14px, 1.45 line-height) */}
+          {/* Same as .description: 14px, two 1.45em lines + 4px padding top and bottom */}
           <div
-            className="flex flex-col justify-center gap-2 py-1 text-[14px]"
-            style={{ minHeight: 'calc(1.45em * 2 + 8px)' }}
+            className="flex flex-col justify-center"
+            style={{ fontSize: 14, minHeight: 'calc(1.45em * 2 + 8px)', padding: '4px 0', gap: 8 }}
           >
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-[76%]" />
+            <Skeleton style={bar('100%', '12px')} />
+            <Skeleton style={bar('76%', '12px')} />
           </div>
+          {/* .metaRow gets its height from a 12px text line; the zero-width space reproduces it */}
           <div className={styles.metaRow}>
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-3 w-14" />
-            <Skeleton className="h-3 w-12" />
+            <span>{'​'}</span>
+            <Skeleton style={bar('80px', '12px')} />
+            <Skeleton style={bar('56px', '12px')} />
+            <Skeleton style={bar('48px', '12px')} />
           </div>
         </div>
 
-        <div className="flex gap-1.5 pt-1">
-          <Skeleton className="h-[18px] w-12 rounded-[3px]" />
-          <Skeleton className="h-[18px] w-16 rounded-[3px]" />
-          <Skeleton className="h-[18px] w-10 rounded-[3px]" />
+        {/* Same as the tag list: 4px top padding, 6px gap, 18px pills */}
+        <div className="flex" style={{ paddingTop: 4, gap: 6 }}>
+          <Skeleton style={{ ...bar('48px', '18px'), borderRadius: 3 }} />
+          <Skeleton style={{ ...bar('64px', '18px'), borderRadius: 3 }} />
+          <Skeleton style={{ ...bar('40px', '18px'), borderRadius: 3 }} />
         </div>
 
         <div className={styles.footer}>
-          <Skeleton className="size-7 rounded-full" />
-          <Skeleton className="h-3 w-28" />
+          <Skeleton style={{ width: 28, height: 28, borderRadius: 9999, flexShrink: 0 }} />
+          <Skeleton style={bar('112px', '12px')} />
         </div>
       </section>
     </div>

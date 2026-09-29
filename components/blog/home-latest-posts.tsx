@@ -53,7 +53,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
   return (
     <motion.article variants={item} className="h-full">
       <Link
-        href="/blog"
+        href={`/blog/${post.slug}`}
         className="group relative flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.35rem] border border-border/70 bg-card shadow-sm transition-shadow duration-150 ease-linear hover:shadow-xl hover:shadow-black/[0.06]"
       >
         <div className="absolute left-5 top-5 z-20 flex items-center gap-2">
@@ -118,7 +118,7 @@ function HeroPostCard({ post, index }: { post: BlogPostMeta; index: number }) {
             </div>
           )} */}
           <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium tracking-[0.14em] uppercase text-white/80 transition-colors duration-150 ease-linear group-hover:text-white">
-            View blog
+            View post
             <ArrowUpRight className="size-3.5 transition-transform duration-150 ease-linear group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
@@ -134,7 +134,7 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
   return (
     <motion.article variants={item}>
       <Link
-        href="/blog"
+        href={`/blog/${post.slug}`}
         className="group flex gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-3 transition-[background-color,border-color] duration-150 ease-linear hover:border-foreground/15 hover:bg-card"
       >
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl sm:h-[96px] sm:w-[96px]">
@@ -161,7 +161,7 @@ function CompactPostCard({ post, index }: { post: BlogPostMeta; index: number })
             {post.title}
           </h3>
           <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors duration-150 ease-linear group-hover:text-foreground">
-            View blog
+            View post
             <ArrowUpRight className="size-3 opacity-60 transition-transform duration-150 ease-linear group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>
