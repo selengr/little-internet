@@ -384,26 +384,26 @@ export function CatFactsPage() {
         {/* Next page */}
         <Link
           href="/dog-facts"
-          className="group/next relative isolate mt-28 block overflow-hidden rounded-[2rem] border border-[var(--cf-line)] bg-[var(--cf-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-xl overflow-hidden rounded-[1.4rem] border border-[var(--cf-line)] bg-[var(--cf-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-40 transition-opacity duration-500 group-hover/next:opacity-90 dark:opacity-60 dark:group-hover/next:opacity-100">
             <div
               className="cf-glow absolute inset-0"
               style={{ '--cf-g1': '#10b981', '--cf-g2': '#67e8f9' } as React.CSSProperties}
             />
-            <div className="absolute inset-[20px] rounded-[1.6rem] bg-[var(--cf-card)] blur-[24px] transition-[inset] duration-700 group-hover/next:inset-[34px]" />
+            <div className="absolute inset-[9px] rounded-[1rem] bg-[var(--cf-card)] blur-[14px] transition-[inset] duration-700 group-hover/next:inset-[16px]" />
           </div>
           <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--cf-mute)]" style={mono}>
             Next page · № 02
           </p>
-          <div className="mt-2 flex items-center justify-between gap-6">
+          <div className="mt-0.5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-[clamp(1.5rem,5vw,3.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]" style={mark}>
+              <p className="text-[clamp(1.15rem,3.6vw,1.6rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]" style={mark}>
                 Dog facts
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[var(--cf-line)] bg-[var(--cf-bg)] transition-all duration-300 group-hover/next:scale-110 group-hover/next:bg-[var(--cf-fg)] group-hover/next:text-[var(--cf-ink-on)] md:size-14">
-              <ArrowUpRight className={cn('size-5 md:size-6')} />
+            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--cf-line)] bg-[var(--cf-bg)] transition-all duration-300 group-hover/next:scale-110 group-hover/next:bg-[var(--cf-fg)] group-hover/next:text-[var(--cf-ink-on)] md:size-9">
+              <ArrowUpRight className={cn('size-4 md:size-4')} />
             </span>
           </div>
         </Link>
