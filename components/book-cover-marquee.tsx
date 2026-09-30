@@ -858,7 +858,7 @@ export function BookCoverMarquee() {
         return { ...prev, index, photo: photos[index], navigated: true }
       })
     },
-    [photos.length],
+    [photos],
   )
 
   useEffect(() => {
