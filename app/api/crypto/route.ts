@@ -122,7 +122,8 @@ export async function GET(request: NextRequest) {
         'X-Cache': 'MISS',
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[coingecko] crypto route failed', cacheKey, err)
     if (hit) {
       return NextResponse.json(hit.payload, {
         headers: {
