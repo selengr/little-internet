@@ -5,6 +5,8 @@ export type Crew = {
   count: number
   craft: { name: string; people: string[] }[]
   source: 'corquaid' | 'launch-library'
+  /** Unix seconds of the earliest launch among the current crew (only the primary source has it). */
+  since?: number
 }
 
 export type Position = {
@@ -48,7 +50,11 @@ async function getJson(url: string, timeoutMs: number): Promise<unknown | null> 
   }
 }
 
-function group(entries: { name: string; craft: string }[], source: Crew['source']): Crew | null {
+function group(
+  entries: { name: string; craft: string }[],
+  source: Crew['source'],
+  since?: number,
+): Crew | null {
   if (entries.length === 0) return null
   const byCraft = new Map<string, string[]>()
   for (const { name, craft } of entries) {
@@ -62,6 +68,7 @@ function group(entries: { name: string; craft: string }[], source: Crew['source'
       .map(([name, people]) => ({ name, people }))
       .sort((a, b) => b.people.length - a.people.length),
     source,
+    ...(since !== undefined ? { since } : {}),
   }
 }
 
@@ -81,12 +88,15 @@ export function parseCorquaid(raw: unknown, nowSec: number): Crew | null {
   )
   if (stale) return null
 
+  const launches = valid.map(p => p.launched).filter((n): n is number => typeof n === 'number' && n > 0)
+
   return group(
     valid.map(p => ({
       name: (p.name as string).trim(),
       craft: p.iss === true ? 'ISS' : isChinese(p.agency) ? 'Tiangong' : String(p.spacecraft || 'Other'),
     })),
     'corquaid',
+    launches.length ? Math.min(...launches) : undefined,
   )
 }
 

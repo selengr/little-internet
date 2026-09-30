@@ -23,3 +23,38 @@ export const LAND_MASK: Uint8Array = (() => {
   }
   return cells
 })()
+
+/** True when the point falls on a land cell (coarse: ~2° per cell, so coastlines are approximate). */
+export function isLandAt(lat: number, lon: number): boolean {
+  if (lat < LAND_LAT_MIN || lat >= LAND_LAT_MAX) return false
+  let wrapped = ((lon + 180) % 360 + 360) % 360 - 180
+  if (wrapped === 180) wrapped = -180
+  const col = Math.min(
+    LAND_COLS - 1,
+    Math.floor(((wrapped - LAND_LON_MIN) / (LAND_LON_MAX - LAND_LON_MIN)) * LAND_COLS),
+  )
+  const row = Math.min(
+    LAND_ROWS - 1,
+    Math.floor(((LAND_LAT_MAX - lat) / (LAND_LAT_MAX - LAND_LAT_MIN)) * LAND_ROWS),
+  )
+  return LAND_MASK[row * LAND_COLS + col] === 1
+}
+
+const CELL_LAT = (LAND_LAT_MAX - LAND_LAT_MIN) / LAND_ROWS
+const CELL_LON = (LAND_LON_MAX - LAND_LON_MIN) / LAND_COLS
+
+/**
+ * Like isLandAt, but a water cell counts as land when at least `need` of its 8 neighbours are land.
+ * The mask is only ~2° per cell, so a coastal city often lands on a water cell; this puts it back
+ * on the coast without stretching continents far out to sea.
+ */
+export function isNearLand(lat: number, lon: number, need = 3): boolean {
+  if (isLandAt(lat, lon)) return true
+  let land = 0
+  for (const dy of [-1, 0, 1]) {
+    for (const dx of [-1, 0, 1]) {
+      if ((dy !== 0 || dx !== 0) && isLandAt(lat + dy * CELL_LAT, lon + dx * CELL_LON)) land++
+    }
+  }
+  return land >= need
+}

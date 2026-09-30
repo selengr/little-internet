@@ -8,7 +8,7 @@ export const maxDuration = 20
 
 // Launches and landings are days apart, so the roster is cached for 30 minutes across all
 // serverless instances. A failed lookup throws and is therefore never cached.
-const getCrew = unstable_cache(fetchCrew, ['space-crew-v1'], { revalidate: 1800 })
+const getCrew = unstable_cache(fetchCrew, ['space-crew-v2'], { revalidate: 1800 })
 
 export async function GET() {
   try {

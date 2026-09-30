@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   LAND_MASK,
   LAND_COLS,
@@ -9,11 +9,14 @@ import {
   LAND_LON_MAX,
   LAND_LAT_MIN,
   LAND_LAT_MAX,
+  isNearLand,
 } from '@/lib/iss-land-mask'
+import { describePlace } from '@/lib/iss-place'
 
 type Position = { lat: number; lon: number; timestamp: number; altitude?: number; velocity?: number }
-type Crew = { count: number; craft: { name: string; people: string[] }[] }
+type Crew = { count: number; craft: { name: string; people: string[] }[]; since?: number }
 type SpacePayload = { position: Position | null }
+type FeedStatus = 'connecting' | 'live' | 'reconnecting'
 
 const CREW_CACHE_KEY = 'space-crew-v1'
 
@@ -345,11 +348,13 @@ function TrackerMap({ position, active }: { position: Position | null; active: b
 
 function useSpaceFeed(active: boolean) {
   const [data, setData] = useState<SpacePayload | null>(null)
+  const [status, setStatus] = useState<FeedStatus>('connecting')
 
   useEffect(() => {
     if (!active) return
 
     let cancelled = false
+    let failures = 0
     let timer: ReturnType<typeof setTimeout>
 
     const tick = async () => {
@@ -357,9 +362,15 @@ function useSpaceFeed(active: boolean) {
         const res = await fetch('/api/space', { cache: 'no-store' })
         if (!res.ok) throw new Error(String(res.status))
         const payload = (await res.json()) as SpacePayload
-        if (!cancelled) setData(payload)
+        if (!cancelled) {
+          failures = 0
+          setData(payload)
+          setStatus('live')
+        }
       } catch {
-        /* keep the last good reading */
+        // Keep the last good reading on the map, but stop calling it live after two misses.
+        failures += 1
+        if (!cancelled && failures >= 2) setStatus('reconnecting')
       } finally {
         if (!cancelled) timer = setTimeout(tick, POLL_MS)
       }
@@ -373,7 +384,7 @@ function useSpaceFeed(active: boolean) {
     }
   }, [active])
 
-  return data
+  return { data, status }
 }
 
 const isCrew = (value: unknown): value is Crew =>
@@ -471,10 +482,17 @@ function Stat({ value, label }: { value: string; label: string }) {
 export function SpaceTracker() {
   const sectionRef = useRef<HTMLElement>(null)
   const active = useOnScreen(sectionRef)
-  const data = useSpaceFeed(active)
+  const { data, status } = useSpaceFeed(active)
   const crew = useCrew()
 
   const position = data?.position ?? null
+  const place = useMemo(
+    () =>
+      position ? describePlace(position.lat, position.lon, isNearLand(position.lat, position.lon)) : null,
+    [position],
+  )
+  const daysAboard =
+    crew?.since && crew.since > 0 ? Math.floor((Date.now() / 1000 - crew.since) / 86400) : null
 
   return (
     <section
@@ -486,12 +504,22 @@ export function SpaceTracker() {
 
       <div className="relative mx-auto max-w-6xl px-6 py-8 md:px-12 md:py-10 lg:px-20">
         <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.24em] text-sky-200/45">
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-2" role="status">
             <span className="relative flex size-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-70" />
-              <span className="relative inline-flex size-1.5 rounded-full bg-sky-400" />
+              {status === 'live' && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-70 motion-reduce:animate-none" />
+              )}
+              <span
+                className={`relative inline-flex size-1.5 rounded-full ${
+                  status === 'reconnecting' ? 'bg-amber-400' : status === 'live' ? 'bg-sky-400' : 'bg-sky-400/50'
+                }`}
+              />
             </span>
-            Live from orbit
+            {status === 'reconnecting'
+              ? 'Signal lost · retrying'
+              : status === 'live'
+                ? 'Live from orbit'
+                : 'Connecting to orbit'}
           </span>
           <span className="flex items-center gap-5">
             <span>
@@ -510,27 +538,56 @@ export function SpaceTracker() {
           {crew ? (
             crew.count
           ) : (
-            <span
-              aria-label="loading"
-              className="inline-block h-[0.8em] w-[1.1em] animate-pulse rounded-md bg-sky-200/15 align-baseline"
-            />
+            <>
+              <span
+                aria-hidden
+                className="inline-block h-[0.8em] w-[1.1em] animate-pulse rounded-md bg-sky-200/15 align-baseline motion-reduce:animate-none"
+              />
+              <span className="sr-only">Loading</span>
+            </>
           )}{' '}
           people are
           off the planet
           right now.
         </h2>
-        {/* Always rendered, so the layout doesn't jump when the crew arrives. */}
-        <p className="mt-4 min-h-4 font-mono text-[11px] uppercase tracking-[0.2em] text-sky-200/45">
-          {crew?.craft
-            .map(c => `${c.people.length} on ${c.name === 'ISS' ? 'the ISS' : c.name}`)
-            .join(' · ')}
-        </p>
+        {/* Who is up there. Space is reserved so the map doesn't jump when the crew arrives. */}
+        <div className="mt-5 min-h-[4.5rem] space-y-3">
+          {crew?.craft.map(c => (
+            <div key={c.name} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-6">
+              <span className="w-36 shrink-0 font-mono text-[10px] uppercase tracking-[0.2em] text-sky-200/45">
+                {c.name === 'ISS' ? 'On the ISS' : `On ${c.name}`} · {c.people.length}
+              </span>
+              <span className="text-[13px] leading-relaxed text-sky-100/70">
+                {c.people.map((person, i) => (
+                  <span key={person} className="whitespace-nowrap">
+                    {i > 0 && <span className="mx-2 text-sky-200/25">·</span>}
+                    {person}
+                  </span>
+                ))}
+              </span>
+            </div>
+          ))}
+        </div>
 
-        <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]">
+        <div
+          role="img"
+          aria-label={place ? `World map: the space station is over ${place}` : 'World map showing the space station'}
+          className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]"
+        >
           <div className="aspect-[168/64] w-full">
             <TrackerMap position={position} active={active} />
           </div>
         </div>
+        <p className="mt-3 flex min-h-5 items-center gap-2 text-[13px] text-sky-100/60" aria-live="polite">
+          <span className="size-1 rounded-full bg-sky-300/70" aria-hidden />
+          {place ? (
+            <>
+              Now passing over <span className="text-sky-50/90">{place}</span>
+            </>
+          ) : (
+            'Finding the station…'
+          )}
+        </p>
 
         <div className="mt-8 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
           <div className="flex flex-wrap gap-x-12 gap-y-5">
@@ -543,6 +600,9 @@ export function SpaceTracker() {
               label="km / hour"
             />
             <Stat value="16" label="Sunrises a day" />
+            {daysAboard !== null && daysAboard >= 1 && (
+              <Stat value={`${daysAboard} days`} label="Longest stay aboard" />
+            )}
           </div>
           <p className="max-w-xs text-xs font-light leading-relaxed text-sky-200/40">
             Sixteen sunrises a day. You get one. Nobody said it was fair.
