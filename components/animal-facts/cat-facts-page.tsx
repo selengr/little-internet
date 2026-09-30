@@ -12,6 +12,7 @@ import {
 } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
+import { CopyButton } from '@/components/copy-button'
 import { cn } from '@/lib/utils'
 
 const display = { fontFamily: 'var(--font-af-display), Georgia, serif' } as const
@@ -335,16 +336,19 @@ export function CatFactsPage() {
                 </AnimatePresence>
               </div>
 
+              <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => void next()}
                 disabled={busy}
-                className="group/btn inline-flex h-12 w-full items-center justify-center gap-2 self-start rounded-full px-6 text-[13px] font-medium tracking-wide text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 sm:w-auto"
+                className="group/btn inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-[13px] font-medium tracking-wide text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 sm:w-auto"
                 style={{ ...mono, background: `linear-gradient(90deg, ${palette.b}, ${palette.rim})`, transition: 'background .9s, filter .2s, transform .2s' }}
               >
                 {busy ? 'Purring…' : 'Another fact'}
                 <ArrowRight className="size-4 transition-transform group-hover/btn:translate-x-0.5" />
               </button>
+                <CopyButton text={fact?.text ?? ''} disabled={busy} lineVar="var(--cf-line)" style={mono} />
+              </div>
             </div>
           </div>
         </section>
@@ -380,7 +384,7 @@ export function CatFactsPage() {
         {/* Next page */}
         <Link
           href="/dog-facts"
-          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--cf-line)] bg-[var(--cf-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
+          className="group/next relative isolate mt-28 block overflow-hidden rounded-[2rem] border border-[var(--cf-line)] bg-[var(--cf-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
         >
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-40 transition-opacity duration-500 group-hover/next:opacity-90 dark:opacity-60 dark:group-hover/next:opacity-100">
             <div
@@ -389,9 +393,12 @@ export function CatFactsPage() {
             />
             <div className="absolute inset-[20px] rounded-[1.6rem] bg-[var(--cf-card)] blur-[24px] transition-[inset] duration-700 group-hover/next:inset-[34px]" />
           </div>
-          <div className="flex items-center justify-between gap-6">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--cf-mute)]" style={mono}>
+            Next page · № 02
+          </p>
+          <div className="mt-2 flex items-center justify-between gap-6">
             <div>
-              <p className="text-[clamp(1.9rem,6.2vw,4.2rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]" style={mark}>
+              <p className="text-[clamp(1.5rem,5vw,3.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]" style={mark}>
                 Dog facts
               </p>
             </div>

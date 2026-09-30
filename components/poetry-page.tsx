@@ -8,6 +8,7 @@ import { PoemInkSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 import { MOODS, normalizePoem, pickFallbackPoem, pickRandomFallback } from '@/lib/poetry'
+import { CopyButton } from '@/components/copy-button'
 import { cn } from '@/lib/utils'
 import type { PoetryMood, PoetryPoem } from '@/types/poetry'
 
@@ -434,6 +435,12 @@ export function PoetryPage() {
                   {busy ? 'Blooming…' : 'Another poem'}
                   <ArrowRight className="size-4 transition-transform group-hover/btn:translate-x-0.5" />
                 </button>
+                <CopyButton
+                  text={card ? `${card.poem.title}\n${card.poem.author}\n\n${card.poem.lines.join('\n')}` : ''}
+                  disabled={busy}
+                  lineVar="var(--py-line)"
+                  style={mono}
+                />
                 {long && !busy && (
                   <button
                     type="button"
@@ -487,7 +494,7 @@ export function PoetryPage() {
         {/* The tour loops back to the start */}
         <Link
           href="/cat-facts"
-          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--py-line)] bg-[var(--py-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
+          className="group/next relative isolate mt-28 block overflow-hidden rounded-[2rem] border border-[var(--py-line)] bg-[var(--py-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
         >
           <div
             aria-hidden
@@ -499,10 +506,13 @@ export function PoetryPage() {
             />
             <div className="absolute inset-[20px] rounded-[1.6rem] bg-[var(--py-card)] blur-[24px] transition-[inset] duration-700 group-hover/next:inset-[34px]" />
           </div>
-          <div className="flex items-center justify-between gap-6">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--py-mute)]" style={mono}>
+            Next page · back to № 01
+          </p>
+          <div className="mt-2 flex items-center justify-between gap-6">
             <div>
               <p
-                className="text-[clamp(1.9rem,6.2vw,4.2rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
+                className="text-[clamp(1.5rem,5vw,3.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
                 style={mark}
               >
                 Cat facts

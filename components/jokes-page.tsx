@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { DIE_CATEGORIES, DIE_FACES, JokeDieSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
+import { CopyButton } from '@/components/copy-button'
 import { cn } from '@/lib/utils'
 import type { Joke, JokeResponse } from '@/types/jokeapi'
 
@@ -479,6 +480,12 @@ export function JokesPage() {
                   {busy ? 'Rolling…' : pending ? 'Reveal the punchline' : 'Roll again'}
                   <ArrowRight className="size-4 transition-transform group-hover/btn:translate-x-0.5" />
                 </button>
+                <CopyButton
+                  text={card ? [card.setup, card.punchline].filter(Boolean).join('\n') : ''}
+                  disabled={busy}
+                  lineVar="var(--jk-line)"
+                  style={mono}
+                />
                 {pending && !busy && (
                   <button
                     type="button"
@@ -530,7 +537,7 @@ export function JokesPage() {
         {/* Next page */}
         <Link
           href="/poetry"
-          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--jk-line)] bg-[var(--jk-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
+          className="group/next relative isolate mt-28 block overflow-hidden rounded-[2rem] border border-[var(--jk-line)] bg-[var(--jk-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
         >
           <div
             aria-hidden
@@ -542,10 +549,13 @@ export function JokesPage() {
             />
             <div className="absolute inset-[20px] rounded-[1.6rem] bg-[var(--jk-card)] blur-[24px] transition-[inset] duration-700 group-hover/next:inset-[34px]" />
           </div>
-          <div className="flex items-center justify-between gap-6">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--jk-mute)]" style={mono}>
+            Next page · № 04
+          </p>
+          <div className="mt-2 flex items-center justify-between gap-6">
             <div>
               <p
-                className="text-[clamp(1.9rem,6.2vw,4.2rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
+                className="text-[clamp(1.5rem,5vw,3.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
                 style={mark}
               >
                 Poetry
