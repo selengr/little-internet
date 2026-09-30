@@ -366,7 +366,8 @@ export function DevExSection() {
             }}
             className={cn(
               "group/glow relative isolate lg:col-span-2 rounded-2xl border border-border bg-card p-6 md:p-8 flex flex-col overflow-hidden",
-              PANEL_H,
+              // Taller on phones: the toy and the text sit side by side in a narrow column there.
+              "h-[440px] lg:h-[360px]",
             )}
           >
             {/* Light that lives inside the border: a coloured gradient, covered by a blurred plate in the
@@ -472,7 +473,7 @@ export function DevExSection() {
                     />
                   )}
 
-                  <div className="flex-1 min-w-0 min-h-0 overflow-y-auto self-stretch flex flex-col justify-center py-0.5">
+                  <div className="flex-1 min-w-0 min-h-0 overflow-y-auto self-stretch flex flex-col py-0.5">
                     {/* Jokes and poems are long: while one is being rolled or fetched, nothing of the old text
                         may stay on screen, so it cannot collide with the new one. Only a placeholder shows. */}
                     <AnimatePresence mode="wait" initial={false}>
@@ -480,7 +481,7 @@ export function DevExSection() {
                         <motion.div
                           key="busy"
                           aria-hidden
-                          className="flex flex-col gap-2.5"
+                          className="my-auto flex flex-col gap-2.5"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
@@ -497,6 +498,7 @@ export function DevExSection() {
                       ) : (
                         <motion.div
                           key={`text-${active}`}
+                          className="my-auto"
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
