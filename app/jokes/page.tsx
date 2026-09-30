@@ -1,6 +1,5 @@
 import { Instrument_Serif, JetBrains_Mono, Syne } from 'next/font/google'
-import { JokesHub } from '@/components/jokes-hub'
-import { JokesShell } from '@/components/jokes-shell'
+import { JokesPage } from '@/components/jokes-page'
 
 const display = Instrument_Serif({
   subsets: ['latin'],
@@ -21,23 +20,19 @@ const mark = Syne({
   variable: '--font-jk-mark',
 })
 
+const description = 'Roll the die, read the setup, then reveal the punchline: puns, programming and more.'
+
 export const metadata = {
   title: 'Jokes',
-  description: 'Pull a joke.',
-  openGraph: {
-    title: 'Jokes',
-    description: 'Pull a joke.',
-  },
-  twitter: {
-    title: 'Jokes',
-    description: 'Pull a joke.',
-  },
+  description,
+  openGraph: { title: 'Jokes', description },
+  twitter: { title: 'Jokes', description },
 }
 
-export default function JokesPage() {
+export default function JokesRoute() {
   return (
-    <JokesShell fontVars={`${display.variable} ${mono.variable} ${mark.variable}`}>
-      <JokesHub />
-    </JokesShell>
+    <div className={`${display.variable} ${mono.variable} ${mark.variable}`}>
+      <JokesPage />
+    </div>
   )
 }

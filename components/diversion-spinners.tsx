@@ -424,6 +424,7 @@ const FACES = [
   { cat: "Christmas", emoji: "🎄", label: "Xmas", from: "#fecaca", to: "#15803d" },
 ] as const
 export const DIE_CATEGORIES: string[] = FACES.map(f => f.cat)
+export const DIE_FACES = FACES
 
 const DIE = 62
 const FACE_PLACEMENT = [
@@ -449,6 +450,7 @@ export function JokeDieSpinner({
   category,
   onSpin,
   label,
+  size,
 }: Omit<SpinnerProps, "target"> & { category: string | null }) {
   const reduce = useReducedMotion()
   const rx = useMotionValue(0)
@@ -504,6 +506,7 @@ export function JokeDieSpinner({
 
   return (
     <Stage
+      size={size}
       label={label}
       onSpin={onSpin}
       spinning={spinning}
