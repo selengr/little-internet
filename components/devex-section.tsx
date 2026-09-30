@@ -309,7 +309,7 @@ export function DevExSection() {
           </div>
           <h2 className="mt-5 text-4xl md:text-5xl font-light tracking-tight leading-[1.05] text-foreground">
             Facts, jokes &amp; verse.<br />
-            <span className="italic text-muted-foreground">Take a breath.</span>
+            <span className="text-muted-foreground">Take a breath.</span>
           </h2>
         </div>
 
