@@ -91,7 +91,9 @@ async function fetchCategoryPool(query: string): Promise<UnsplashPhotoView[]> {
         page: String(i + 1),
         order_by: "latest",
       })
-      const res = await fetch(`/api/unsplash?${params}`, { cache: "no-store" })
+      // Same URL for every visitor, so let the CDN/browser cache it: 12 uncached searches per visit
+      // is what kept exhausting Unsplash's hourly limit and left the cards empty.
+      const res = await fetch(`/api/unsplash?${params}`)
       const json = await res.json()
       return (json.photos ?? []) as UnsplashPhotoView[]
     }),

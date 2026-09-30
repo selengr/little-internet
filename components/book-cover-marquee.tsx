@@ -608,9 +608,9 @@ function PhotoLightbox({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35, delay: 0.25 }}
               >
-                {photo.photographer && (
-                  <p className="truncate text-[13px] text-white/85">Photo by {photo.photographer.name}</p>
-                )}
+                <p className="truncate text-[13px] text-white/85">
+                  Photo by {photo.photographer ? photo.photographer.name : "an Unsplash photographer"}
+                </p>
                 <div className="flex flex-wrap items-center gap-2">
                   <Link
                     href="/photos"
