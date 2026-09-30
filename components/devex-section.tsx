@@ -4,7 +4,16 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowUpRight, Dices, Loader2 } from "lucide-react"
-import { SpinWheel } from "@/components/jokes-hub"
+import {
+  CAT_EYE_COUNT,
+  CatEyeSpinner,
+  DIE_CATEGORIES,
+  DOG_BALL_COUNT,
+  DogBallSpinner,
+  JokeDieSpinner,
+  PoemInkSpinner,
+  SPIN_MS,
+} from "@/components/diversion-spinners"
 import type { Joke, JokeResponse } from "@/types/jokeapi"
 import type { PoetryPoem } from "@/types/poetry"
 import { cn } from "@/lib/utils"
@@ -17,7 +26,8 @@ const STEPS = [
     label: "catfact.ninja",
     moreHref: "/animal-facts",
     moreLabel: "More animal facts",
-    spinLabel: "Spin for a cat fact",
+    spinLabel: "Wake the cat",
+    busyLabel: "Purring…",
   },
   {
     num: "02",
@@ -26,7 +36,8 @@ const STEPS = [
     label: "dog-facts api",
     moreHref: "/animal-facts",
     moreLabel: "More animal facts",
-    spinLabel: "Spin for a dog fact",
+    spinLabel: "Throw the ball",
+    busyLabel: "Fetching…",
   },
   {
     num: "03",
@@ -35,7 +46,8 @@ const STEPS = [
     label: "jokeapi",
     moreHref: "/jokes",
     moreLabel: "More jokes",
-    spinLabel: "Spin for a joke",
+    spinLabel: "Roll the die",
+    busyLabel: "Rolling…",
   },
   {
     num: "04",
@@ -44,102 +56,12 @@ const STEPS = [
     label: "poetrydb",
     moreHref: "/poetry",
     moreLabel: "More poetry",
-    spinLabel: "Spin for a poem",
+    spinLabel: "Drop the ink",
+    busyLabel: "Blooming…",
   },
 ] as const
 
 const PANEL_H = "h-[360px]"
-
-const CAT_SEGMENTS = [
-  { emoji: "🐱", color: "#fb7185" },
-  { emoji: "😺", color: "#f472b6" },
-  { emoji: "🐈", color: "#e879f9" },
-  { emoji: "🐈‍⬛", color: "#a78bfa" },
-  { emoji: "😸", color: "#f9a8d4" },
-  { emoji: "😻", color: "#fda4af" },
-]
-
-const DOG_SEGMENTS = [
-  { emoji: "🐶", color: "#f59e0b" },
-  { emoji: "🐕", color: "#d97706" },
-  { emoji: "🦮", color: "#ea580c" },
-  { emoji: "🐕‍🦺", color: "#b45309" },
-  { emoji: "🐩", color: "#fbbf24" },
-  { emoji: "🐺", color: "#78716c" },
-]
-
-const POEM_SEGMENTS = [
-  { emoji: "📜", color: "#a78bfa" },
-  { emoji: "🪶", color: "#818cf8" },
-  { emoji: "✨", color: "#c084fc" },
-  { emoji: "🌙", color: "#6366f1" },
-  { emoji: "📖", color: "#e879f9" },
-  { emoji: "💫", color: "#8b5cf6" },
-]
-
-type WheelSegment = { emoji: string; color: string }
-
-function ThemeSpinWheel({
-  segments,
-  spinning,
-  landedIndex,
-  onSpin,
-}: {
-  segments: WheelSegment[]
-  spinning: boolean
-  landedIndex: number | null
-  onSpin: () => void
-}) {
-  const slice = 360 / segments.length
-  const wheelGradient = `conic-gradient(from -90deg, ${segments
-    .map((seg, i) => `${seg.color} ${i * slice}deg ${(i + 1) * slice}deg`)
-    .join(", ")})`
-
-  return (
-    <button
-      type="button"
-      onClick={onSpin}
-      disabled={spinning}
-      aria-label="Spin"
-      className="relative size-24 shrink-0 cursor-pointer disabled:cursor-not-allowed"
-    >
-      <motion.div
-        animate={{
-          rotate: spinning
-            ? 1080 + Math.random() * 360
-            : landedIndex != null
-              ? landedIndex * slice
-              : 0,
-        }}
-        transition={{
-          duration: spinning ? 2.2 : 0.5,
-          ease: spinning ? [0.2, 0.8, 0.2, 1] : "easeOut",
-        }}
-        className="absolute inset-0 rounded-full border-2 border-white/40 dark:border-white/10 overflow-hidden shadow-inner"
-        style={{ transformOrigin: "center", background: wheelGradient }}
-      >
-        {segments.map((seg, i) => {
-          const angle = slice * i + slice / 2
-          return (
-            <div
-              key={`${seg.emoji}-${i}`}
-              className="absolute inset-0 flex items-start justify-center"
-              style={{ transform: `rotate(${angle}deg)` }}
-            >
-              <span className="text-sm mt-1.5 drop-shadow-sm select-none">{seg.emoji}</span>
-            </div>
-          )
-        })}
-        <div className="absolute inset-2.5 rounded-full bg-card border border-border/60 flex items-center justify-center shadow-sm">
-          <span className="text-lg">
-            {landedIndex != null ? segments[landedIndex]?.emoji ?? "✦" : "✦"}
-          </span>
-        </div>
-      </motion.div>
-      <div className="absolute -top-1 left-1/2 -translate-x-1/2 size-0 border-l-[8px] border-r-[8px] border-b-[14px] border-l-transparent border-r-transparent border-b-amber-500 z-10 pointer-events-none" />
-    </button>
-  )
-}
 
 function isJoke(data: JokeResponse): data is Joke {
   return !data.error && "id" in data && !("jokes" in data)
@@ -166,14 +88,15 @@ export function DevExSection() {
   const [jokeLoading, setJokeLoading] = useState(false)
   const [poemLoading, setPoemLoading] = useState(false)
 
+  // Each toy gets its outcome before the spin starts, so it can choreograph itself to arrive there.
   const [jokeSpinning, setJokeSpinning] = useState(false)
-  const [jokeLanded, setJokeLanded] = useState<string | null>(null)
+  const [jokeCategory, setJokeCategory] = useState<string | null>(null)
   const [catSpinning, setCatSpinning] = useState(false)
-  const [catLanded, setCatLanded] = useState<number | null>(null)
+  const [catTarget, setCatTarget] = useState<number | null>(null)
   const [dogSpinning, setDogSpinning] = useState(false)
-  const [dogLanded, setDogLanded] = useState<number | null>(null)
+  const [dogTarget, setDogTarget] = useState<number | null>(null)
   const [poemSpinning, setPoemSpinning] = useState(false)
-  const [poemLanded, setPoemLanded] = useState<number | null>(null)
+  const [poemSeed, setPoemSeed] = useState<number | null>(null)
 
   const transitionRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const autoSwapRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -309,48 +232,37 @@ export function DevExSection() {
     return () => clearTransitions()
   }, [clearTransitions])
 
-  const runSpin = (
+  const launch = <T,>(
     spinning: boolean,
     setSpinning: (v: boolean) => void,
-    setLanded: (v: number | null) => void,
-    segmentCount: number,
+    setTarget: (v: T) => void,
+    target: T,
     onDone: () => void | Promise<void>,
   ) => {
     if (spinning) return
     stopAuto()
+    setTarget(target)
     setSpinning(true)
-    setLanded(null)
-    const landed = Math.floor(Math.random() * segmentCount)
     setTimeout(async () => {
-      setLanded(landed)
       setSpinning(false)
       await onDone()
-    }, 2200)
+    }, SPIN_MS)
   }
 
   const spinCat = () =>
-    runSpin(catSpinning, setCatSpinning, setCatLanded, CAT_SEGMENTS.length, fetchCat)
+    launch(catSpinning, setCatSpinning, setCatTarget, Math.floor(Math.random() * CAT_EYE_COUNT), fetchCat)
 
   const spinDog = () =>
-    runSpin(dogSpinning, setDogSpinning, setDogLanded, DOG_SEGMENTS.length, fetchDog)
+    launch(dogSpinning, setDogSpinning, setDogTarget, Math.floor(Math.random() * DOG_BALL_COUNT), fetchDog)
 
   const spinPoem = () =>
-    runSpin(poemSpinning, setPoemSpinning, setPoemLanded, POEM_SEGMENTS.length, () =>
+    launch(poemSpinning, setPoemSpinning, setPoemSeed, Math.floor(Math.random() * 2 ** 31), () =>
       fetchPoem(true),
     )
 
-  const spinForJoke = async () => {
-    if (jokeSpinning) return
-    stopAuto()
-    setJokeSpinning(true)
-    setJokeLanded(null)
-    const cats = ["Programming", "Pun", "Misc", "Dark", "Spooky", "Christmas"]
-    const landed = cats[Math.floor(Math.random() * cats.length)]
-    setTimeout(async () => {
-      setJokeLanded(landed)
-      setJokeSpinning(false)
-      await fetchJoke(landed)
-    }, 2200)
+  const spinForJoke = () => {
+    const category = DIE_CATEGORIES[Math.floor(Math.random() * DIE_CATEGORIES.length)]
+    launch(jokeSpinning, setJokeSpinning, setJokeCategory, category, () => fetchJoke(category))
   }
 
   const step = STEPS[active]
@@ -471,35 +383,34 @@ export function DevExSection() {
               >
                 <div className="flex flex-row gap-4 items-center flex-1 min-h-0 overflow-hidden">
                   {active === 0 && (
-                    <ThemeSpinWheel
-                      segments={CAT_SEGMENTS}
+                    <CatEyeSpinner
+                      label={step.spinLabel}
                       spinning={catSpinning}
-                      landedIndex={catLanded}
+                      target={catTarget}
                       onSpin={spinCat}
                     />
                   )}
                   {active === 1 && (
-                    <ThemeSpinWheel
-                      segments={DOG_SEGMENTS}
+                    <DogBallSpinner
+                      label={step.spinLabel}
                       spinning={dogSpinning}
-                      landedIndex={dogLanded}
+                      target={dogTarget}
                       onSpin={spinDog}
                     />
                   )}
                   {active === 2 && (
-                    <SpinWheel
-                      compact
-                      hideButton
+                    <JokeDieSpinner
+                      label={step.spinLabel}
                       spinning={jokeSpinning}
-                      landed={jokeLanded}
+                      category={jokeCategory}
                       onSpin={spinForJoke}
                     />
                   )}
                   {active === 3 && (
-                    <ThemeSpinWheel
-                      segments={POEM_SEGMENTS}
+                    <PoemInkSpinner
+                      label={step.spinLabel}
                       spinning={poemSpinning}
-                      landedIndex={poemLanded}
+                      target={poemSeed}
                       onSpin={spinPoem}
                     />
                   )}
@@ -509,7 +420,7 @@ export function DevExSection() {
                       <Loader2 className="size-4 animate-spin text-muted-foreground" />
                     ) : active === 2 ? (
                       <p className="text-[13px] leading-relaxed text-foreground/80 whitespace-pre-line font-light">
-                        {jokeText(joke) || "Spin the wheel for a joke."}
+                        {jokeText(joke) || "Roll the die for a joke."}
                       </p>
                     ) : active === 3 ? (
                       poem ? (
@@ -534,7 +445,7 @@ export function DevExSection() {
                           </div>
                         </>
                       ) : (
-                        <p className="text-sm text-muted-foreground">Spin for a poem.</p>
+                        <p className="text-sm text-muted-foreground">Drop the ink for a poem.</p>
                       )
                     ) : (
                       <p className="text-[13px] md:text-[14px] leading-relaxed text-foreground/80 font-light">
@@ -550,14 +461,14 @@ export function DevExSection() {
                     onClick={() => {
                       if (active === 0) spinCat()
                       else if (active === 1) spinDog()
-                      else if (active === 2) void spinForJoke()
+                      else if (active === 2) spinForJoke()
                       else spinPoem()
                     }}
                     disabled={spinningNow}
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-amber-500/30 bg-gradient-to-r from-amber-500/15 to-orange-500/10 text-[11px] tracking-wide hover:from-amber-500/25 hover:to-orange-500/15 disabled:opacity-50 transition-all cursor-pointer"
                   >
                     <Dices className={`size-3.5 ${spinningNow ? "animate-spin" : ""}`} />
-                    {spinningNow ? "Spinning…" : step.spinLabel}
+                    {spinningNow ? step.busyLabel : step.spinLabel}
                   </button>
 
                   <Link
