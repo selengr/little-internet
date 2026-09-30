@@ -557,10 +557,13 @@ export function SpaceTracker() {
               <span className="w-36 shrink-0 font-mono text-[10px] uppercase tracking-[0.2em] text-sky-200/45">
                 {c.name === 'ISS' ? 'On the ISS' : `On ${c.name}`} · {c.people.length}
               </span>
-              <span className="text-[13px] leading-relaxed text-sky-100/70">
-                {c.people.map((person, i) => (
-                  <span key={person} className="whitespace-nowrap">
-                    {i > 0 && <span className="mx-2 text-sky-200/25">·</span>}
+              {/* A flex-wrap row so long rosters break between names (never inside one) on small screens. */}
+              <span className="flex min-w-0 flex-wrap text-[13px] leading-relaxed text-sky-100/70">
+                {c.people.map(person => (
+                  <span
+                    key={person}
+                    className="whitespace-nowrap after:mx-2 after:text-sky-200/25 after:content-['·'] last:after:content-none"
+                  >
                     {person}
                   </span>
                 ))}
@@ -580,13 +583,15 @@ export function SpaceTracker() {
         </div>
         <p className="mt-3 flex min-h-5 items-center gap-2 text-[13px] text-sky-100/60" aria-live="polite">
           <span className="size-1 rounded-full bg-sky-300/70" aria-hidden />
-          {place ? (
-            <>
-              Now passing over <span className="text-sky-50/90">{place}</span>
-            </>
-          ) : (
-            'Finding the station…'
-          )}
+          <span>
+            {place ? (
+              <>
+                Now passing over <span className="text-sky-50/90">{place}</span>
+              </>
+            ) : (
+              'Finding the station…'
+            )}
+          </span>
         </p>
 
         <div className="mt-8 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
