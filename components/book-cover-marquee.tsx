@@ -1,15 +1,17 @@
 "use client"
 
-import { useEffect, useMemo, useState, useCallback } from "react"
-import { createPortal } from "react-dom"
-import { AnimatePresence, motion } from "framer-motion"
+import { useEffect, useMemo, useState, useCallback, type CSSProperties } from "react"
+import Link from "next/link"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
 const TILE_PX = 51
 const TILE_GAP = 8
-const EXPANDED_PX = 168
-const SLOT_BLUE = "#2563eb"
+const LARGE_W = 800 // the photo shown in the viewer: 4:5 portrait
+const LARGE_H = 1000
 /** Base wave pattern — tripled so one loop half is wider than any screen (no duplicate halves visible) */
 const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
 const COLUMN_COUNTS = [...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS]
@@ -74,6 +76,10 @@ type GridPhoto = {
   alt: string
   tileSrc: string
   largeSrc: string
+  /** Dominant colour of the photo (hex); used for the viewer's lighting. */
+  color?: string
+  photographer?: { name: string; url: string }
+  pageUrl?: string
 }
 
 const FALLBACK_IDS = [
@@ -89,32 +95,24 @@ const FALLBACK_IDS = [
   "photo-1552664730-d307ca884978",
   "photo-1573497019940-1c28c88b4f3e",
   "photo-1581091226825-a6a2a5aee158",
-  "photo-1596495577886-d920f1fb7748",
   "photo-1600880292203-757bb62b4baf",
   "photo-1621761191319-c6fb62004040",
   "photo-1635070041078-e363dbe005cb",
-  "photo-1667372391179-3d5790a4d472",
   "photo-1498050108023-c5249f4df085",
-  "photo-1524995992477-879a36b4ae82",
-  "photo-1507842217343-583bb7270b33",
   "photo-1521737711867-e3b97375f902",
   "photo-1551434678-e076c223a692",
   "photo-1556761175-5973dc0f32e7",
   "photo-1563986768609-322da13575f3",
   "photo-1573164713714-d95e436ab8d6",
-  "photo-1588196749597-9ff075978c01",
   "photo-1600880292089-90a7e086ee0c",
   "photo-1611224923853-80b023f02d71",
   "photo-1626785774573-4b799315345d",
-  "photo-1642543499071-20e7562b3c96",
   "photo-1460925895917-afdab827c52f",
-  "photo-1472286346138-688178124c04",
   "photo-1487058792275-0ad4aaf24ca7",
   "photo-1497215728101-856f4ea42174",
   "photo-1504384308090-c894fdcc538d",
   "photo-1517245386807-bb43f82c33c4",
   "photo-1522071820081-009f0129c71c",
-  "photo-1532619675605-1ede6c2ed2a0",
   "photo-1542744173-8e7e53415bb0",
   "photo-1553877522-43269d4ea984",
   "photo-1541961017774-22349e4a1262",
@@ -136,11 +134,16 @@ const FALLBACK_IDS = [
   "photo-1454165804606-c3d57bc86b40",
 ]
 
+function largeUrl(url: string) {
+  const base = url.split("?")[0]
+  return `${base}?auto=format&fit=crop&crop=faces,entropy&w=${LARGE_W}&h=${LARGE_H}&q=85`
+}
+
 const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
   id: `fallback-${id}`,
   alt: "",
   tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${IMG_PX}&h=${IMG_PX}&crop=top&q=85`,
-  largeSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=400&h=400&crop=top&q=90`,
+  largeSrc: largeUrl(`https://images.unsplash.com/${id}`),
 }))
 
 let photoCache: GridPhoto[] | null = null
@@ -153,9 +156,14 @@ function tileUrl(url: string, size: number) {
 function mapPhoto(photo: UnsplashPhotoView): GridPhoto {
   return {
     id: photo.id,
-    alt: "",
+    alt: photo.alt || photo.description || "",
     tileSrc: tileUrl(photo.urls.small, IMG_PX),
-    largeSrc: tileUrl(photo.urls.regular, 400),
+    largeSrc: largeUrl(photo.urls.regular),
+    color: photo.color || undefined,
+    photographer: photo.photographer?.name
+      ? { name: photo.photographer.name, url: photo.photographer.profileUrl }
+      : undefined,
+    pageUrl: photo.links?.html,
   }
 }
 
@@ -226,9 +234,25 @@ function buildColumns(sequence: GridPhoto[]) {
   let cursor = 0
   return COLUMN_COUNTS.map((count, colIndex) => {
     const column = sequence.slice(cursor, cursor + count)
+    const start = cursor
     cursor += count
-    return { id: colIndex, photos: column }
+    return { id: colIndex, start, photos: column }
   })
+}
+
+/** Which column and row a position in the flat photo sequence occupies. */
+function locateSlot(index: number) {
+  let acc = 0
+  for (let col = 0; col < COLUMN_COUNTS.length; col++) {
+    if (index < acc + COLUMN_COUNTS[col]) return { col, row: index - acc }
+    acc += COLUMN_COUNTS[col]
+  }
+  return { col: 0, row: 0 }
+}
+
+const slotKeyFor = (index: number, trackId: string) => {
+  const { col, row } = locateSlot(index)
+  return `${trackId}-${col}-${row}`
 }
 
 function preloadImage(src: string) {
@@ -310,144 +334,372 @@ async function fetchAllPhotos() {
   ])
 }
 
-type ExpandedSlot = {
-  key: string
-  photo: GridPhoto
-  rect: { left: number; top: number; width: number; height: number }
+type Rect = { left: number; top: number; width: number; height: number }
+type Selection = { index: number; trackId: "a" | "b"; origin: Rect; navigated: boolean }
+
+// ─── Lighting ───────────────────────────────────────────────────────────────────────────────────
+// The viewer is lit by the photo itself: a soft aura in its dominant colour behind the card (outside
+// is where light reads best on a photo; inside it would wash the picture out), a thin light running
+// along the card's inner edge, and a tint in the backdrop. The empty slot it leaves in the wall is
+// small, so that one glows from the inside.
+
+type Glow = { base: string; accent: string; soft: string }
+
+function glowPalette(hex?: string): Glow {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex ?? "")
+  let h = 215
+  let s = 85
+  let l = 62
+  if (m) {
+    const n = parseInt(m[1], 16)
+    const r = ((n >> 16) & 255) / 255
+    const g = ((n >> 8) & 255) / 255
+    const b = (n & 255) / 255
+    const max = Math.max(r, g, b)
+    const min = Math.min(r, g, b)
+    const d = max - min
+    const lum = (max + min) / 2
+    if (d === 0) {
+      s = 0
+    } else {
+      s = d / (1 - Math.abs(2 * lum - 1))
+      h =
+        max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4
+      h = (h * 60 + 360) % 360
+      s = Math.min(100, Math.max(s * 100, 58)) // dull photo colours still need to glow
+    }
+    l = Math.min(66, Math.max(lum * 100, 54))
+  }
+  return {
+    base: `hsl(${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}%)`,
+    accent: `hsl(${Math.round((h + 42) % 360)} ${Math.round(s)}% ${Math.round(Math.min(72, l + 6))}%)`,
+    soft: `hsl(${Math.round(h)} ${Math.round(s)}% ${Math.round(l)}% / 0.35)`,
+  }
 }
 
-function ExpandedPhotoPortal({
-  expanded,
-  onClose,
-}: {
-  expanded: ExpandedSlot | null
-  onClose: () => void
-}) {
-  return createPortal(
-    <AnimatePresence>
-      {expanded ? (
-        <ExpandedPhotoLayer key={expanded.key} slot={expanded} onClose={onClose} />
-      ) : null}
-    </AnimatePresence>,
-    document.body,
-  )
+const WALL_LIGHT_CSS = `
+  @property --wall-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @property --wall-glow { syntax: '<color>'; initial-value: hsl(215 85% 62%); inherits: true; }
+  @keyframes wall-spin { to { --wall-angle: 360deg; } }
+  @keyframes wall-breathe { 0%, 100% { opacity: .42; } 50% { opacity: .72; } }
+  @keyframes wall-slot-pulse { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+  .wall-backdrop {
+    background: radial-gradient(70% 58% at 50% 46%, color-mix(in srgb, var(--wall-glow) 38%, transparent), rgba(3, 5, 10, .8) 74%);
+    -webkit-backdrop-filter: blur(10px) saturate(1.15); backdrop-filter: blur(10px) saturate(1.15);
+    transition: --wall-glow .7s ease;
+  }
+  .wall-aura {
+    position: absolute; inset: -24px; z-index: -1; pointer-events: none; border-radius: 2.25rem;
+    background: conic-gradient(from var(--wall-angle), var(--g-base), var(--g-accent), var(--g-base), var(--g-accent), var(--g-base));
+    filter: blur(36px); opacity: .58;
+    animation: wall-spin 18s linear infinite, wall-breathe 5.5s ease-in-out infinite;
+  }
+  .wall-rim {
+    position: absolute; inset: 0; pointer-events: none; border-radius: 22px; padding: 1px;
+    background: conic-gradient(from var(--wall-angle), transparent 0 48%, rgba(255,255,255,.9) 70%, var(--g-accent) 86%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: wall-spin 9s linear infinite;
+  }
+  .wall-slot { animation: wall-slot-pulse 2.2s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .wall-aura, .wall-rim, .wall-slot { animation: none; } }
+`
+
+// ─── Viewer ─────────────────────────────────────────────────────────────────────────────────────
+
+const CARD_RATIO = LARGE_H / LARGE_W
+const EASE = [0.22, 1, 0.36, 1] as const
+
+function cardRect(): Rect {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const width = Math.min(vw * 0.92, 420, (vh * 0.84) / CARD_RATIO)
+  const height = width * CARD_RATIO
+  return { left: (vw - width) / 2, top: (vh - height) / 2, width, height }
 }
 
-function ExpandedPhotoLayer({
-  slot,
-  onClose,
-}: {
-  slot: ExpandedSlot
-  onClose: () => void
-}) {
-  const cx = slot.rect.left + slot.rect.width / 2
-  const cy = slot.rect.top + slot.rect.height / 2
-  const scaleFrom = slot.rect.width / EXPANDED_PX
-  const [hdLoaded, setHdLoaded] = useState(false)
+function rectOfSlot(key: string): Rect | null {
+  const el = document.querySelector<HTMLElement>(`[data-slot-key="${key}"]`)
+  if (!el) return null
+  const r = el.getBoundingClientRect()
+  const visible = r.right > 0 && r.left < window.innerWidth && r.bottom > 0 && r.top < window.innerHeight
+  return visible ? { left: r.left, top: r.top, width: r.width, height: r.height } : null
+}
+
+function LightboxImage({ photo }: { photo: GridPhoto }) {
+  const [sharp, setSharp] = useState(false)
 
   useEffect(() => {
-    setHdLoaded(false)
-    if (slot.photo.largeSrc === slot.photo.tileSrc) {
-      setHdLoaded(true)
-      return
-    }
+    setSharp(false)
     const img = new Image()
-    img.onload = () => setHdLoaded(true)
-    img.onerror = () => setHdLoaded(true)
-    img.src = slot.photo.largeSrc
-  }, [slot.photo.largeSrc, slot.photo.tileSrc])
+    img.onload = () => setSharp(true)
+    img.onerror = () => setSharp(true)
+    img.src = photo.largeSrc
+  }, [photo.largeSrc])
 
   return (
-    <>
-      <motion.button
-        type="button"
-        aria-label="Close enlarged photo"
-        className="fixed inset-0 z-[190] cursor-default border-0 bg-transparent p-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.18 }}
-        onClick={onClose}
+    <motion.div
+      className="absolute inset-0"
+      initial={{ opacity: 0, scale: 1.04 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+    >
+      {/* The small tile is already cached, so something is on screen the instant the card opens. */}
+      <img
+        src={photo.tileSrc}
+        alt=""
+        aria-hidden
+        draggable={false}
+        className="absolute inset-0 h-full w-full scale-110 object-cover blur-md"
       />
-      <motion.div
-        className="fixed z-[200] overflow-hidden rounded-[14px] shadow-2xl ring-2 ring-white/25 will-change-transform"
-        style={{
-          left: cx,
-          top: cy,
-          width: EXPANDED_PX,
-          height: EXPANDED_PX,
-          marginLeft: -EXPANDED_PX / 2,
-          marginTop: -EXPANDED_PX / 2,
-          transformOrigin: "center center",
-        }}
-        initial={{ scale: scaleFrom }}
-        animate={{ scale: 1 }}
-        exit={{ scale: scaleFrom }}
-        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Cached tile — visible immediately while zooming */}
-        <img
-          src={slot.photo.tileSrc}
-          alt={slot.photo.alt}
-          width={EXPANDED_PX}
-          height={EXPANDED_PX}
-          draggable={false}
-          className={cn(
-            "absolute inset-0 block h-full w-full select-none object-cover object-top transition-opacity duration-200",
-            hdLoaded ? "opacity-0" : "opacity-100",
-          )}
-        />
-        <img
-          src={slot.photo.largeSrc}
-          alt=""
-          aria-hidden
-          width={EXPANDED_PX}
-          height={EXPANDED_PX}
-          draggable={false}
-          className={cn(
-            "absolute inset-0 block h-full w-full select-none object-cover object-top transition-opacity duration-200",
-            hdLoaded ? "opacity-100" : "opacity-0",
-          )}
-        />
-      </motion.div>
-    </>
+      <img
+        src={photo.largeSrc}
+        alt={photo.alt}
+        draggable={false}
+        className={cn(
+          "absolute inset-0 h-full w-full select-none object-cover transition-opacity duration-500",
+          sharp ? "opacity-100" : "opacity-0",
+        )}
+      />
+    </motion.div>
   )
 }
+
+function PhotoLightbox({
+  selection,
+  photos,
+  onClose,
+  onStep,
+}: {
+  selection: Selection
+  photos: GridPhoto[]
+  onClose: () => void
+  onStep: (delta: number) => void
+}) {
+  const reduce = useReducedMotion()
+  const photo = photos[selection.index]
+  const [rect, setRect] = useState<Rect>(() => cardRect())
+  const glow = useMemo(() => glowPalette(photo.color), [photo.color])
+
+  useEffect(() => {
+    const onResize = () => setRect(cardRect())
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") onStep(1)
+      else if (e.key === "ArrowLeft") onStep(-1)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [onStep])
+
+  // Load the neighbours ahead of time so stepping through feels instant.
+  useEffect(() => {
+    for (const d of [1, -1]) {
+      const next = photos[(selection.index + d + photos.length) % photos.length]
+      if (next) void preloadImage(next.largeSrc)
+    }
+  }, [selection.index, photos])
+
+  // Closing flies back to the wall slot, unless the viewer has moved on to a photo whose slot is off screen.
+  const exitRect = useMemo(
+    () => (selection.navigated ? rectOfSlot(slotKeyFor(selection.index, selection.trackId)) : selection.origin),
+    [selection],
+  )
+
+  const from = reduce ? rect : selection.origin
+  const vars = { "--g-base": glow.base, "--g-accent": glow.accent, "--wall-glow": glow.base } as CSSProperties
+  const label = photo.photographer ? `Photo by ${photo.photographer.name}` : "Photo"
+  const utm = "utm_source=little_internet&utm_medium=referral"
+  const withUtm = (url?: string) => (url ? `${url}${url.includes("?") ? "&" : "?"}${utm}` : undefined)
+
+  const frost =
+    "flex items-center justify-center rounded-full border border-white/20 bg-black/30 text-white backdrop-blur-md transition-colors hover:bg-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+
+  return (
+    <DialogPrimitive.Root open onOpenChange={open => !open && onClose()}>
+      <DialogPrimitive.Portal>
+        <style>{WALL_LIGHT_CSS}</style>
+        <DialogPrimitive.Overlay asChild>
+          <motion.div
+            className="wall-backdrop fixed inset-0 z-[190]"
+            style={vars}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        </DialogPrimitive.Overlay>
+
+        <DialogPrimitive.Content asChild aria-describedby={undefined}>
+          <motion.div
+            className="fixed z-[200] outline-none"
+            style={vars}
+            initial={{ ...from, opacity: reduce ? 0 : 1 }}
+            animate={{ ...rect, opacity: 1 }}
+            exit={
+              exitRect && !reduce
+                ? { ...exitRect, opacity: 0, transition: { duration: 0.34, ease: EASE, opacity: { delay: 0.24, duration: 0.1 } } }
+                : { opacity: 0, scale: 0.96, transition: { duration: 0.2 } }
+            }
+            transition={{ type: "spring", stiffness: 230, damping: 29, mass: 0.9 }}
+          >
+            <DialogPrimitive.Title className="sr-only">{label}</DialogPrimitive.Title>
+
+            <motion.span
+              aria-hidden
+              className="wall-aura"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            />
+
+            <motion.div
+              className="relative h-full w-full touch-pan-y overflow-hidden bg-neutral-900"
+              initial={{ borderRadius: 14 }}
+              animate={{ borderRadius: 22 }}
+              drag="x"
+              dragSnapToOrigin
+              dragElastic={0.3}
+              dragMomentum={false}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -70 || info.velocity.x < -450) onStep(1)
+                else if (info.offset.x > 70 || info.velocity.x > 450) onStep(-1)
+              }}
+            >
+              <AnimatePresence initial={false}>
+                <LightboxImage key={photo.id} photo={photo} />
+              </AnimatePresence>
+
+              {/* Light from the edge, reaching a little way into the photo. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-[22px]"
+                style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 44px -16px ${glow.base}` }}
+              />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+
+              <motion.div
+                className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-4 sm:p-5"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35, delay: 0.25 }}
+              >
+                <div className="min-w-0">
+                  {photo.photographer && (
+                    <a
+                      href={withUtm(photo.photographer.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[15px] font-medium text-white underline-offset-4 hover:underline"
+                    >
+                      {photo.photographer.name}
+                    </a>
+                  )}
+                  {photo.alt && (
+                    <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-white/70">{photo.alt}</p>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    href="/photos"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-medium text-neutral-900 transition-colors hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    Explore photos
+                  </Link>
+                  {photo.pageUrl && (
+                    <a
+                      href={withUtm(photo.pageUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3.5 text-[13px] text-white backdrop-blur-md transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    >
+                      Unsplash
+                      <ArrowUpRight className="size-3.5" aria-hidden />
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+
+              <DialogPrimitive.Close aria-label="Close photo" className={cn(frost, "absolute right-3 top-3 size-9")}>
+                <X className="size-4" aria-hidden />
+              </DialogPrimitive.Close>
+              <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/30 px-2.5 py-1 font-mono text-[10px] tracking-wider text-white/80 backdrop-blur-md">
+                {selection.index + 1} / {photos.length}
+              </span>
+            </motion.div>
+
+            <span aria-hidden className="wall-rim" />
+
+            <button
+              type="button"
+              aria-label="Previous photo"
+              onClick={() => onStep(-1)}
+              className={cn(frost, "absolute left-2 top-1/2 size-10 -translate-y-1/2 md:-left-16 md:size-11")}
+            >
+              <ChevronLeft className="size-5" aria-hidden />
+            </button>
+            <button
+              type="button"
+              aria-label="Next photo"
+              onClick={() => onStep(1)}
+              className={cn(frost, "absolute right-2 top-1/2 size-10 -translate-y-1/2 md:-right-16 md:size-11")}
+            >
+              <ChevronRight className="size-5" aria-hidden />
+            </button>
+          </motion.div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+  )
+}
+
+// ─── Wall ───────────────────────────────────────────────────────────────────────────────────────
 
 function PhotoTile({
   photo,
   priority,
   showImage,
   slotKey,
-  isExpandedSlot,
-  onToggle,
+  index,
+  selected,
+  broken,
+  onOpen,
+  onBroken,
 }: {
   photo: GridPhoto
   priority?: boolean
   showImage: boolean
   slotKey: string
-  isExpandedSlot: boolean
-  onToggle: (slotKey: string, photo: GridPhoto, rect: DOMRect) => void
+  index: number
+  selected: boolean
+  broken: boolean
+  onOpen: (index: number, slotKey: string, rect: DOMRect) => void
+  onBroken: (id: string) => void
 }) {
+  const glow = useMemo(() => glowPalette(photo.color).base, [photo.color])
+
   return (
     <button
       type="button"
-      aria-label={isExpandedSlot ? "Collapse photo" : "Enlarge photo"}
-      aria-pressed={isExpandedSlot}
-      onClick={e => {
-        const rect = e.currentTarget.getBoundingClientRect()
-        onToggle(slotKey, photo, rect)
-      }}
+      data-slot-key={slotKey}
+      aria-label={photo.alt ? `Open photo: ${photo.alt}` : "Open photo"}
+      aria-haspopup="dialog"
+      onClick={e => onOpen(index, slotKey, e.currentTarget.getBoundingClientRect())}
       onMouseEnter={() => {
-        if (photo.largeSrc !== photo.tileSrc) {
-          const img = new Image()
-          img.src = photo.largeSrc
-        }
+        if (photo.largeSrc !== photo.tileSrc) void preloadImage(photo.largeSrc)
       }}
       className={cn(
-        "relative shrink-0 cursor-pointer overflow-hidden rounded-[14px] border-0 p-0 transition-[background-color,box-shadow] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]",
-        isExpandedSlot ? "z-[60] overflow-visible shadow-lg" : "z-0",
+        "relative shrink-0 cursor-pointer overflow-hidden rounded-[14px] border-0 bg-[#141414] p-0 transition-[transform,box-shadow] duration-200 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]",
+        selected
+          ? "z-20"
+          : "z-0 hover:z-20 hover:scale-[1.14] hover:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.5)] focus-visible:z-20 focus-visible:scale-[1.14]",
       )}
       style={{
         width: TILE_PX,
@@ -457,22 +709,29 @@ function PhotoTile({
         maxWidth: TILE_PX,
         maxHeight: TILE_PX,
         flex: `0 0 ${TILE_PX}px`,
-        backgroundColor: isExpandedSlot ? SLOT_BLUE : "#141414",
       }}
     >
       <img
         src={photo.tileSrc}
-        alt={photo.alt}
+        alt=""
         width={TILE_PX}
         height={TILE_PX}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         draggable={false}
+        onError={() => onBroken(photo.id)}
         className={cn(
-          "block h-full w-full select-none object-cover object-top transition-opacity duration-300",
-          showImage && photo.tileSrc && !isExpandedSlot ? "opacity-100" : "opacity-0",
+          "block h-full w-full select-none object-cover object-top transition-[opacity,filter] duration-300",
+          showImage && photo.tileSrc && !broken ? (selected ? "opacity-25 saturate-50" : "opacity-100") : "opacity-0",
         )}
       />
+      {selected && (
+        <span
+          aria-hidden
+          className="wall-slot pointer-events-none absolute inset-0 rounded-[14px]"
+          style={{ boxShadow: `inset 0 0 0 1.5px ${glow}, inset 0 0 18px 2px ${glow}` }}
+        />
+      )}
     </button>
   )
 }
@@ -481,14 +740,18 @@ function MarqueeTrack({
   columns,
   showImage,
   trackId,
-  expandedKey,
-  onToggle,
+  selectedKey,
+  failed,
+  onOpen,
+  onBroken,
 }: {
   columns: ReturnType<typeof buildColumns>
   showImage: boolean
-  trackId: string
-  expandedKey: string | null
-  onToggle: (slotKey: string, photo: GridPhoto, rect: DOMRect) => void
+  trackId: "a" | "b"
+  selectedKey: string | null
+  failed: Set<string>
+  onOpen: (index: number, trackId: "a" | "b", slotKey: string, rect: DOMRect) => void
+  onBroken: (id: string) => void
 }) {
   return (
     <div
@@ -507,11 +770,14 @@ function MarqueeTrack({
               <PhotoTile
                 key={slotKey}
                 slotKey={slotKey}
+                index={col.start + i}
                 photo={photo}
                 showImage={showImage}
                 priority={col.id < 4 && i < 2}
-                isExpandedSlot={expandedKey === slotKey}
-                onToggle={onToggle}
+                selected={selectedKey === slotKey}
+                broken={failed.has(photo.id)}
+                onOpen={(index, key, rect) => onOpen(index, trackId, key, rect)}
+                onBroken={onBroken}
               />
             )
           })}
@@ -525,60 +791,72 @@ export function BookCoverMarquee() {
   const [sequence, setSequence] = useState<GridPhoto[]>(() =>
     buildSpacedSequence(FALLBACK_PHOTOS, TOTAL_SLOTS, MIN_REPEAT_GAP),
   )
+  const [pool, setPool] = useState<GridPhoto[]>(FALLBACK_PHOTOS)
+  const [failed, setFailed] = useState<Set<string>>(() => new Set())
   const [showImage, setShowImage] = useState(true)
-  const [expanded, setExpanded] = useState<ExpandedSlot | null>(null)
-  const [portalReady, setPortalReady] = useState(false)
+  const [selection, setSelection] = useState<Selection | null>(null)
+  const [hovering, setHovering] = useState(false)
 
-  const columns = useMemo(() => buildColumns(sequence), [sequence])
+  // A photo that no longer exists (old fallback ids, deleted shots) is swapped for a working spare.
+  const photos = useMemo(() => {
+    const inUse = new Set(sequence.map(p => p.id))
+    const spare = pool.filter(p => !inUse.has(p.id) && !failed.has(p.id))
+    let next = 0
+    return sequence.map(p => (failed.has(p.id) ? (spare[next++] ?? p) : p))
+  }, [sequence, pool, failed])
 
-  useEffect(() => {
-    setPortalReady(true)
+  const columns = useMemo(() => buildColumns(photos), [photos])
+
+  const handleBroken = useCallback((id: string) => {
+    setFailed(prev => (prev.has(id) ? prev : new Set(prev).add(id)))
   }, [])
 
-  const handleToggle = useCallback(
-    (slotKey: string, photo: GridPhoto, rect: DOMRect) => {
-      setExpanded(prev =>
-        prev?.key === slotKey
-          ? null
-          : { key: slotKey, photo, rect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height } },
-      )
+  const handleOpen = useCallback(
+    (index: number, trackId: "a" | "b", _slotKey: string, rect: DOMRect) => {
+      setSelection({
+        index,
+        trackId,
+        navigated: false,
+        origin: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+      })
     },
     [],
   )
 
-  const handleClose = useCallback(() => setExpanded(null), [])
+  const handleClose = useCallback(() => setSelection(null), [])
 
-  useEffect(() => {
-    if (!expanded) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setExpanded(null)
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [expanded])
+  const handleStep = useCallback(
+    (delta: number) => {
+      setSelection(prev =>
+        prev ? { ...prev, index: (prev.index + delta + photos.length) % photos.length, navigated: true } : prev,
+      )
+    },
+    [photos.length],
+  )
 
   useEffect(() => {
     let cancelled = false
 
     async function prepare() {
       try {
-        let pool = await fetchAllPhotos()
-        if (pool.length === 0) pool = FALLBACK_PHOTOS
-        else pool = mergeUnique(pool, FALLBACK_PHOTOS)
+        let fetched = await fetchAllPhotos()
+        if (fetched.length === 0) fetched = FALLBACK_PHOTOS
+        else fetched = mergeUnique(fetched, FALLBACK_PHOTOS)
 
-        if (pool.length < MIN_POOL_BEFORE_SHOW) {
+        if (fetched.length < MIN_POOL_BEFORE_SHOW) {
           await new Promise(r => setTimeout(r, 800))
-          pool = mergeUnique(await fetchAllPhotos(), pool)
+          fetched = mergeUnique(await fetchAllPhotos(), fetched)
         }
 
-        const next = buildSpacedSequence(pool, TOTAL_SLOTS, MIN_REPEAT_GAP)
+        const next = buildSpacedSequence(fetched, TOTAL_SLOTS, MIN_REPEAT_GAP)
         await preloadWithTimeout(
           next.filter(p => p.tileSrc),
           PRELOAD_COUNT,
         )
         if (cancelled) return
 
-        photoCache = pool
+        photoCache = fetched
+        setPool(fetched)
         setSequence(next)
         setShowImage(true)
       } catch {
@@ -594,28 +872,32 @@ export function BookCoverMarquee() {
     }
   }, [])
 
+  const selectedKey = selection ? slotKeyFor(selection.index, selection.trackId) : null
+  const paused = selection !== null || hovering
+
   return (
     <section
-      className={cn(
-        "relative w-full max-w-full bg-transparent [contain:layout]",
-        expanded ? "z-30 overflow-visible" : "overflow-x-clip",
-      )}
+      className="relative w-full max-w-full overflow-x-clip bg-transparent [contain:layout]"
       style={{
         height: SECTION_H,
         minHeight: SECTION_H,
         maxHeight: SECTION_H,
       }}
+      // Tiles move at ~55px/s, which makes them hard to click: hold the wall still while the mouse is on it.
+      onPointerEnter={e => e.pointerType === "mouse" && setHovering(true)}
+      onPointerLeave={() => setHovering(false)}
     >
-      {portalReady && <ExpandedPhotoPortal expanded={expanded} onClose={handleClose} />}
+      <AnimatePresence>
+        {selection && (
+          <PhotoLightbox key="photo-lightbox" selection={selection} photos={photos} onClose={handleClose} onStep={handleStep} />
+        )}
+      </AnimatePresence>
 
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent sm:w-12 md:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent sm:w-12 md:w-24" />
 
       <div
-        className={cn(
-          "box-border flex items-center py-6 motion-reduce:[&_*]:!animate-none",
-          expanded ? "overflow-visible" : "overflow-hidden",
-        )}
+        className="box-border flex items-center overflow-hidden py-6 motion-reduce:[&_*]:!animate-none"
         style={{ height: SECTION_H, minHeight: SECTION_H, maxHeight: SECTION_H }}
       >
         <div
@@ -625,23 +907,21 @@ export function BookCoverMarquee() {
             minHeight: TRACK_H,
             maxHeight: TRACK_H,
             animation: "unsplashMarqueeLeft 90s linear infinite",
-            animationPlayState: expanded ? "paused" : "running",
+            animationPlayState: paused ? "paused" : "running",
           }}
         >
-          <MarqueeTrack
-            trackId="a"
-            columns={columns}
-            showImage={showImage}
-            expandedKey={expanded?.key ?? null}
-            onToggle={handleToggle}
-          />
-          <MarqueeTrack
-            trackId="b"
-            columns={columns}
-            showImage={showImage}
-            expandedKey={expanded?.key ?? null}
-            onToggle={handleToggle}
-          />
+          {(["a", "b"] as const).map(trackId => (
+            <MarqueeTrack
+              key={trackId}
+              trackId={trackId}
+              columns={columns}
+              showImage={showImage}
+              selectedKey={selectedKey}
+              failed={failed}
+              onOpen={handleOpen}
+              onBroken={handleBroken}
+            />
+          ))}
         </div>
       </div>
 
