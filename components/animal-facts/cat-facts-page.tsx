@@ -58,7 +58,8 @@ async function fetchLiveFact(): Promise<string | null> {
 async function pickFact(seen: Set<string>): Promise<string> {
   for (let i = 0; i < 3; i++) {
     const fact = await fetchLiveFact()
-    if (fact && !seen.has(fact)) return fact
+    if (!fact) break // the source is down or slow: go straight to the built-in list
+    if (!seen.has(fact)) return fact
   }
   const unseen = FALLBACK_FACTS.filter(f => !seen.has(f))
   const pool = unseen.length ? unseen : FALLBACK_FACTS

@@ -17,9 +17,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // The cat page moved; /dog-facts points at the old combined page until its redesign is ready.
+      // The combined animal-facts page was split into one page per animal.
       { source: '/cat', destination: '/cat-facts', permanent: true },
-      { source: '/dog-facts', destination: '/animal-facts', permanent: false },
+      { source: '/animal-facts', destination: '/cat-facts', permanent: true },
       {
         source: '/desk',
         destination: '/charts',

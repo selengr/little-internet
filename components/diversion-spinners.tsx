@@ -284,12 +284,13 @@ const BALLS = [
   { a: "#fde68a", b: "#ca8a04", seam: "#fffbeb" }, // gold
 ]
 export const DOG_BALL_COUNT = BALLS.length
+export const DOG_BALLS = BALLS
 
 // Nine beats of a throw: launch, apex, bounce, apex, bounce, apex, bounce, apex, rest.
 const THROW_TIMES = [0, 0.22, 0.44, 0.58, 0.72, 0.82, 0.9, 0.96, 1]
 const THROW_EASE = ["easeOut", "easeIn", "easeOut", "easeIn", "easeOut", "easeIn", "easeOut", "easeIn"] as const
 
-export function DogBallSpinner({ spinning, target, onSpin, label }: SpinnerProps) {
+export function DogBallSpinner({ spinning, target, onSpin, label, size }: SpinnerProps) {
   const reduce = useReducedMotion()
   const [shown, setShown] = useState(0)
   const [spin, setSpin] = useState(0)
@@ -348,6 +349,7 @@ export function DogBallSpinner({ spinning, target, onSpin, label }: SpinnerProps
 
   return (
     <Stage
+      size={size}
       label={label}
       onSpin={onSpin}
       spinning={spinning}
