@@ -18,9 +18,12 @@ export function useSliderWheel({ sliderRef, onScrollLeft, onScrollRight }: UseSl
     if (!slider) return
 
     const handleWheel = (e: WheelEvent) => {
+      // Only sideways gestures (trackpad swipe) move the slider. Plain vertical scrolling must
+      // still scroll the page, or the cursor gets "stuck" over the section.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
       e.preventDefault()
 
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+      const delta = e.deltaX
       const resistedDelta = delta * SLIDER_CONSTANTS.WHEEL_RESISTANCE
 
       wheelAccumulatorRef.current += resistedDelta

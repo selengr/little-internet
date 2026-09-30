@@ -13,9 +13,11 @@ interface ArtworkCardProps {
   index: number
   currentIndex: number
   onSelect?: (artwork: Artwork) => void
+  /** Called when a non-active card is clicked, so it can be brought to the centre. */
+  onActivate?: (index: number) => void
 }
 
-export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex, onSelect }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex, onSelect, onActivate }: ArtworkCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [imgSrc, setImgSrc] = useState(artwork.image)
   const [imgFailed, setImgFailed] = useState(false)
@@ -29,11 +31,13 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
 
   return (
     <motion.div
-      className={cn('relative flex-shrink-0', onSelect && 'cursor-pointer')}
+      className={cn('relative flex-shrink-0', (onSelect || onActivate) && 'cursor-pointer')}
       role={onSelect ? 'button' : undefined}
+      aria-label={onSelect ? `Open ${artwork.title} in books` : undefined}
       tabIndex={onSelect && isActive ? 0 : undefined}
       onClick={() => {
-        if (onSelect && isActive) onSelect(artwork)
+        if (isActive) onSelect?.(artwork)
+        else onActivate?.(index)
       }}
       onKeyDown={e => {
         if (onSelect && isActive && (e.key === 'Enter' || e.key === ' ')) {
@@ -130,8 +134,9 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
               className="mt-2 text-sm text-white/70"
               initial={{ opacity: 0, y: 10 }}
               animate={{
-                opacity: isHovered ? 1 : 0,
-                y: isHovered ? 0 : 10,
+                // Touch screens have no hover, so the author is always shown on the centred card.
+                opacity: isActive || isHovered ? 1 : 0,
+                y: isActive || isHovered ? 0 : 10,
               }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >

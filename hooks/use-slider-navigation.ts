@@ -49,6 +49,10 @@ export function useSliderNavigation({
     if (!enableKeyboard) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Never steal keys from text fields (typing "a" or "d" used to flip the slider) or shortcuts.
+      const t = e.target as HTMLElement | null
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       switch (e.key) {
         case "ArrowRight":
         case "d":

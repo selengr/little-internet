@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArtworkCard } from "./artwork-card"
 import { NavigationDots } from "./navigation-dots"
@@ -31,6 +31,7 @@ export function ArtGallerySlider({
 }: ArtGallerySliderProps) {
   const router = useRouter()
   const sliderRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
   const [bookSlides, setBookSlides] = useState<Artwork[]>([])
   const [booksLoading, setBooksLoading] = useState(variant === "books")
   const [slideWidth, setSlideWidth] = useState(432)
@@ -90,10 +91,32 @@ export function ArtGallerySlider({
   const items =
     itemsProp ?? (variant === "books" ? bookSlides : mockArtworks)
 
+  // Arrow keys only drive the slider while it is actually on screen.
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.4 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
   const { currentIndex, goToNext, goToPrev, goToSlide } = useSliderNavigation({
     totalSlides: Math.max(items.length, 1),
-    enableKeyboard: true,
+    enableKeyboard: inView,
   })
+
+  // A drag that ends over a card must not count as a click on it (it would open /books).
+  const downXRef = useRef(0)
+  const rememberDown = (e: React.MouseEvent | React.TouchEvent) => {
+    downXRef.current = "touches" in e ? e.touches[0].clientX : e.clientX
+  }
+  const swallowDragClick = (e: React.MouseEvent) => {
+    if (Math.abs(e.clientX - downXRef.current) > 6) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }
 
   const { isDragging, dragX, handleDragStart, handleDragMove, handleDragEnd } = useSliderDrag({
     onSwipeLeft: goToNext,
@@ -137,7 +160,7 @@ export function ArtGallerySlider({
   const isBooks = variant === "books"
 
   return (
-    <div className="relative h-full w-full overflow-x-clip py-10 bg-[#0c0f12] dark:bg-[#080a0c] overscroll-x-contain">
+    <div ref={rootRef} className="relative h-full w-full overflow-x-clip py-10 bg-[#0c0f12] dark:bg-[#080a0c] overscroll-x-contain">
       {/* Stage atmosphere — cards unchanged */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -245,11 +268,18 @@ export function ArtGallerySlider({
           ref={sliderRef}
           className="relative flex h-full w-full cursor-grab items-center touch-pan-y active:cursor-grabbing"
           style={{ touchAction: "pan-y pinch-zoom" }}
-          onMouseDown={handleDragStart}
+          onClickCapture={swallowDragClick}
+          onMouseDown={e => {
+            rememberDown(e)
+            handleDragStart(e)
+          }}
           onMouseMove={handleDragMove}
           onMouseUp={handleDragEnd}
           onMouseLeave={handleDragEnd}
-          onTouchStart={handleDragStart}
+          onTouchStart={e => {
+            rememberDown(e)
+            handleDragStart(e)
+          }}
           onTouchMove={handleDragMove}
           onTouchEnd={handleDragEnd}
         >
@@ -269,6 +299,7 @@ export function ArtGallerySlider({
                 index={index}
                 currentIndex={currentIndex}
                 onSelect={isBooks || artwork.searchQuery ? handleSelect : undefined}
+                onActivate={goToSlide}
               />
             ))}
           </motion.div>
@@ -283,11 +314,26 @@ export function ArtGallerySlider({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-8 left-8 hidden items-center gap-3 text-white/30 md:flex"
+        className="absolute bottom-8 left-8 z-20 hidden items-center gap-2 md:flex"
       >
-        <kbd className="rounded border border-white/10 bg-white/5 px-2 py-1 font-mono text-xs">←</kbd>
-        <kbd className="rounded border border-white/10 bg-white/5 px-2 py-1 font-mono text-xs">→</kbd>
-        <span className="text-xs">{isBooks ? "" : "navigate"}</span>
+        <button
+          type="button"
+          onClick={goToPrev}
+          disabled={currentIndex === 0}
+          aria-label="Previous book"
+          className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/70"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={goToNext}
+          disabled={currentIndex >= items.length - 1}
+          aria-label="Next book"
+          className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/70"
+        >
+          <ChevronRight className="size-4" />
+        </button>
       </motion.div>
     </div>
   )
