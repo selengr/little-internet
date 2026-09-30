@@ -11,9 +11,11 @@ import {
   LAND_LAT_MAX,
 } from '@/lib/iss-land-mask'
 
-type Position = { lat: number; lon: number; timestamp: number }
+type Position = { lat: number; lon: number; timestamp: number; altitude?: number; velocity?: number }
 type Crew = { count: number; craft: { name: string; people: string[] }[] }
-type SpacePayload = { position: Position | null; crew: Crew | null }
+type SpacePayload = { position: Position | null }
+
+const CREW_CACHE_KEY = 'space-crew-v1'
 
 const POLL_MS = 5000
 const DEG = Math.PI / 180
@@ -374,6 +376,52 @@ function useSpaceFeed(active: boolean) {
   return data
 }
 
+const isCrew = (value: unknown): value is Crew =>
+  !!value &&
+  typeof (value as Crew).count === 'number' &&
+  Array.isArray((value as Crew).craft)
+
+/**
+ * The head-count. Fetched as soon as the page loads (not when the section scrolls into view), and
+ * remembered on the device, so it is usually on screen instantly. The server response is cached, so
+ * a first visit is a fast edge hit too.
+ */
+function useCrew() {
+  const [crew, setCrew] = useState<Crew | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(CREW_CACHE_KEY) ?? 'null')
+      if (isCrew(saved)) setCrew(saved)
+    } catch {
+      /* no saved copy, or storage unavailable */
+    }
+
+    fetch('/api/space/crew')
+      .then(res => (res.ok ? res.json() : null))
+      .then(json => {
+        if (cancelled || !isCrew(json?.crew)) return
+        setCrew(json.crew)
+        try {
+          localStorage.setItem(CREW_CACHE_KEY, JSON.stringify(json.crew))
+        } catch {
+          /* storage full or blocked */
+        }
+      })
+      .catch(() => {
+        /* keep the saved copy, if any */
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return crew
+}
+
 function useOnScreen(ref: React.RefObject<HTMLElement | null>) {
   const [onScreen, setOnScreen] = useState(false)
   const [foreground, setForeground] = useState(true)
@@ -424,9 +472,9 @@ export function SpaceTracker() {
   const sectionRef = useRef<HTMLElement>(null)
   const active = useOnScreen(sectionRef)
   const data = useSpaceFeed(active)
+  const crew = useCrew()
 
   const position = data?.position ?? null
-  const crew = data?.crew ?? null
 
   return (
     <section
@@ -459,10 +507,24 @@ export function SpaceTracker() {
         </div>
 
         <h2 className="mt-6 max-w-5xl text-left text-[2.5rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-4xl md:text-5xl">
-          {crew ? crew.count : '—'} people are
+          {crew ? (
+            crew.count
+          ) : (
+            <span
+              aria-label="loading"
+              className="inline-block h-[0.8em] w-[1.1em] animate-pulse rounded-md bg-sky-200/15 align-baseline"
+            />
+          )}{' '}
+          people are
           off the planet
           right now.
         </h2>
+        {/* Always rendered, so the layout doesn't jump when the crew arrives. */}
+        <p className="mt-4 min-h-4 font-mono text-[11px] uppercase tracking-[0.2em] text-sky-200/45">
+          {crew?.craft
+            .map(c => `${c.people.length} on ${c.name === 'ISS' ? 'the ISS' : c.name}`)
+            .join(' · ')}
+        </p>
 
         <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]">
           <div className="aspect-[168/64] w-full">
@@ -472,8 +534,14 @@ export function SpaceTracker() {
 
         <div className="mt-8 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
           <div className="flex flex-wrap gap-x-12 gap-y-5">
-            <Stat value="420 km" label="Altitude" />
-            <Stat value="27,600" label="km / hour" />
+            <Stat
+              value={position?.altitude ? `${Math.round(position.altitude)} km` : '420 km'}
+              label="Altitude"
+            />
+            <Stat
+              value={position?.velocity ? Math.round(position.velocity).toLocaleString('en-US') : '27,600'}
+              label="km / hour"
+            />
             <Stat value="16" label="Sunrises a day" />
           </div>
           <p className="max-w-xs text-xs font-light leading-relaxed text-sky-200/40">
