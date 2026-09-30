@@ -199,7 +199,7 @@ const TRAIL_DEG = 150 // how far behind the station the path is drawn
 const AHEAD_DEG = 200 // how far ahead
 const STEP_DEG = 1 // sampling step along the orbit
 const PATH_REFRESH_MS = 100 // the path is recomputed this often once the intro is over
-const INTRO_MS = 2600
+const INTRO_MS = 3200
 const INTRO_SWEEP_DEG = 75 // the intro starts this far behind the real position
 
 /**
@@ -648,7 +648,7 @@ export function SpaceTracker() {
           </span>
         </div>
 
-        <h2 className="mt-4 max-w-5xl text-left text-[2.5rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-4xl md:text-5xl">
+        <h2 className="mt-4 max-w-5xl text-left text-[2.05rem] font-light leading-[1.1] tracking-tight text-sky-50 sm:text-4xl md:text-5xl">
           {crew ? (
             <button
               type="button"
@@ -690,7 +690,7 @@ export function SpaceTracker() {
         </div>
 
         <div className="mt-5 flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-          <div className="flex flex-wrap gap-x-10 gap-y-4 md:gap-x-12">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-10 md:gap-x-12">
             <Stat
               value={position?.altitude ? `${Math.round(position.altitude)} km` : '420 km'}
               label="Altitude"
