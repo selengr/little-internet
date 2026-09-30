@@ -35,9 +35,12 @@ async function geckoFetch(url: string, revalidate = 45): Promise<Response> {
   for (let attempt = 0; attempt < 3; attempt++) {
     last = await fetch(url, init)
     if (last.ok) return last
-    if (last.status !== 429 && last.status < 500) return last
+    if (last.status !== 429 && last.status < 500) break
     await new Promise(r => setTimeout(r, 350 * (attempt + 1)))
   }
+  // Logged so production failures show their real cause (rate limit, blocked IP, bad key...).
+  const snippet = await last!.clone().text().catch(() => '')
+  console.error('[coingecko]', new URL(url).pathname, last!.status, snippet.slice(0, 200))
   return last!
 }
 
