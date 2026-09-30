@@ -590,6 +590,29 @@ function Stat({ value, label }: { value: string; label: string }) {
   )
 }
 
+/** Ambient light for the crew dialog: a soft coloured aura that drifts slowly behind it, and a thin
+ *  highlight that travels around its edge. Animates a registered custom property (no layout/paint
+ *  work beyond the gradient), and stands still for reduced-motion users. */
+const CREW_DIALOG_CSS = `
+  @property --iss-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes iss-glow-spin { to { --iss-angle: 360deg; } }
+  @keyframes iss-glow-breathe { 0%, 100% { opacity: .42; } 50% { opacity: .72; } }
+  .iss-glow {
+    position: absolute; inset: -18px; z-index: -10; pointer-events: none; border-radius: 1.75rem;
+    background: conic-gradient(from var(--iss-angle), #38bdf8, #6366f1, #a855f7, #22d3ee, #38bdf8);
+    filter: blur(36px); opacity: .55;
+    animation: iss-glow-spin 16s linear infinite, iss-glow-breathe 6s ease-in-out infinite;
+  }
+  .iss-ring {
+    position: absolute; inset: 0; pointer-events: none; border-radius: .75rem; padding: 1px;
+    background: conic-gradient(from var(--iss-angle), transparent 0 52%, rgba(125,211,252,.95) 72%, rgba(196,181,253,.95) 86%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: iss-glow-spin 7s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) { .iss-glow, .iss-ring { animation: none; } }
+`
+
 export function SpaceTracker() {
   const sectionRef = useRef<HTMLElement>(null)
   const introPlayed = useRef(false)
@@ -712,37 +735,42 @@ export function SpaceTracker() {
 
       {crew && (
         <Dialog open={crewOpen} onOpenChange={setCrewOpen}>
-          <DialogContent className="max-h-[85dvh] gap-5 overflow-y-auto border-white/10 bg-[#050b18] text-sky-50 sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-light tracking-tight text-sky-50">
-                {crew.count} people in orbit
-              </DialogTitle>
-              <DialogDescription className="text-sky-200/55">
-                Who is up there right now, by spacecraft.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-5">
-              {crew.craft.map(c => (
-                <section key={c.name}>
-                  <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-sky-200/45">
-                    {c.name === 'ISS' ? 'On the ISS' : `On ${c.name}`} · {c.people.length}
-                  </h3>
-                  <ul className="space-y-1.5">
-                    {c.people.map(person => (
-                      <li key={person} className="flex items-center gap-2.5 text-[15px] text-sky-50/90">
-                        <span aria-hidden className="size-1 shrink-0 rounded-full bg-sky-300/60" />
-                        {person}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
+          <DialogContent className="gap-0 overflow-visible border-0 bg-transparent p-0 text-sky-50 shadow-none sm:max-w-md [&>button]:z-10 [&>button]:text-sky-100">
+            <style>{CREW_DIALOG_CSS}</style>
+            <span aria-hidden className="iss-glow" />
+            <div className="relative z-0 flex max-h-[85dvh] flex-col gap-5 overflow-y-auto rounded-xl border border-white/10 bg-[#050b18] p-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-light tracking-tight text-sky-50">
+                  {crew.count} people in orbit
+                </DialogTitle>
+                <DialogDescription className="text-sky-200/55">
+                  Who is up there right now, by spacecraft.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-5">
+                {crew.craft.map(c => (
+                  <section key={c.name}>
+                    <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-sky-200/45">
+                      {c.name === 'ISS' ? 'On the ISS' : `On ${c.name}`} · {c.people.length}
+                    </h3>
+                    <ul className="space-y-1.5">
+                      {c.people.map(person => (
+                        <li key={person} className="flex items-center gap-2.5 text-[15px] text-sky-50/90">
+                          <span aria-hidden className="size-1 shrink-0 rounded-full bg-sky-300/60" />
+                          {person}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+              {daysAboard !== null && daysAboard >= 1 && (
+                <p className="border-t border-white/10 pt-4 text-xs font-light leading-relaxed text-sky-200/45">
+                  The longest current stay is {daysAboard} days. The crew list is refreshed every 30 minutes.
+                </p>
+              )}
             </div>
-            {daysAboard !== null && daysAboard >= 1 && (
-              <p className="border-t border-white/10 pt-4 text-xs font-light leading-relaxed text-sky-200/45">
-                The longest current stay is {daysAboard} days. The crew list is refreshed every 30 minutes.
-              </p>
-            )}
+            <span aria-hidden className="iss-ring" />
           </DialogContent>
         </Dialog>
       )}
