@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowUpRight, Dices, Loader2 } from "lucide-react"
+import { ArrowRight, ArrowUpRight, Dices, Loader2 } from "lucide-react"
 import {
   CAT_EYE_COUNT,
   CatEyeSpinner,
@@ -71,10 +71,14 @@ const ACCENTS = [
   { a: "#38bdf8", b: "#6366f1", c: "#2dd4bf", rgb: "56,189,248" }, // poetry: sky → indigo
 ] as const
 
+const TAB_ICONS = ["🐱", "🐶", "😄", "✒️"] as const
+
 const GLOW_CSS = `
+  @keyframes devex-progress { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+  .devex-progress { animation: devex-progress 4020ms linear forwards }
   @keyframes devex-breathe { 0%,100% { opacity: .5 } 50% { opacity: .95 } }
   @keyframes devex-drift { 0% { background-position: 0% 0% } 50% { background-position: 100% 100% } 100% { background-position: 0% 0% } }
-  @media (prefers-reduced-motion: reduce) { .devex-glow-layer { animation: none !important } }
+  @media (prefers-reduced-motion: reduce) { .devex-glow-layer, .devex-progress { animation: none !important } .devex-progress { transform: scaleX(1) } }
 `
 
 function isJoke(data: JokeResponse): data is Joke {
@@ -310,49 +314,80 @@ export function DevExSection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
-          <div className={cn("flex flex-col gap-3", PANEL_H)}>
+          <div className={cn("flex flex-col gap-3", PANEL_H)} role="tablist" aria-label="Diversions">
             {STEPS.map((s, i) => {
               const selected = active === i
+              const c = ACCENTS[i]
               return (
                 <button
                   key={s.num}
                   type="button"
+                  role="tab"
+                  aria-selected={selected}
                   onClick={() => selectStep(i)}
-                  className={cn(
-                    "flex-1 min-h-0 text-left rounded-2xl border p-4 transition-all duration-200 cursor-pointer overflow-hidden",
+                  style={
                     selected
-                      ? "bg-muted border-foreground/25 shadow-sm ring-1 ring-foreground/10"
-                      : "bg-card/70 border-border hover:bg-muted/40",
+                      ? {
+                          borderColor: `rgba(${c.rgb},.45)`,
+                          background: `linear-gradient(100deg, rgba(${c.rgb},.14), transparent 70%)`,
+                          boxShadow: `0 10px 30px -14px rgba(${c.rgb},.55)`,
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    "group/tab relative flex-1 min-h-0 overflow-hidden rounded-2xl border p-4 text-left cursor-pointer",
+                    "transition-all duration-300 ease-out active:scale-[0.985]",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/50",
+                    selected
+                      ? "bg-muted"
+                      : "bg-card/70 border-border hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-muted/50",
                   )}
                 >
-                  <div className="flex gap-3 items-start">
+                  <div className="flex h-full items-center gap-3">
                     <div
                       className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-lg text-xs font-light shrink-0 transition-colors duration-200",
-                        selected ? "text-white" : "bg-muted text-muted-foreground",
+                        "flex size-10 shrink-0 items-center justify-center rounded-xl text-lg transition-all duration-300",
+                        selected ? "scale-105 shadow-sm" : "bg-muted grayscale-[0.6] group-hover/tab:grayscale-0",
                       )}
-                      style={
-                        selected
-                          ? { background: `linear-gradient(135deg, ${ACCENTS[i].a}, ${ACCENTS[i].b})` }
-                          : undefined
-                      }
+                      style={selected ? { background: `linear-gradient(135deg, ${c.a}, ${c.b})` } : undefined}
+                      aria-hidden
                     >
-                      {s.num}
+                      {TAB_ICONS[i]}
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p
                         className={cn(
-                          "text-sm font-light transition-colors duration-200",
-                          selected ? "text-foreground" : "text-foreground/70",
+                          "text-sm transition-colors duration-200",
+                          selected ? "font-normal text-foreground" : "font-light text-foreground/75",
                         )}
                       >
                         {s.title}
                       </p>
-                      <p className="text-xs mt-0.5 text-muted-foreground line-clamp-1">
-                        {s.desc}
-                      </p>
+                      <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{s.desc}</p>
                     </div>
+                    <span className="shrink-0 font-mono text-[10px] tracking-widest text-muted-foreground/60">
+                      {s.num}
+                    </span>
+                    <ArrowRight
+                      aria-hidden
+                      className={cn(
+                        "size-4 shrink-0 transition-all duration-300",
+                        selected
+                          ? "translate-x-0 text-foreground/70 opacity-100"
+                          : "-translate-x-1 opacity-0 group-hover/tab:translate-x-0 group-hover/tab:opacity-60",
+                      )}
+                    />
                   </div>
+
+                  {/* Shows how long until the auto-tour moves on; gone once the visitor takes over. */}
+                  {selected && autoPlay && (
+                    <span
+                      key={`bar-${active}`}
+                      aria-hidden
+                      className="devex-progress absolute inset-x-0 bottom-0 h-[2px] origin-left"
+                      style={{ background: `linear-gradient(90deg, ${c.a}, ${c.b})` }}
+                    />
+                  )}
                 </button>
               )
             })}
