@@ -12,6 +12,13 @@ import {
   isNearLand,
 } from '@/lib/iss-land-mask'
 import { describePlace } from '@/lib/iss-place'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 type Position = { lat: number; lon: number; timestamp: number; altitude?: number; velocity?: number }
 type Crew = { count: number; craft: { name: string; people: string[] }[]; since?: number }
@@ -186,33 +193,75 @@ function buildBaseMap(w: number, h: number, dpr: number) {
   return off
 }
 
-function drawPolyline(
-  ctx: CanvasRenderingContext2D,
-  points: { lat: number; lon: number }[],
-  w: number,
-  h: number,
-) {
-  ctx.beginPath()
-  let previousX: number | null = null
-  for (const point of points) {
-    const x = lonToX(point.lon, w)
-    const y = latToY(point.lat, h)
-    if (previousX !== null && Math.abs(x - previousX) > w * 0.5) ctx.moveTo(x, y)
-    else if (previousX === null) ctx.moveTo(x, y)
-    else ctx.lineTo(x, y)
-    previousX = x
-  }
-  ctx.stroke()
+type LL = { lat: number; lon: number }
+type Target = Position & { receivedAt: number }
+
+const TRAIL_DEG = 150 // how far behind the station the path is drawn
+const AHEAD_DEG = 200 // how far ahead
+const STEP_DEG = 0.75 // sampling step along the orbit
+const INTRO_MS = 2600
+const INTRO_SWEEP_DEG = 75 // the intro starts this far behind the real position
+
+/**
+ * Where the station is right now: its last reading flown forward along the orbit. Uses the time
+ * since the reading *arrived* (not the upstream timestamp), so a wrong device clock can't skew it.
+ */
+function predictPosition(reading: Target, nowMs: number): LL {
+  const dt = Math.max(0, Math.min(120, (nowMs - reading.receivedAt) / 1000))
+  if (dt === 0) return { lat: reading.lat, lon: reading.lon }
+  const { p, heading } = orbitFrame(reading.lat, reading.lon)
+  const point = trackPoint(p, heading, (dt * 360) / ORBIT_PERIOD_S)
+  return { lat: point.lat, lon: wrapLon(point.lon) }
 }
 
-function TrackerMap({ position, active }: { position: Position | null; active: boolean }) {
+/**
+ * Walks a path and hands each piece to `draw` as screen coordinates. A piece that crosses the map's
+ * left/right edge is split in two at the exact crossing point, so the line runs all the way to the
+ * edge and carries on from the opposite edge, with no gap.
+ */
+function forEachSegment(
+  points: LL[],
+  w: number,
+  h: number,
+  draw: (x1: number, y1: number, x2: number, y2: number, index: number) => void,
+) {
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]
+    const b = points[i]
+    const lonA = wrapLon(a.lon)
+    const lonB = wrapLon(b.lon)
+    const delta = lonB - lonA
+
+    if (Math.abs(delta) > 180) {
+      const east = delta < 0 // e.g. 179° -> -179°: heading east across +180°
+      const edge = east ? 180 : -180
+      const lonBUnwrapped = east ? lonB + 360 : lonB - 360
+      const t = (edge - lonA) / (lonBUnwrapped - lonA)
+      const latEdge = a.lat + (b.lat - a.lat) * t
+      draw(lonToX(lonA, w), latToY(a.lat, h), lonToX(edge, w), latToY(latEdge, h), i)
+      draw(lonToX(-edge, w), latToY(latEdge, h), lonToX(lonB, w), latToY(b.lat, h), i)
+    } else {
+      draw(lonToX(lonA, w), latToY(a.lat, h), lonToX(lonB, w), latToY(b.lat, h), i)
+    }
+  }
+}
+
+function TrackerMap({
+  position,
+  active,
+  introPlayed,
+}: {
+  position: Position | null
+  active: boolean
+  introPlayed: { current: boolean }
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const targetRef = useRef<Position | null>(null)
-  const viewRef = useRef<{ lat: number; lon: number } | null>(null)
+  const targetRef = useRef<Target | null>(null)
+  const viewRef = useRef<LL | null>(null)
 
   useEffect(() => {
     if (!position) return
-    targetRef.current = position
+    targetRef.current = { ...position, receivedAt: Date.now() }
     if (!viewRef.current) viewRef.current = { lat: position.lat, lon: position.lon }
   }, [position])
 
@@ -229,6 +278,7 @@ function TrackerMap({ position, active }: { position: Position | null; active: b
     let base: HTMLCanvasElement | null = null
     let baseKey = ''
     let raf = 0
+    let introStart: number | null = null
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect()
@@ -263,37 +313,91 @@ function TrackerMap({ position, active }: { position: Position | null; active: b
         return
       }
 
-      const ease = still ? 1 : 0.045
-      view.lat += (target.lat - view.lat) * ease
-      view.lon += shortestTurn(view.lon, target.lon) * ease
-      view.lon = wrapLon(view.lon)
+      // The real position keeps moving between readings, so the marker flies continuously.
+      const live = predictPosition(target, Date.now())
 
-      const { p, heading } = orbitFrame(view.lat, view.lon)
+      // First time on screen: the path sweeps in from behind and settles on the real position.
+      let progress = 1
+      if (!still && !introPlayed.current) {
+        if (introStart === null) introStart = time
+        progress = Math.min(1, (time - introStart) / INTRO_MS)
+        if (progress >= 1) introPlayed.current = true
+      }
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const fade = progress >= 1 ? 1 : 0.2 + 0.8 * eased
 
-      const past: { lat: number; lon: number }[] = []
-      for (let a = -150; a <= 0; a += 2) past.push(trackPoint(p, heading, a))
-      const ahead: { lat: number; lon: number }[] = []
-      for (let a = 0; a <= 200; a += 2) ahead.push(trackPoint(p, heading, a))
+      let frame: ReturnType<typeof orbitFrame>
+      let offset = 0
+      if (progress < 1) {
+        frame = orbitFrame(live.lat, live.lon)
+        offset = -INTRO_SWEEP_DEG * (1 - eased)
+        const point = trackPoint(frame.p, frame.heading, offset)
+        view.lat = point.lat
+        view.lon = wrapLon(point.lon)
+      } else {
+        const ease = still ? 1 : 0.08
+        view.lat += (live.lat - view.lat) * ease
+        view.lon += shortestTurn(view.lon, live.lon) * ease
+        view.lon = wrapLon(view.lon)
+        frame = orbitFrame(view.lat, view.lon)
+      }
+      const at = (angle: number) => trackPoint(frame.p, frame.heading, offset + angle)
 
+      const past: LL[] = []
+      for (let a = -TRAIL_DEG; a <= 0; a += STEP_DEG) past.push(at(a))
+      const ahead: LL[] = []
+      for (let a = 0; a <= AHEAD_DEG; a += STEP_DEG) ahead.push(at(a))
+
+      // Path behind the station: a comet tail, bright and thick at the station, fading to nothing.
+      const tailBands = 10
+      const tail = Array.from({ length: tailBands }, () => new Path2D())
+      forEachSegment(past, w, h, (x1, y1, x2, y2, i) => {
+        const band = Math.min(tailBands - 1, Math.floor((i / (past.length - 1)) * tailBands))
+        tail[band].moveTo(x1, y1)
+        tail[band].lineTo(x2, y2)
+      })
       ctx.save()
-      ctx.lineWidth = 1.2
-      ctx.setLineDash([4, 4])
-      ctx.strokeStyle = 'rgba(125,211,252,0.55)'
-      drawPolyline(ctx, ahead, w, h)
+      ctx.lineCap = 'round'
+      tail.forEach((path, band) => {
+        const t = (band + 0.5) / tailBands
+        ctx.strokeStyle = `rgba(224,242,254,${(0.9 * Math.pow(t, 1.6) * fade).toFixed(3)})`
+        ctx.lineWidth = 0.6 + 1.5 * t
+        ctx.stroke(path)
+      })
       ctx.restore()
 
+      // Path ahead: dashes that march in the direction of travel and fade out with distance.
+      const aheadBands = 8
+      const route = Array.from({ length: aheadBands }, () => new Path2D())
+      const phase = still ? 0 : time * 0.011
+      forEachSegment(ahead, w, h, (x1, y1, x2, y2, i) => {
+        if ((((i - phase) % 10) + 10) % 10 >= 5) return
+        const band = Math.min(aheadBands - 1, Math.floor((i / (ahead.length - 1)) * aheadBands))
+        route[band].moveTo(x1, y1)
+        route[band].lineTo(x2, y2)
+      })
       ctx.save()
-      ctx.lineWidth = 1.8
-      ctx.strokeStyle = 'rgba(224,242,254,0.9)'
-      drawPolyline(ctx, past, w, h)
+      ctx.lineWidth = 1.3
+      route.forEach((path, band) => {
+        const t = (band + 0.5) / aheadBands
+        ctx.strokeStyle = `rgba(125,211,252,${(0.6 * Math.pow(1 - t, 1.2) * fade).toFixed(3)})`
+        ctx.stroke(path)
+      })
       ctx.restore()
 
-      const ring: { lat: number; lon: number }[] = []
-      for (let b = 0; b <= 360; b += 4) ring.push(offsetPoint(view.lat, view.lon, FOOTPRINT_DEG, b))
+      // Coverage ring: grows out from the station during the intro.
+      const ringRadius = FOOTPRINT_DEG * (progress >= 1 ? 1 : 0.15 + 0.85 * eased)
+      const ring: LL[] = []
+      for (let b = 0; b <= 360; b += 4) ring.push(offsetPoint(view.lat, view.lon, ringRadius, b))
+      const ringPath = new Path2D()
+      forEachSegment(ring, w, h, (x1, y1, x2, y2) => {
+        ringPath.moveTo(x1, y1)
+        ringPath.lineTo(x2, y2)
+      })
       ctx.save()
       ctx.lineWidth = 1
-      ctx.strokeStyle = 'rgba(56,189,248,0.35)'
-      drawPolyline(ctx, ring, w, h)
+      ctx.strokeStyle = `rgba(56,189,248,${(0.35 * fade).toFixed(3)})`
+      ctx.stroke(ringPath)
       ctx.restore()
 
       const x = lonToX(view.lon, w)
@@ -301,7 +405,7 @@ function TrackerMap({ position, active }: { position: Position | null; active: b
 
       ctx.save()
       ctx.setLineDash([2, 5])
-      ctx.strokeStyle = 'rgba(255,255,255,0.16)'
+      ctx.strokeStyle = `rgba(255,255,255,${(0.16 * fade).toFixed(3)})`
       ctx.lineWidth = 1
       ctx.beginPath()
       ctx.moveTo(x, 0)
@@ -341,7 +445,7 @@ function TrackerMap({ position, active }: { position: Position | null; active: b
       cancelAnimationFrame(raf)
       observer.disconnect()
     }
-  }, [active])
+  }, [active, introPlayed])
 
   return <canvas ref={canvasRef} className="h-full w-full" aria-hidden />
 }
@@ -481,9 +585,11 @@ function Stat({ value, label }: { value: string; label: string }) {
 
 export function SpaceTracker() {
   const sectionRef = useRef<HTMLElement>(null)
+  const introPlayed = useRef(false)
   const active = useOnScreen(sectionRef)
   const { data, status } = useSpaceFeed(active)
   const crew = useCrew()
+  const [crewOpen, setCrewOpen] = useState(false)
 
   const position = data?.position ?? null
   const place = useMemo(
@@ -502,8 +608,8 @@ export function SpaceTracker() {
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
 
-      <div className="relative mx-auto max-w-6xl px-6 py-8 md:px-12 md:py-10 lg:px-20">
-        <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.24em] text-sky-200/45">
+      <div className="relative mx-auto max-w-6xl px-6 py-6 md:px-12 md:py-8 lg:px-20">
+        <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1.5 font-mono text-[10px] uppercase tracking-[0.24em] text-sky-200/45">
           <span className="flex items-center gap-2" role="status">
             <span className="relative flex size-1.5">
               {status === 'live' && (
@@ -521,11 +627,12 @@ export function SpaceTracker() {
                 ? 'Live from orbit'
                 : 'Connecting to orbit'}
           </span>
-          <span className="flex items-center gap-5">
-            <span>
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            {place && <span className="text-sky-100/70">Over {place}</span>}
+            <span className="hidden sm:inline">
               {position ? `${position.lat >= 0 ? 'N' : 'S'} ${Math.abs(position.lat).toFixed(2)}°` : 'N --.--°'}
             </span>
-            <span>
+            <span className="hidden sm:inline">
               {position ? `${position.lon >= 0 ? 'E' : 'W'} ${Math.abs(position.lon).toFixed(2)}°` : 'E ---.--°'}
             </span>
             <span className="hidden sm:inline">
@@ -534,9 +641,23 @@ export function SpaceTracker() {
           </span>
         </div>
 
-        <h2 className="mt-6 max-w-5xl text-left text-[2.5rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-4xl md:text-5xl">
+        <h2 className="mt-4 max-w-5xl text-left text-[2.5rem] font-light leading-[1.08] tracking-tight text-sky-50 sm:text-4xl md:text-5xl">
           {crew ? (
-            crew.count
+            <button
+              type="button"
+              onClick={() => setCrewOpen(true)}
+              aria-haspopup="dialog"
+              aria-label={`${crew.count} people. Show who they are`}
+              className="cursor-pointer rounded-sm underline decoration-sky-300/40 decoration-dotted decoration-2 underline-offset-[0.14em] transition-colors hover:decoration-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
+            >
+              {crew.count}
+              <span
+                aria-hidden
+                className="ml-1 align-super font-mono text-[10px] uppercase tracking-[0.2em] text-sky-300/60"
+              >
+                who?
+              </span>
+            </button>
           ) : (
             <>
               <span
@@ -550,52 +671,19 @@ export function SpaceTracker() {
           off the planet
           right now.
         </h2>
-        {/* Who is up there. Space is reserved so the map doesn't jump when the crew arrives. */}
-        <div className="mt-5 min-h-[4.5rem] space-y-3">
-          {crew?.craft.map(c => (
-            <div key={c.name} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-6">
-              <span className="w-36 shrink-0 font-mono text-[10px] uppercase tracking-[0.2em] text-sky-200/45">
-                {c.name === 'ISS' ? 'On the ISS' : `On ${c.name}`} · {c.people.length}
-              </span>
-              {/* A flex-wrap row so long rosters break between names (never inside one) on small screens. */}
-              <span className="flex min-w-0 flex-wrap text-[13px] leading-relaxed text-sky-100/70">
-                {c.people.map(person => (
-                  <span
-                    key={person}
-                    className="whitespace-nowrap after:mx-2 after:text-sky-200/25 after:content-['·'] last:after:content-none"
-                  >
-                    {person}
-                  </span>
-                ))}
-              </span>
-            </div>
-          ))}
-        </div>
 
         <div
           role="img"
           aria-label={place ? `World map: the space station is over ${place}` : 'World map showing the space station'}
-          className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]"
+          className="mt-5 overflow-hidden rounded-xl border border-white/10 bg-[#050b18]"
         >
           <div className="aspect-[168/64] w-full">
-            <TrackerMap position={position} active={active} />
+            <TrackerMap position={position} active={active} introPlayed={introPlayed} />
           </div>
         </div>
-        <p className="mt-3 flex min-h-5 items-center gap-2 text-[13px] text-sky-100/60" aria-live="polite">
-          <span className="size-1 rounded-full bg-sky-300/70" aria-hidden />
-          <span>
-            {place ? (
-              <>
-                Now passing over <span className="text-sky-50/90">{place}</span>
-              </>
-            ) : (
-              'Finding the station…'
-            )}
-          </span>
-        </p>
 
-        <div className="mt-8 flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
-          <div className="flex flex-wrap gap-x-12 gap-y-5">
+        <div className="mt-5 flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+          <div className="flex flex-wrap gap-x-10 gap-y-4 md:gap-x-12">
             <Stat
               value={position?.altitude ? `${Math.round(position.altitude)} km` : '420 km'}
               label="Altitude"
@@ -614,6 +702,43 @@ export function SpaceTracker() {
           </p>
         </div>
       </div>
+
+      {crew && (
+        <Dialog open={crewOpen} onOpenChange={setCrewOpen}>
+          <DialogContent className="max-h-[85dvh] gap-5 overflow-y-auto border-white/10 bg-[#050b18] text-sky-50 sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-light tracking-tight text-sky-50">
+                {crew.count} people in orbit
+              </DialogTitle>
+              <DialogDescription className="text-sky-200/55">
+                Who is up there right now, by spacecraft.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-5">
+              {crew.craft.map(c => (
+                <section key={c.name}>
+                  <h3 className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-sky-200/45">
+                    {c.name === 'ISS' ? 'On the ISS' : `On ${c.name}`} · {c.people.length}
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {c.people.map(person => (
+                      <li key={person} className="flex items-center gap-2.5 text-[15px] text-sky-50/90">
+                        <span aria-hidden className="size-1 shrink-0 rounded-full bg-sky-300/60" />
+                        {person}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+            {daysAboard !== null && daysAboard >= 1 && (
+              <p className="border-t border-white/10 pt-4 text-xs font-light leading-relaxed text-sky-200/45">
+                The longest current stay is {daysAboard} days. The crew list is refreshed every 30 minutes.
+              </p>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   )
 }
