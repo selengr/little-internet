@@ -10,8 +10,8 @@ import type { UnsplashPhotoView } from "@/types/unsplash"
 
 const TILE_PX = 51
 const TILE_GAP = 8
-const LARGE_W = 800 // the photo shown in the viewer: 4:5 portrait
-const LARGE_H = 1000
+const LARGE_W = 720 // the photo shown in the viewer: 4:5 portrait
+const LARGE_H = 900
 /** Base wave pattern — tripled so one loop half is wider than any screen (no duplicate halves visible) */
 const BASE_COLUMN_COUNTS = [6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6, 5, 4, 6, 5, 4, 5, 6, 4, 5, 6]
 const COLUMN_COUNTS = [...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS, ...BASE_COLUMN_COUNTS]
@@ -136,7 +136,7 @@ const FALLBACK_IDS = [
 
 function largeUrl(url: string) {
   const base = url.split("?")[0]
-  return `${base}?auto=format&fit=crop&crop=faces,entropy&w=${LARGE_W}&h=${LARGE_H}&q=85`
+  return `${base}?auto=format&fit=crop&crop=faces,entropy&w=${LARGE_W}&h=${LARGE_H}&q=80`
 }
 
 const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
@@ -335,7 +335,8 @@ async function fetchAllPhotos() {
 }
 
 type Rect = { left: number; top: number; width: number; height: number }
-type Selection = { index: number; trackId: "a" | "b"; origin: Rect; navigated: boolean }
+/** `photo` is the photo that was picked, kept by value: the wall can reload its photo set after the viewer opens. */
+type Selection = { index: number; trackId: "a" | "b"; origin: Rect; navigated: boolean; photo: GridPhoto }
 
 // ─── Lighting ───────────────────────────────────────────────────────────────────────────────────
 // The viewer is lit by the photo itself: a soft aura in its dominant colour behind the card (outside
@@ -418,6 +419,9 @@ function cardRect(): Rect {
   return { left: (vw - width) / 2, top: (vh - height) / 2, width, height }
 }
 
+/** A small, fast version of the large image, shown (lightly blurred) while the full one downloads. */
+const midSrcOf = (largeSrc: string) => largeSrc.replace(`w=${LARGE_W}&h=${LARGE_H}&q=80`, "w=240&h=300&q=55")
+
 function rectOfSlot(key: string): Rect | null {
   const el = document.querySelector<HTMLElement>(`[data-slot-key="${key}"]`)
   if (!el) return null
@@ -454,6 +458,13 @@ function LightboxImage({ photo }: { photo: GridPhoto }) {
         className="absolute inset-0 h-full w-full scale-110 object-cover blur-md"
       />
       <img
+        src={midSrcOf(photo.largeSrc)}
+        alt=""
+        aria-hidden
+        draggable={false}
+        className="absolute inset-0 h-full w-full object-cover blur-[3px]"
+      />
+      <img
         src={photo.largeSrc}
         alt={photo.alt}
         draggable={false}
@@ -478,7 +489,8 @@ function PhotoLightbox({
   onStep: (delta: number) => void
 }) {
   const reduce = useReducedMotion()
-  const photo = photos[selection.index]
+  const photo = selection.photo
+  const position = useMemo(() => photos.findIndex(p => p.id === photo.id), [photos, photo.id])
   const [rect, setRect] = useState<Rect>(() => cardRect())
   const glow = useMemo(() => glowPalette(photo.color), [photo.color])
 
@@ -499,16 +511,23 @@ function PhotoLightbox({
 
   // Load the neighbours ahead of time so stepping through feels instant.
   useEffect(() => {
+    if (position < 0) return
     for (const d of [1, -1]) {
-      const next = photos[(selection.index + d + photos.length) % photos.length]
+      const next = photos[(position + d + photos.length) % photos.length]
       if (next) void preloadImage(next.largeSrc)
     }
-  }, [selection.index, photos])
+  }, [position, photos])
 
   // Closing flies back to the wall slot, unless the viewer has moved on to a photo whose slot is off screen.
+  const sameSlot = photos[selection.index]?.id === photo.id
   const exitRect = useMemo(
-    () => (selection.navigated ? rectOfSlot(slotKeyFor(selection.index, selection.trackId)) : selection.origin),
-    [selection],
+    () =>
+      !sameSlot
+        ? null
+        : selection.navigated
+          ? rectOfSlot(slotKeyFor(selection.index, selection.trackId))
+          : selection.origin,
+    [selection, sameSlot],
   )
 
   const from = reduce ? rect : selection.origin
@@ -631,7 +650,7 @@ function PhotoLightbox({
                 <X className="size-4" aria-hidden />
               </DialogPrimitive.Close>
               <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/30 px-2.5 py-1 font-mono text-[10px] tracking-wider text-white/80 backdrop-blur-md">
-                {selection.index + 1} / {photos.length}
+                {position >= 0 ? `${position + 1} / ${photos.length}` : "Photo"}
               </span>
             </motion.div>
 
@@ -680,7 +699,7 @@ function PhotoTile({
   index: number
   selected: boolean
   broken: boolean
-  onOpen: (index: number, slotKey: string, rect: DOMRect) => void
+  onOpen: (index: number, photo: GridPhoto, rect: DOMRect) => void
   onBroken: (id: string) => void
 }) {
   const glow = useMemo(() => glowPalette(photo.color).base, [photo.color])
@@ -691,8 +710,12 @@ function PhotoTile({
       data-slot-key={slotKey}
       aria-label={photo.alt ? `Open photo: ${photo.alt}` : "Open photo"}
       aria-haspopup="dialog"
-      onClick={e => onOpen(index, slotKey, e.currentTarget.getBoundingClientRect())}
-      onMouseEnter={() => {
+      onClick={e => onOpen(index, photo, e.currentTarget.getBoundingClientRect())}
+      // Start fetching the big image as early as possible: on hover for a mouse, on touch-down for a finger.
+      onPointerEnter={() => {
+        if (photo.largeSrc !== photo.tileSrc) void preloadImage(photo.largeSrc)
+      }}
+      onPointerDown={() => {
         if (photo.largeSrc !== photo.tileSrc) void preloadImage(photo.largeSrc)
       }}
       className={cn(
@@ -750,7 +773,7 @@ function MarqueeTrack({
   trackId: "a" | "b"
   selectedKey: string | null
   failed: Set<string>
-  onOpen: (index: number, trackId: "a" | "b", slotKey: string, rect: DOMRect) => void
+  onOpen: (index: number, trackId: "a" | "b", photo: GridPhoto, rect: DOMRect) => void
   onBroken: (id: string) => void
 }) {
   return (
@@ -776,7 +799,7 @@ function MarqueeTrack({
                 priority={col.id < 4 && i < 2}
                 selected={selectedKey === slotKey}
                 broken={failed.has(photo.id)}
-                onOpen={(index, key, rect) => onOpen(index, trackId, key, rect)}
+                onOpen={(index, picked, rect) => onOpen(index, trackId, picked, rect)}
                 onBroken={onBroken}
               />
             )
@@ -812,10 +835,11 @@ export function BookCoverMarquee() {
   }, [])
 
   const handleOpen = useCallback(
-    (index: number, trackId: "a" | "b", _slotKey: string, rect: DOMRect) => {
+    (index: number, trackId: "a" | "b", photo: GridPhoto, rect: DOMRect) => {
       setSelection({
         index,
         trackId,
+        photo,
         navigated: false,
         origin: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
       })
@@ -827,9 +851,12 @@ export function BookCoverMarquee() {
 
   const handleStep = useCallback(
     (delta: number) => {
-      setSelection(prev =>
-        prev ? { ...prev, index: (prev.index + delta + photos.length) % photos.length, navigated: true } : prev,
-      )
+      setSelection(prev => {
+        if (!prev) return prev
+        const at = photos.findIndex(p => p.id === prev.photo.id)
+        const index = ((at >= 0 ? at : prev.index) + delta + photos.length) % photos.length
+        return { ...prev, index, photo: photos[index], navigated: true }
+      })
     },
     [photos.length],
   )
@@ -872,7 +899,10 @@ export function BookCoverMarquee() {
     }
   }, [])
 
-  const selectedKey = selection ? slotKeyFor(selection.index, selection.trackId) : null
+  const selectedKey =
+    selection && photos[selection.index]?.id === selection.photo.id
+      ? slotKeyFor(selection.index, selection.trackId)
+      : null
   const paused = selection !== null || hovering
 
   return (
