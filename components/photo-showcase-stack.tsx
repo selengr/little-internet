@@ -317,7 +317,10 @@ export function PhotoShowcaseStack() {
                     </div>
                     <h3 className="text-xl font-light mb-3 text-foreground">{cat.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed mb-3">{cat.desc}</p>
-                    <p className="text-xs italic text-muted-foreground/80 mb-8 min-h-[1.5em]">
+                    {/* Fixed two-line height: Unsplash descriptions can be very long (hashtag lists) and change every
+                        time a card rotates its photo, which used to resize the whole page and shift
+                        everything below it. */}
+                    <p className="mb-8 h-8 text-xs italic leading-4 text-muted-foreground/80 line-clamp-2">
                       {photo ? `“${photo.alt}” — ${photo.photographer.name}` : "\u00A0"}
                     </p>
                   </div>
