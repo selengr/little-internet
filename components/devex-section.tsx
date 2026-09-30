@@ -63,6 +63,20 @@ const STEPS = [
 
 const PANEL_H = "h-[360px]"
 
+// One light colour family per toy. The big card glows in the active one and fades between them.
+const ACCENTS = [
+  { a: "#f59e0b", b: "#ef4444", c: "#f97316", rgb: "245,158,11" }, // cat: amber → red
+  { a: "#10b981", b: "#22d3ee", c: "#84cc16", rgb: "16,185,129" }, // dog: green → cyan
+  { a: "#a855f7", b: "#ec4899", c: "#6366f1", rgb: "168,85,247" }, // jokes: violet → pink
+  { a: "#38bdf8", b: "#6366f1", c: "#2dd4bf", rgb: "56,189,248" }, // poetry: sky → indigo
+] as const
+
+const GLOW_CSS = `
+  @keyframes devex-breathe { 0%,100% { opacity: .5 } 50% { opacity: .95 } }
+  @keyframes devex-drift { 0% { background-position: 0% 0% } 50% { background-position: 100% 100% } 100% { background-position: 0% 0% } }
+  @media (prefers-reduced-motion: reduce) { .devex-glow-layer { animation: none !important } }
+`
+
 function isJoke(data: JokeResponse): data is Joke {
   return !data.error && "id" in data && !("jokes" in data)
 }
@@ -283,6 +297,7 @@ export function DevExSection() {
 
   return (
     <section id="devex" className="py-32 px-6 md:px-12 lg:px-20 border-t border-border">
+      <style>{GLOW_CSS}</style>
       <div className="max-w-6xl mx-auto">
         <div className="mb-16">
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border text-[10px] tracking-widest text-muted-foreground uppercase">
@@ -290,7 +305,7 @@ export function DevExSection() {
           </div>
           <h2 className="mt-5 text-4xl md:text-5xl font-light tracking-tight leading-[1.05] text-foreground">
             Facts, jokes &amp; verse.<br />
-            Take a breath.
+            <span className="italic text-muted-foreground">Take a breath.</span>
           </h2>
         </div>
 
@@ -314,10 +329,13 @@ export function DevExSection() {
                     <div
                       className={cn(
                         "flex items-center justify-center w-8 h-8 rounded-lg text-xs font-light shrink-0 transition-colors duration-200",
-                        selected
-                          ? "bg-foreground text-background"
-                          : "bg-muted text-muted-foreground",
+                        selected ? "text-white" : "bg-muted text-muted-foreground",
                       )}
+                      style={
+                        selected
+                          ? { background: `linear-gradient(135deg, ${ACCENTS[i].a}, ${ACCENTS[i].b})` }
+                          : undefined
+                      }
                     >
                       {s.num}
                     </div>
@@ -341,11 +359,45 @@ export function DevExSection() {
           </div>
 
           <div
+            onPointerMove={e => {
+              const r = e.currentTarget.getBoundingClientRect()
+              e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`)
+              e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`)
+            }}
             className={cn(
-              "lg:col-span-2 rounded-2xl border border-border bg-card/70 p-6 md:p-8 flex flex-col overflow-hidden",
+              "group/glow relative isolate lg:col-span-2 rounded-2xl border border-border bg-card p-6 md:p-8 flex flex-col overflow-hidden",
               PANEL_H,
             )}
           >
+            {/* Light that lives inside the border: a coloured gradient, covered by a blurred plate in the
+                card colour, so only a soft band along the edges shines through. It breathes slowly, reaches
+                deeper on hover, and each toy has its own colours that fade into one another. */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-55 dark:opacity-85">
+              {ACCENTS.map((c, i) => (
+                <div
+                  key={i}
+                  className="absolute inset-0 transition-opacity duration-700"
+                  style={{ opacity: active === i ? 1 : 0 }}
+                >
+                  <div
+                    className="devex-glow-layer absolute inset-0"
+                    style={{
+                      backgroundImage: `linear-gradient(135deg, ${c.a}, ${c.b} 50%, ${c.c})`,
+                      backgroundSize: "200% 200%",
+                      animation: "devex-breathe 6s ease-in-out infinite, devex-drift 18s ease-in-out infinite",
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/glow:opacity-100"
+                    style={{
+                      background: `radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(${c.rgb},.22), transparent 70%)`,
+                    }}
+                  />
+                </div>
+              ))}
+              <div className="absolute inset-[18px] rounded-[1.25rem] bg-card blur-[20px] transition-[inset] duration-700 ease-out group-hover/glow:inset-[30px]" />
+            </div>
+
             <div className="flex items-center justify-between mb-4 shrink-0">
               <div
                 className="text-[10px] tracking-widest uppercase text-muted-foreground transition-all duration-200"
@@ -355,6 +407,8 @@ export function DevExSection() {
                   transition: "opacity 200ms ease, filter 200ms ease",
                 }}
               >
+                {step.title}
+                <span className="opacity-40"> · </span>
                 {step.label}
               </div>
               <div className="flex gap-1.5">
@@ -373,7 +427,7 @@ export function DevExSection() {
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 rounded-xl border border-border bg-muted/40 p-5 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 rounded-xl border border-border/70 bg-background/55 p-5 flex flex-col overflow-hidden backdrop-blur-[2px]">
               <div
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
                 style={{
@@ -480,7 +534,7 @@ export function DevExSection() {
                         <p className="text-sm text-muted-foreground">Drop the ink for a poem.</p>
                       )
                     ) : (
-                      <p className="text-[13px] md:text-[14px] leading-relaxed text-foreground/80 font-light">
+                      <p className="text-[14px] md:text-[16px] leading-relaxed text-foreground/85 font-light">
                         {active === 0 ? catFact : dogFact}
                       </p>
                     )}
@@ -500,7 +554,11 @@ export function DevExSection() {
                       else spinPoem()
                     }}
                     disabled={spinningNow}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-amber-500/30 bg-gradient-to-r from-amber-500/15 to-orange-500/10 text-[11px] tracking-wide hover:from-amber-500/25 hover:to-orange-500/15 disabled:opacity-50 transition-all cursor-pointer"
+                    style={{
+                      borderColor: `rgba(${ACCENTS[active].rgb},.4)`,
+                      background: `linear-gradient(90deg, rgba(${ACCENTS[active].rgb},.2), rgba(${ACCENTS[active].rgb},.06))`,
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[11px] tracking-wide hover:brightness-110 active:scale-[0.97] disabled:opacity-50 transition-all cursor-pointer"
                   >
                     <Dices className={`size-3.5 ${spinningNow ? "animate-spin" : ""}`} />
                     {spinningNow ? step.busyLabel : step.spinLabel}
