@@ -530,7 +530,7 @@ export function JokesPage() {
         {/* Next page */}
         <Link
           href="/poetry"
-          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--jk-line)] bg-[var(--jk-card)] p-8 transition-transform duration-300 hover:-translate-y-0.5 md:p-12"
+          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--jk-line)] bg-[var(--jk-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
         >
           <div
             aria-hidden
@@ -542,23 +542,17 @@ export function JokesPage() {
             />
             <div className="absolute inset-[20px] rounded-[1.6rem] bg-[var(--jk-card)] blur-[24px] transition-[inset] duration-700 group-hover/next:inset-[34px]" />
           </div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--jk-mute)]" style={mono}>
-            Next page · № 04
-          </p>
-          <div className="mt-4 flex items-end justify-between gap-6">
+          <div className="flex items-center justify-between gap-6">
             <div>
               <p
-                className="text-[clamp(2.4rem,8vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
+                className="text-[clamp(1.9rem,6.2vw,4.2rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
                 style={mark}
               >
                 Poetry
               </p>
-              <p className="mt-3 max-w-sm text-[15px] text-[var(--jk-mute)]">
-                Drop a little ink and see what verse blooms.
-              </p>
             </div>
-            <span className="grid size-14 shrink-0 place-items-center rounded-full border border-[var(--jk-line)] bg-[var(--jk-bg)] transition-all duration-300 group-hover/next:scale-110 group-hover/next:bg-[var(--jk-fg)] group-hover/next:text-[var(--jk-ink-on)] md:size-20">
-              <ArrowUpRight className="size-6 md:size-8" />
+            <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[var(--jk-line)] bg-[var(--jk-bg)] transition-all duration-300 group-hover/next:scale-110 group-hover/next:bg-[var(--jk-fg)] group-hover/next:text-[var(--jk-ink-on)] md:size-14">
+              <ArrowUpRight className="size-5 md:size-6" />
             </span>
           </div>
         </Link>

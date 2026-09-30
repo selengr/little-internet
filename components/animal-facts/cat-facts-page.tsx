@@ -380,7 +380,7 @@ export function CatFactsPage() {
         {/* Next page */}
         <Link
           href="/dog-facts"
-          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--cf-line)] bg-[var(--cf-card)] p-8 transition-transform duration-300 hover:-translate-y-0.5 md:p-12"
+          className="group/next relative isolate mt-14 block overflow-hidden rounded-[2rem] border border-[var(--cf-line)] bg-[var(--cf-card)] p-6 transition-transform duration-300 hover:-translate-y-0.5 md:px-10 md:py-8"
         >
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-40 transition-opacity duration-500 group-hover/next:opacity-90 dark:opacity-60 dark:group-hover/next:opacity-100">
             <div
@@ -389,20 +389,14 @@ export function CatFactsPage() {
             />
             <div className="absolute inset-[20px] rounded-[1.6rem] bg-[var(--cf-card)] blur-[24px] transition-[inset] duration-700 group-hover/next:inset-[34px]" />
           </div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--cf-mute)]" style={mono}>
-            Next page · № 02
-          </p>
-          <div className="mt-4 flex items-end justify-between gap-6">
+          <div className="flex items-center justify-between gap-6">
             <div>
-              <p className="text-[clamp(2.4rem,8vw,5.5rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]" style={mark}>
+              <p className="text-[clamp(1.9rem,6.2vw,4.2rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]" style={mark}>
                 Dog facts
               </p>
-              <p className="mt-3 max-w-sm text-[15px] text-[var(--cf-mute)]">
-                Loyal, goofy and full of surprising science. Fetch the next one.
-              </p>
             </div>
-            <span className="grid size-14 shrink-0 place-items-center rounded-full border border-[var(--cf-line)] bg-[var(--cf-bg)] transition-all duration-300 group-hover/next:scale-110 group-hover/next:bg-[var(--cf-fg)] group-hover/next:text-[var(--cf-ink-on)] md:size-20">
-              <ArrowUpRight className={cn('size-6 md:size-8')} />
+            <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[var(--cf-line)] bg-[var(--cf-bg)] transition-all duration-300 group-hover/next:scale-110 group-hover/next:bg-[var(--cf-fg)] group-hover/next:text-[var(--cf-ink-on)] md:size-14">
+              <ArrowUpRight className={cn('size-5 md:size-6')} />
             </span>
           </div>
         </Link>
