@@ -600,7 +600,7 @@ function makeBlot(seed: number): Blob[] {
   return blobs
 }
 
-export function PoemInkSpinner({ spinning, target, onSpin, label }: SpinnerProps) {
+export function PoemInkSpinner({ spinning, target, onSpin, label, size }: SpinnerProps) {
   const reduce = useReducedMotion()
   const uid = useId().replace(/:/g, "")
   const [seed, setSeed] = useState(7)
@@ -630,6 +630,7 @@ export function PoemInkSpinner({ spinning, target, onSpin, label }: SpinnerProps
 
   return (
     <Stage
+      size={size}
       label={label}
       onSpin={onSpin}
       spinning={spinning}

@@ -1,6 +1,5 @@
 import { Instrument_Serif, JetBrains_Mono, Syne } from 'next/font/google'
-import { DailyPoetry } from '@/components/daily-poetry'
-import { PoetryShell } from '@/components/poetry-shell'
+import { PoetryPage } from '@/components/poetry-page'
 
 const display = Instrument_Serif({
   subsets: ['latin'],
@@ -21,23 +20,19 @@ const mark = Syne({
   variable: '--font-py-mark',
 })
 
+const description = 'Drop a little ink and see what verse blooms: a poem of the day, plus poems by mood.'
+
 export const metadata = {
   title: 'Poetry',
-  description: 'A poem for today.',
-  openGraph: {
-    title: 'Poetry',
-    description: 'A poem for today.',
-  },
-  twitter: {
-    title: 'Poetry',
-    description: 'A poem for today.',
-  },
+  description,
+  openGraph: { title: 'Poetry', description },
+  twitter: { title: 'Poetry', description },
 }
 
-export default function PoetryPage() {
+export default function PoetryRoute() {
   return (
-    <PoetryShell fontVars={`${display.variable} ${mono.variable} ${mark.variable}`}>
-      <DailyPoetry />
-    </PoetryShell>
+    <div className={`${display.variable} ${mono.variable} ${mark.variable}`}>
+      <PoetryPage />
+    </div>
   )
 }
