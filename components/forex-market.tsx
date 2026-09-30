@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDownUp, RefreshCw } from 'lucide-react'
 import type { ForexPeriod, FrankfurterCurrency } from '@/types/frankfurter'
@@ -15,7 +15,88 @@ import {
 } from '@/lib/frankfurter'
 import { ForexChart } from '@/components/forex-chart'
 import { CurrencyCombobox } from '@/components/currency-combobox'
+import { ShimmerBone, ShimmerKeyframes } from '@/components/shimmer-bone'
 import { cn } from '@/lib/utils'
+
+function FxBone(props: { className?: string; style?: CSSProperties }) {
+  return <ShimmerBone tone="var(--fx-fg)" {...props} />
+}
+
+const fxPanel = 'rounded-2xl border border-[color:var(--fx-line)] bg-[color:var(--fx-panel)] shadow-[var(--fx-shadow)]'
+
+/** Mirrors the loaded layout: hero + rate card, the converter, and the history chart. */
+function ForexSkeleton() {
+  return (
+    <div
+      className="max-w-6xl mx-auto px-6 md:px-10 space-y-12 md:space-y-16 pb-8"
+      aria-busy
+      aria-label="Loading exchange rates"
+    >
+      <ShimmerKeyframes />
+
+      <section className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
+        <div className="max-w-xl w-full space-y-4">
+          <FxBone className="h-3 w-20" />
+          <FxBone className="rounded-lg" style={{ height: 'clamp(2.75rem, 10vw, 5rem)', width: 'min(100%, 26rem)' }} />
+          <FxBone className="h-4 w-full max-w-md" />
+        </div>
+        <div className={cn(fxPanel, 'w-full lg:w-auto min-w-[min(100%,340px)] px-6 py-6 md:px-8 md:py-7 space-y-4')}>
+          <FxBone className="h-3 w-40" />
+          <FxBone className="h-4 w-24" />
+          <FxBone className="h-12 w-56 rounded-lg" />
+          <div className="flex items-center justify-between">
+            <FxBone className="h-8 w-20" />
+            <FxBone className="h-4 w-12" />
+          </div>
+          <FxBone className="h-3 w-52" />
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-5 space-y-2">
+          <FxBone className="h-3 w-12" />
+          <FxBone className="h-8 w-32" />
+        </div>
+        <div className={cn(fxPanel, 'overflow-hidden')}>
+          <div className="grid lg:grid-cols-[1fr_auto_1fr]">
+            <div className="p-5 md:p-7 space-y-5 border-b lg:border-b-0 lg:border-r border-[color:var(--fx-line-soft)]">
+              <FxBone className="h-11 w-full rounded-xl" />
+              <div className="space-y-2">
+                <FxBone className="h-3 w-16" />
+                <FxBone className="h-12 w-full max-w-xs" />
+              </div>
+            </div>
+            <div className="flex items-center justify-center p-3 lg:px-6">
+              <FxBone className="size-11 rounded-full" />
+            </div>
+            <div className="p-5 md:p-7 space-y-5">
+              <FxBone className="h-11 w-full rounded-xl" />
+              <div className="space-y-2">
+                <FxBone className="h-3 w-16" />
+                <FxBone className="h-12 w-full max-w-xs" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-5 space-y-2">
+          <FxBone className="h-3 w-16" />
+          <FxBone className="h-8 w-40" />
+        </div>
+        <div className={cn(fxPanel, 'p-5 md:p-7 space-y-5')}>
+          <div className="flex flex-wrap gap-2">
+            {[0, 1, 2, 3, 4].map(i => (
+              <FxBone key={i} className="h-8 w-14 rounded-full" />
+            ))}
+          </div>
+          <FxBone className="h-64 w-full rounded-xl" />
+        </div>
+      </section>
+    </div>
+  )
+}
 
 const PERIODS: ForexPeriod[] = ['today', '7', '30', '90', '365']
 const DEFAULT_BASE = 'USD'
@@ -181,15 +262,7 @@ export function ForexMarket() {
       ? `≈ ${Math.round(rate / 10).toLocaleString()} toman`
       : null
 
-  if (loading && rate == null) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-10 space-y-6">
-        <div className="h-14 w-40 bg-[color:var(--fx-fg)]/10 animate-pulse" />
-        <div className="h-24 w-full max-w-lg bg-[color:var(--fx-fg)]/10 animate-pulse" />
-        <div className="h-64 w-full bg-[color:var(--fx-fg)]/8 animate-pulse" />
-      </div>
-    )
-  }
+  if (loading && rate == null) return <ForexSkeleton />
 
   return (
     <div className="max-w-6xl mx-auto px-6 md:px-10 space-y-12 md:space-y-16 pb-8">

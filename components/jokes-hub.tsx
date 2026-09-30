@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   RefreshCw,
@@ -16,6 +16,91 @@ import {
 } from 'lucide-react'
 import type { Joke, JokeApiInfo, JokeResponse, StoredFavorite } from '@/types/jokeapi'
 import { cn } from '@/lib/utils'
+import { ShimmerBone, ShimmerKeyframes } from '@/components/shimmer-bone'
+
+const JK_TONE = 'var(--jk-fg)'
+const jkPanel = {
+  borderColor: 'var(--jk-line)',
+  background: 'var(--jk-panel)',
+  boxShadow: 'var(--jk-shadow)',
+} as const
+
+function JkBone(props: { className?: string; style?: CSSProperties }) {
+  return <ShimmerBone tone={JK_TONE} {...props} />
+}
+
+/** Mirrors the loaded layout: header, stage + wheel, desk controls, and the joke feed. */
+function JokesSkeleton() {
+  return (
+    <div className="mx-auto max-w-6xl px-5 md:px-8" aria-busy aria-label="Loading jokes">
+      <ShimmerKeyframes />
+
+      <header className="mb-10 md:mb-12 max-w-2xl space-y-4">
+        <JkBone className="h-3 w-24" />
+        <JkBone className="rounded-lg" style={{ height: 'clamp(2.75rem, 9vw, 5rem)', width: 'min(100%, 20rem)' }} />
+        <JkBone className="h-4 w-full max-w-md" />
+      </header>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_240px] lg:items-stretch mb-6 sm:mb-8">
+        <div className="min-w-0 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <JkBone className="h-3 w-16" />
+            <JkBone className="h-9 w-28 rounded-xl" />
+          </div>
+          <div className="rounded-2xl border p-6 sm:p-8 space-y-4" style={jkPanel}>
+            <div className="flex items-center justify-between">
+              <JkBone className="h-6 w-24 rounded-full" />
+              <JkBone className="size-8 rounded-full" />
+            </div>
+            <JkBone className="h-6 w-full" />
+            <JkBone className="h-6 w-11/12" />
+            <JkBone className="h-6 w-2/3" />
+            <div className="pt-4">
+              <JkBone className="h-10 w-36 rounded-xl" />
+            </div>
+          </div>
+        </div>
+        <div
+          className="rounded-2xl border flex flex-col items-center justify-center gap-5 p-5 sm:p-6"
+          style={jkPanel}
+        >
+          <JkBone className="h-3 w-12" />
+          <JkBone className="size-40 rounded-full" />
+          <JkBone className="h-9 w-24 rounded-xl" />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border mb-6 sm:mb-8 overflow-hidden" style={jkPanel}>
+        <div
+          className="flex flex-wrap items-center gap-2 border-b px-4 py-3 sm:px-5"
+          style={{ borderColor: 'var(--jk-line-soft)' }}
+        >
+          {[20, 24, 20, 22].map((w, i) => (
+            <JkBone key={i} className="h-9 rounded-xl" style={{ width: `${w * 4}px` }} />
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-5 px-4 py-3 sm:px-5">
+          {[14, 16, 12, 18, 14, 16].map((w, i) => (
+            <JkBone key={i} className="h-4" style={{ width: `${w * 4}px` }} />
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="rounded-2xl border p-5 space-y-3" style={jkPanel}>
+            <div className="flex items-center justify-between">
+              <JkBone className="h-5 w-20 rounded-full" />
+              <JkBone className="size-7 rounded-full" />
+            </div>
+            <JkBone className="h-4 w-full" />
+            <JkBone className="h-4 w-3/4" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 const CATEGORIES = [
   { key: 'Any', label: 'Any', mark: '*', emoji: '🎲', color: '#5c6578' },
@@ -535,15 +620,7 @@ export function JokesHub() {
     [favorites],
   )
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-6 animate-pulse">
-        <div className="h-14 w-40" style={{ background: 'var(--jk-line-soft)' }} />
-        <div className="h-10 w-full max-w-md" style={{ background: 'var(--jk-line-soft)' }} />
-        <div className="h-72 w-full" style={{ background: 'var(--jk-line-soft)' }} />
-      </div>
-    )
-  }
+  if (loading) return <JokesSkeleton />
 
   return (
     <div className="mx-auto max-w-6xl px-5 md:px-8">
