@@ -31,6 +31,8 @@ type SpinnerProps = {
   target: number | null
   onSpin: () => void
   label: string
+  /** Render at this many px instead of the default 112/144 (the drawing scales with it). */
+  size?: number
 }
 
 const SEC = SPIN_MS / 1000
@@ -47,7 +49,9 @@ function Stage({
   onPointerMove,
   onPointerLeave,
   buttonRef,
+  size,
 }: {
+  size?: number
   label: string
   onSpin: () => void
   spinning: boolean
@@ -67,11 +71,19 @@ function Stage({
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
       className={cn(
-        "group relative block size-[112px] shrink-0 cursor-pointer overflow-hidden rounded-[30px] border border-black/10 outline-none transition-transform duration-300 hover:scale-[1.04] focus-visible:ring-2 focus-visible:ring-foreground/50 disabled:cursor-wait sm:size-36 dark:border-white/10",
+        "group relative block shrink-0 cursor-pointer overflow-hidden border border-black/10 outline-none transition-transform duration-300 hover:scale-[1.04] focus-visible:ring-2 focus-visible:ring-foreground/50 disabled:cursor-wait dark:border-white/10",
+        size ? "" : "size-[112px] rounded-[30px] sm:size-36",
         className,
       )}
+      style={size ? { width: size, height: size, borderRadius: size * 0.21 } : undefined}
     >
-      <div className="absolute left-0 top-0 h-[144px] w-[144px] origin-top-left scale-[0.7778] sm:scale-100">
+      <div
+        className={cn(
+          "absolute left-0 top-0 h-[144px] w-[144px] origin-top-left",
+          !size && "scale-[0.7778] sm:scale-100",
+        )}
+        style={size ? { transform: `scale(${size / 144})` } : undefined}
+      >
         {children}
       </div>
     </button>
@@ -89,6 +101,7 @@ const IRISES = [
   { a: "#cffafe", b: "#0891b2", rim: "#164e63" }, // ice
 ]
 export const CAT_EYE_COUNT = IRISES.length
+export const CAT_IRISES = IRISES
 
 const IRIS_FIBERS = Array.from({ length: 56 }, (_, i) => {
   const a = (i / 56) * Math.PI * 2
@@ -99,7 +112,7 @@ const IRIS_FIBERS = Array.from({ length: 56 }, (_, i) => {
 
 const ALMOND = "M6 60 C 28 18, 92 18, 114 60 C 92 102, 28 102, 6 60 Z"
 
-export function CatEyeSpinner({ spinning, target, onSpin, label }: SpinnerProps) {
+export function CatEyeSpinner({ spinning, target, onSpin, label, size }: SpinnerProps) {
   const reduce = useReducedMotion()
   const uid = useId().replace(/:/g, "")
   const [shown, setShown] = useState(0)
@@ -160,6 +173,7 @@ export function CatEyeSpinner({ spinning, target, onSpin, label }: SpinnerProps)
       onSpin={onSpin}
       spinning={spinning}
       buttonRef={buttonRef}
+      size={size}
       className="bg-[radial-gradient(circle_at_50%_40%,#2a2a33,#0b0b0f_75%)]"
       onPointerMove={e => {
         const r = e.currentTarget.getBoundingClientRect()

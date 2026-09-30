@@ -17,6 +17,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // The cat page moved; /dog-facts points at the old combined page until its redesign is ready.
+      { source: '/cat', destination: '/cat-facts', permanent: true },
+      { source: '/dog-facts', destination: '/animal-facts', permanent: false },
       {
         source: '/desk',
         destination: '/charts',
