@@ -124,17 +124,16 @@ function subsolarPoint(date: Date) {
 }
 
 function wrapLon(lon: number) {
-  let out = lon
-  while (out > 180) out -= 360
-  while (out < -180) out += 360
-  return out
+  // Arithmetic rather than a loop, so a bad value can never hang the page.
+  if (!Number.isFinite(lon)) return 0
+  if (lon >= -180 && lon <= 180) return lon
+  return lon - 360 * Math.ceil((lon - 180) / 360)
 }
 
 function shortestTurn(from: number, to: number) {
-  let delta = to - from
-  while (delta > 180) delta -= 360
-  while (delta < -180) delta += 360
-  return delta
+  const delta = to - from
+  if (!Number.isFinite(delta)) return 0
+  return delta - 360 * Math.round(delta / 360)
 }
 
 const lonToX = (lon: number, w: number) =>
@@ -198,7 +197,8 @@ type Target = Position & { receivedAt: number }
 
 const TRAIL_DEG = 150 // how far behind the station the path is drawn
 const AHEAD_DEG = 200 // how far ahead
-const STEP_DEG = 0.75 // sampling step along the orbit
+const STEP_DEG = 1 // sampling step along the orbit
+const PATH_REFRESH_MS = 100 // the path is recomputed this often once the intro is over
 const INTRO_MS = 2600
 const INTRO_SWEEP_DEG = 75 // the intro starts this far behind the real position
 
@@ -279,6 +279,7 @@ function TrackerMap({
     let baseKey = ''
     let raf = 0
     let introStart: number | null = null
+    let pathCache: { at: number; past: LL[]; ahead: LL[] } | null = null
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect()
@@ -343,10 +344,16 @@ function TrackerMap({
       }
       const at = (angle: number) => trackPoint(frame.p, frame.heading, offset + angle)
 
-      const past: LL[] = []
-      for (let a = -TRAIL_DEG; a <= 0; a += STEP_DEG) past.push(at(a))
-      const ahead: LL[] = []
-      for (let a = 0; a <= AHEAD_DEG; a += STEP_DEG) ahead.push(at(a))
+      // The path barely moves between frames, so it is reused for a moment instead of being
+      // recomputed 60 times a second (the marker itself is still updated every frame).
+      if (!pathCache || progress < 1 || time - pathCache.at > PATH_REFRESH_MS) {
+        const past: LL[] = []
+        for (let a = -TRAIL_DEG; a <= 0; a += STEP_DEG) past.push(at(a))
+        const ahead: LL[] = []
+        for (let a = 0; a <= AHEAD_DEG; a += STEP_DEG) ahead.push(at(a))
+        pathCache = { at: time, past, ahead }
+      }
+      const { past, ahead } = pathCache
 
       // Path behind the station: a comet tail, bright and thick at the station, fading to nothing.
       const tailBands = 10
