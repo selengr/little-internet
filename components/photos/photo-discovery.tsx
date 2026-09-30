@@ -41,7 +41,9 @@ const COLORS = [
 
 async function fetchUnsplash<T>(params: Record<string, string>): Promise<T> {
   const qs = new URLSearchParams(params)
-  const res = await fetch(`/api/unsplash?${qs}`, { cache: 'no-store' })
+  // Random picks must stay fresh; everything else may come from the HTTP cache (see the API route).
+  const fresh = params.action === 'hero' || params.action === 'random'
+  const res = await fetch(`/api/unsplash?${qs}`, fresh ? { cache: 'no-store' } : undefined)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error ?? 'Request failed')
   return json as T
@@ -77,15 +79,20 @@ export function PhotoDiscovery() {
   const galleryRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
+  const initialCategory = useRef(searchParams.get('category'))
   const loadInitial = useCallback(async () => {
     setLoadingHero(true)
     setLoadError(null)
+    // A deep-linked category loads its own gallery, so the generic "latest" one would be wasted.
+    const deepLinked = PHOTO_CATEGORIES.some(c => c.id === initialCategory.current)
     try {
       const results = await Promise.allSettled([
         fetchUnsplash<{ photo: UnsplashPhotoView }>({ action: 'hero', orientation: 'landscape' }),
         fetchUnsplash<{ photo: UnsplashPhotoView }>({ action: 'random', query: 'inspiration' }),
         fetchUnsplash<{ collections: UnsplashCollectionView[] }>({ action: 'collections', per_page: '5' }),
-        fetchUnsplash<{ photos: UnsplashPhotoView[] }>({ action: 'latest', per_page: '12' }),
+        deepLinked
+          ? Promise.resolve({ photos: [] as UnsplashPhotoView[] })
+          : fetchUnsplash<{ photos: UnsplashPhotoView[] }>({ action: 'latest', per_page: '12' }),
         fetchUnsplash<{ photos: UnsplashPhotoView[] }>({ action: 'trending', per_page: '8' }),
       ])
 
@@ -94,7 +101,7 @@ export function PhotoDiscovery() {
       if (heroRes.status === 'fulfilled') setHero(heroRes.value.photo)
       if (dailyRes.status === 'fulfilled') setDaily(dailyRes.value.photo)
       if (collectionsRes.status === 'fulfilled') setCollections(collectionsRes.value.collections)
-      if (latestRes.status === 'fulfilled') {
+      if (latestRes.status === 'fulfilled' && !deepLinked) {
         setGallery(latestRes.value.photos)
       }
       if (trendingRes.status === 'fulfilled') setTrending(trendingRes.value.photos)
@@ -102,7 +109,7 @@ export function PhotoDiscovery() {
       const failures = results.filter(
         (r): r is PromiseRejectedResult => r.status === 'rejected',
       )
-      const hasGallery = latestRes.status === 'fulfilled' && latestRes.value.photos.length > 0
+      const hasGallery = deepLinked || (latestRes.status === 'fulfilled' && latestRes.value.photos.length > 0)
       const hasHero = heroRes.status === 'fulfilled'
 
       if (!hasGallery && !hasHero) {

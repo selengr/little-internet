@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import type { UnsplashPhotoView } from "@/types/unsplash"
+import { PHOTO_CATEGORIES } from "@/lib/unsplash"
 
 interface ShowcaseCategory {
   id: string
@@ -125,8 +126,22 @@ const MOBILE_MASK =
 const DESKTOP_MASK =
   "linear-gradient(to right, transparent 0%, black 28%, black 62%, transparent 94%)"
 
+// Start the /photos data request before the click (same URL the page itself asks for, so it is
+// served from the HTTP cache), then the page only has to render.
+const warmed = new Set<string>()
+function warmCategory(id: string) {
+  const query = PHOTO_CATEGORIES.find(c => c.id === id)?.query
+  if (!query || warmed.has(id)) return
+  warmed.add(id)
+  const qs = new URLSearchParams({ action: 'search', query, page: '1', per_page: '12', order_by: 'relevant' })
+  void fetch(`/api/unsplash?${qs}`).catch(() => warmed.delete(id))
+}
+
 export function PhotoShowcaseStack() {
   const router = useRouter()
+  useEffect(() => {
+    router.prefetch('/photos')
+  }, [router])
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
   // depth[i] = how many cards are currently stacked on top of card i
   const [depth, setDepth] = useState<number[]>(CATEGORIES.map(() => 0))
@@ -258,6 +273,9 @@ export function PhotoShowcaseStack() {
               <button
                 type="button"
                 onClick={() => router.push(`/photos?category=${cat.id}`)}
+                onPointerEnter={() => warmCategory(cat.id)}
+                onFocus={() => warmCategory(cat.id)}
+                onTouchStart={() => warmCategory(cat.id)}
                 className="group relative block w-full text-left bg-[#faf9f7] dark:bg-[#373c41] rounded-2xl border border-black/[0.07] dark:border-white/[0.1] overflow-hidden cursor-pointer shadow-none dark:shadow-[0_18px_40px_-28px_rgba(0,0,0,0.55)]"
               >
                 <div className="relative w-full h-56 pointer-events-none md:hidden overflow-hidden bg-stone-200/60 dark:bg-white/[0.06]">

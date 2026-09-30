@@ -14,7 +14,7 @@ function err(message: string, status = 502) {
   return NextResponse.json({ error: message }, { status })
 }
 
-export async function GET(request: NextRequest) {
+async function handle(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const action = searchParams.get('action') ?? 'latest'
 
@@ -239,4 +239,17 @@ export async function GET(request: NextRequest) {
     const status = message.includes('Missing UNSPLASH_ACCESS_KEY') ? 500 : 502
     return err(message, status)
   }
+}
+
+// Browse-style lookups change slowly, so let the CDN and browser reuse them. hero/random are
+// meant to differ every time and download is a tracked action, so those stay uncached.
+const CACHEABLE = new Set(['latest', 'search', 'collections', 'collection', 'trending', 'topics', 'photo', 'user'])
+
+export async function GET(request: NextRequest) {
+  const res = await handle(request)
+  const action = request.nextUrl.searchParams.get('action') ?? 'latest'
+  if (res.ok && CACHEABLE.has(action)) {
+    res.headers.set('Cache-Control', 'public, max-age=120, s-maxage=600, stale-while-revalidate=3600')
+  }
+  return res
 }
