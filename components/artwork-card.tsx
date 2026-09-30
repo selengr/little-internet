@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
-import { BookOpen } from "lucide-react"
+import { ArrowUpRight, BookOpen } from "lucide-react"
 import type { Artwork } from "@/types/artwork"
 import { cn } from "@/lib/utils"
 
@@ -95,13 +95,27 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
             </div>
           )}
 
+          {/* Tells people the centred cover is clickable */}
+          {onSelect && (
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute bottom-6 right-6 inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 text-[11px] text-white backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isActive ? 1 : 0 }}
+              transition={{ duration: 0.3, delay: isActive ? 0.25 : 0 }}
+            >
+              Open
+              <ArrowUpRight className="size-3" />
+            </motion.span>
+          )}
+
           {/* Gradient overlay for text */}
           <motion.div
-            className="absolute inset-x-3 bottom-3 rounded-b-xl bg-gradient-to-t from-black/80 via-black/40 to-transparent"
-            initial={{ opacity: 0, height: "30%" }}
+            className="absolute inset-x-3 bottom-3 rounded-b-xl bg-gradient-to-t from-black/95 via-black/70 to-transparent"
+            initial={{ opacity: 0, height: "58%" }}
             animate={{
               opacity: isActive ? 1 : 0,
-              height: isHovered ? "50%" : "30%",
+              height: isHovered ? "68%" : "58%",
             }}
             transition={{ duration: 0.3 }}
           />
@@ -117,21 +131,21 @@ export function ArtworkCard({ artwork, isActive, dragOffset, index, currentIndex
             transition={{ duration: 0.4, delay: isActive ? 0.1 : 0 }}
           >
             <motion.p
-              className="mb-1 font-mono text-xs uppercase tracking-widest text-white/50"
+              className="mb-1 font-mono text-xs uppercase tracking-widest text-white/70 [text-shadow:0_1px_8px_rgba(0,0,0,0.8)]"
               animate={{ y: isHovered ? -5 : 0 }}
               transition={{ duration: 0.3 }}
             >
               {artwork.year > 0 ? artwork.year : "Book"}
             </motion.p>
             <motion.h2
-              className="font-serif text-2xl font-bold text-white md:text-3xl"
+              className="font-serif text-2xl font-bold leading-tight text-white [text-shadow:0_2px_14px_rgba(0,0,0,0.9)] md:text-3xl line-clamp-2"
               animate={{ y: isHovered ? -5 : 0 }}
               transition={{ duration: 0.3, delay: 0.05 }}
             >
               {artwork.title}
             </motion.h2>
             <motion.p
-              className="mt-2 text-sm text-white/70"
+              className="mt-2 text-sm text-white/85 [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]"
               initial={{ opacity: 0, y: 10 }}
               animate={{
                 // Touch screens have no hover, so the author is always shown on the centred card.

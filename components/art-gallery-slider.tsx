@@ -310,31 +310,33 @@ export function ArtGallerySlider({
         <NavigationDots total={items.length} current={currentIndex} onSelect={goToSlide} colors={currentColors} />
       )}
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 left-8 z-20 hidden items-center gap-2 md:flex"
-      >
         <button
           type="button"
           onClick={goToPrev}
           disabled={currentIndex === 0}
           aria-label="Previous book"
-          className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/70"
+          className="absolute top-1/2 z-20 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-md transition hover:scale-105 hover:bg-white/15 hover:text-white disabled:pointer-events-none disabled:opacity-0 md:grid left-[calc(50%-175px-68px)]"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-5" />
         </button>
         <button
           type="button"
           onClick={goToNext}
           disabled={currentIndex >= items.length - 1}
           aria-label="Next book"
-          className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/70"
+          className="absolute top-1/2 z-20 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-md transition hover:scale-105 hover:bg-white/15 hover:text-white disabled:pointer-events-none disabled:opacity-0 md:grid right-[calc(50%-175px-68px)]"
         >
-          <ChevronRight className="size-4" />
+          <ChevronRight className="size-5" />
         </button>
-      </motion.div>
+
+      {/* Touch hint: neighbours are barely visible on a phone, so say what to do */}
+      {!booksLoading && items.length > 0 && (
+        <p
+          className={`pointer-events-none absolute inset-x-0 bottom-[68px] z-10 text-center text-[11px] tracking-wide text-white/45 transition-opacity duration-500 md:hidden ${currentIndex === 0 ? "opacity-100" : "opacity-0"}`}
+        >
+          Swipe for more · tap a cover to open
+        </p>
+      )}
     </div>
   )
 }
