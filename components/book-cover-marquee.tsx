@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback, type CSSProperties } from "r
 import Link from "next/link"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
-import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { UnsplashPhotoView } from "@/types/unsplash"
 
@@ -443,7 +443,7 @@ function LightboxImage({ photo }: { photo: GridPhoto }) {
 
   return (
     <motion.div
-      className="absolute inset-0"
+      className="absolute inset-0 overflow-hidden rounded-[inherit]"
       initial={{ opacity: 0, scale: 1.04 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }}
@@ -455,21 +455,21 @@ function LightboxImage({ photo }: { photo: GridPhoto }) {
         alt=""
         aria-hidden
         draggable={false}
-        className="absolute inset-0 h-full w-full scale-110 object-cover blur-md"
+        className="absolute inset-0 h-full w-full scale-110 rounded-[inherit] object-cover blur-md"
       />
       <img
         src={midSrcOf(photo.largeSrc)}
         alt=""
         aria-hidden
         draggable={false}
-        className="absolute inset-0 h-full w-full object-cover blur-[3px]"
+        className="absolute inset-0 h-full w-full rounded-[inherit] object-cover blur-[3px]"
       />
       <img
         src={photo.largeSrc}
         alt={photo.alt}
         draggable={false}
         className={cn(
-          "absolute inset-0 h-full w-full select-none object-cover transition-opacity duration-500",
+          "absolute inset-0 h-full w-full select-none rounded-[inherit] object-cover transition-opacity duration-500",
           sharp ? "opacity-100" : "opacity-0",
         )}
       />
@@ -533,8 +533,6 @@ function PhotoLightbox({
   const from = reduce ? rect : selection.origin
   const vars = { "--g-base": glow.base, "--g-accent": glow.accent, "--wall-glow": glow.base } as CSSProperties
   const label = photo.photographer ? `Photo by ${photo.photographer.name}` : "Photo"
-  const utm = "utm_source=little_internet&utm_medium=referral"
-  const withUtm = (url?: string) => (url ? `${url}${url.includes("?") ? "&" : "?"}${utm}` : undefined)
 
   const frost =
     "flex items-center justify-center rounded-full border border-white/20 bg-black/30 text-white backdrop-blur-md transition-colors hover:bg-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -579,7 +577,7 @@ function PhotoLightbox({
             />
 
             <motion.div
-              className="relative h-full w-full touch-pan-y overflow-hidden bg-neutral-900"
+              className="relative isolate h-full w-full touch-pan-y overflow-hidden bg-neutral-900"
               initial={{ borderRadius: 14 }}
               animate={{ borderRadius: 22 }}
               drag="x"
@@ -598,10 +596,10 @@ function PhotoLightbox({
               {/* Light from the edge, reaching a little way into the photo. */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 rounded-[22px]"
+                className="pointer-events-none absolute inset-0 rounded-[inherit]"
                 style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 44px -16px ${glow.base}` }}
               />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 rounded-b-[inherit] bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
 
               <motion.div
                 className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-4 sm:p-5"
@@ -610,21 +608,9 @@ function PhotoLightbox({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35, delay: 0.25 }}
               >
-                <div className="min-w-0">
-                  {photo.photographer && (
-                    <a
-                      href={withUtm(photo.photographer.url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[15px] font-medium text-white underline-offset-4 hover:underline"
-                    >
-                      {photo.photographer.name}
-                    </a>
-                  )}
-                  {photo.alt && (
-                    <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-white/70">{photo.alt}</p>
-                  )}
-                </div>
+                {photo.photographer && (
+                  <p className="truncate text-[13px] text-white/85">Photo by {photo.photographer.name}</p>
+                )}
                 <div className="flex flex-wrap items-center gap-2">
                   <Link
                     href="/photos"
@@ -632,17 +618,6 @@ function PhotoLightbox({
                   >
                     Explore photos
                   </Link>
-                  {photo.pageUrl && (
-                    <a
-                      href={withUtm(photo.pageUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-9 items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3.5 text-[13px] text-white backdrop-blur-md transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                    >
-                      Unsplash
-                      <ArrowUpRight className="size-3.5" aria-hidden />
-                    </a>
-                  )}
                 </div>
               </motion.div>
 

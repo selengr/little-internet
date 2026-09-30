@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { ArrowUpRight, Dices, Loader2 } from "lucide-react"
 import {
   CAT_EYE_COUNT,
@@ -272,6 +272,9 @@ export function DevExSection() {
     (active === 2 && jokeSpinning) ||
     (active === 3 && poemSpinning)
 
+  const textBusy =
+    (active === 2 && (jokeSpinning || jokeLoading)) || (active === 3 && (poemSpinning || poemLoading))
+
   const contentLoading =
     (active === 0 && catLoading && !catFact) ||
     (active === 1 && dogLoading && !dogFact) ||
@@ -416,7 +419,36 @@ export function DevExSection() {
                   )}
 
                   <div className="flex-1 min-w-0 min-h-0 overflow-y-auto self-stretch flex flex-col justify-center py-0.5">
-                    {contentLoading ? (
+                    {/* Jokes and poems are long: while one is being rolled or fetched, nothing of the old text
+                        may stay on screen, so it cannot collide with the new one. Only a placeholder shows. */}
+                    <AnimatePresence mode="wait" initial={false}>
+                      {textBusy ? (
+                        <motion.div
+                          key="busy"
+                          aria-hidden
+                          className="flex flex-col gap-2.5"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          {(active === 3 ? [92, 78, 86, 54, 70] : [96, 64, 30]).map((w, i) => (
+                            <span
+                              key={i}
+                              className="h-2.5 animate-pulse rounded-full bg-foreground/10 motion-reduce:animate-none"
+                              style={{ width: `${w}%`, animationDelay: `${i * 120}ms` }}
+                            />
+                          ))}
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key={`text-${active}`}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          {contentLoading ? (
                       <Loader2 className="size-4 animate-spin text-muted-foreground" />
                     ) : active === 2 ? (
                       <p className="text-[13px] leading-relaxed text-foreground/80 whitespace-pre-line font-light">
@@ -452,6 +484,9 @@ export function DevExSection() {
                         {active === 0 ? catFact : dogFact}
                       </p>
                     )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
 
