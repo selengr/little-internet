@@ -12,7 +12,7 @@ import {
 } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
-import { CopyButton } from '@/components/copy-button'
+import { CopyButton, CopyIconButton } from '@/components/copy-button'
 import { cn } from '@/lib/utils'
 
 const display = { fontFamily: 'var(--font-af-display), Georgia, serif' } as const
@@ -390,12 +390,12 @@ export function DogFactsPage() {
             </p>
             <ul className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
               {past.map(h => (
-                <li key={h.no} className="snap-start">
+                <li key={h.no} className="relative snap-start">
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => setFact(h)}
-                    className="flex h-full w-64 flex-col gap-2 rounded-2xl border border-[var(--df-line)] bg-[var(--df-card)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--df-fg)]/30 disabled:opacity-50"
+                    className="flex h-full w-64 flex-col gap-2 rounded-2xl pr-12 border border-[var(--df-line)] bg-[var(--df-card)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--df-fg)]/30 disabled:opacity-50"
                   >
                     <span className="text-[10px] tracking-[0.25em] text-[var(--df-mute)]" style={mono}>
                       №{String(h.no).padStart(2, '0')}
@@ -404,6 +404,7 @@ export function DogFactsPage() {
                       {h.text}
                     </span>
                   </button>
+                  <CopyIconButton text={h.text} lineVar="var(--df-line)" className="absolute right-2.5 top-2.5" />
                 </li>
               ))}
             </ul>
@@ -413,7 +414,7 @@ export function DogFactsPage() {
         {/* Next page */}
         <Link
           href="/jokes"
-          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-xl overflow-hidden rounded-[1.4rem] border border-[var(--df-line)] bg-[var(--df-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--df-line)] bg-[var(--df-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div
             aria-hidden
@@ -431,7 +432,7 @@ export function DogFactsPage() {
           <div className="mt-0.5 flex items-center justify-between gap-4">
             <div>
               <p
-                className="text-[clamp(1.15rem,3.6vw,1.6rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
+                className="text-[clamp(1rem,3vw,1.3rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em]"
                 style={mark}
               >
                 Jokes

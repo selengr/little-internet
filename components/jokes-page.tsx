@@ -3,11 +3,11 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Code2, Dices, Ghost, Laugh, Moon, Shuffle, Smile, TreePine, type LucideIcon } from 'lucide-react'
 import { DIE_CATEGORIES, DIE_FACES, JokeDieSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
-import { CopyButton } from '@/components/copy-button'
+import { CopyButton, CopyIconButton } from '@/components/copy-button'
 import { cn } from '@/lib/utils'
 import type { Joke, JokeResponse } from '@/types/jokeapi'
 
@@ -32,6 +32,16 @@ const FALLBACK: { category: string; setup: string; punchline?: string }[] = [
 ]
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
+// Monochrome line icons instead of emoji: they look the same on every device and take the face colour.
+const ICONS: Record<string, LucideIcon> = {
+  Any: Shuffle,
+  Programming: Code2,
+  Pun: Smile,
+  Misc: Dices,
+  Dark: Moon,
+  Spooky: Ghost,
+  Christmas: TreePine,
+}
 const faceOf = (cat: string) => DIE_FACES.find(f => f.cat === cat) ?? DIE_FACES[0]
 
 function isJoke(data: JokeResponse): data is Joke {
@@ -241,7 +251,7 @@ export function JokesPage() {
             <span>№ 03 · Six flavours of funny</span>
           </div>
           <h1
-            className="mt-5 text-[clamp(3rem,16.5vw,10.5rem)] font-extrabold uppercase leading-[0.82] tracking-[-0.04em]"
+            className="mt-5 text-[clamp(2.6rem,13.5vw,10.5rem)] font-extrabold uppercase leading-[0.82] tracking-[-0.04em]"
             style={mark}
           >
             <span className="whitespace-nowrap">
@@ -310,7 +320,10 @@ export function JokesPage() {
                     : {}),
                 }}
               >
-                <span aria-hidden>{f ? f.emoji : '🎲'}</span>
+                {(() => {
+                  const Icon = ICONS[c] ?? Laugh
+                  return <Icon aria-hidden className="size-4" style={on ? undefined : { color: f?.to ?? '#a855f7' }} />
+                })()}
                 {f ? f.label : 'Any'}
               </button>
             )
@@ -509,7 +522,7 @@ export function JokesPage() {
             </p>
             <ul className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
               {past.map(h => (
-                <li key={h.no} className="snap-start">
+                <li key={h.no} className="relative snap-start">
                   <button
                     type="button"
                     disabled={busy}
@@ -518,16 +531,20 @@ export function JokesPage() {
                       setRevealed(true)
                       setFace(h.category)
                     }}
-                    className="flex h-full w-64 flex-col gap-2 rounded-2xl border border-[var(--jk-line)] bg-[var(--jk-card)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--jk-fg)]/30 disabled:opacity-50"
+                    className="flex h-full w-64 flex-col gap-2 rounded-2xl pr-12 border border-[var(--jk-line)] bg-[var(--jk-card)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--jk-fg)]/30 disabled:opacity-50"
                   >
                     <span className="flex items-center gap-2 text-[10px] tracking-[0.25em] text-[var(--jk-mute)]" style={mono}>
                       №{String(h.no).padStart(2, '0')}
-                      <span aria-hidden>{faceOf(h.category).emoji}</span>
+                      {(() => {
+                        const Icon = ICONS[h.category] ?? Laugh
+                        return <Icon aria-hidden className="size-3.5" style={{ color: faceOf(h.category).to }} />
+                      })()}
                     </span>
                     <span className="line-clamp-3 text-[17px] leading-snug" style={display}>
                       {h.setup}
                     </span>
                   </button>
+                  <CopyIconButton text={[h.setup, h.punchline].filter(Boolean).join('\n')} lineVar="var(--jk-line)" className="absolute right-2.5 top-2.5" />
                 </li>
               ))}
             </ul>
@@ -537,7 +554,7 @@ export function JokesPage() {
         {/* Next page */}
         <Link
           href="/poetry"
-          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-xl overflow-hidden rounded-[1.4rem] border border-[var(--jk-line)] bg-[var(--jk-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--jk-line)] bg-[var(--jk-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div
             aria-hidden
@@ -555,7 +572,7 @@ export function JokesPage() {
           <div className="mt-0.5 flex items-center justify-between gap-4">
             <div>
               <p
-                className="text-[clamp(1.15rem,3.6vw,1.6rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
+                className="text-[clamp(1rem,3vw,1.3rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em]"
                 style={mark}
               >
                 Poetry

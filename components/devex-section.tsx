@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowRight, ArrowUpRight, Dices, Loader2 } from "lucide-react"
+import { ArrowRight, ArrowUpRight, Cat, Dices, Dog, Feather, Laugh, Loader2 } from "lucide-react"
 import {
   CAT_EYE_COUNT,
   CatEyeSpinner,
@@ -71,7 +71,7 @@ const ACCENTS = [
   { a: "#38bdf8", b: "#6366f1", c: "#2dd4bf", rgb: "56,189,248" }, // poetry: sky → indigo
 ] as const
 
-const TAB_ICONS = ["🐱", "🐶", "😄", "✒️"] as const
+const TAB_ICONS = [Cat, Dog, Laugh, Feather] as const
 
 const GLOW_CSS = `
   @keyframes devex-progress { from { transform: scaleX(0) } to { transform: scaleX(1) } }
@@ -347,12 +347,15 @@ export function DevExSection() {
                     <div
                       className={cn(
                         "flex size-10 shrink-0 items-center justify-center rounded-xl text-lg transition-all duration-300",
-                        selected ? "scale-105 shadow-sm" : "bg-muted grayscale-[0.6] group-hover/tab:grayscale-0",
+                        selected ? "scale-105 text-white shadow-sm" : "bg-muted text-muted-foreground group-hover/tab:text-foreground",
                       )}
                       style={selected ? { background: `linear-gradient(135deg, ${c.a}, ${c.b})` } : undefined}
                       aria-hidden
                     >
-                      {TAB_ICONS[i]}
+                      {(() => {
+                        const Icon = TAB_ICONS[i]
+                        return <Icon className="size-5" strokeWidth={1.75} />
+                      })()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p

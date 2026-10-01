@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, CloudRain, Feather, Heart, Leaf, Orbit, Sunrise, type LucideIcon } from 'lucide-react'
 import { PoemInkSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 import { MOODS, normalizePoem, pickFallbackPoem, pickRandomFallback } from '@/lib/poetry'
-import { CopyButton } from '@/components/copy-button'
+import { CopyButton, CopyIconButton } from '@/components/copy-button'
 import { cn } from '@/lib/utils'
 import type { PoetryMood, PoetryPoem } from '@/types/poetry'
 
@@ -20,13 +20,14 @@ type Filter = PoetryMood | 'any'
 type Card = { no: number; poem: PoetryPoem; daily?: boolean; mood: Filter }
 
 // Each mood has its own ink colours; the light inside the card follows them.
-const PALETTE: Record<Filter, { a: string; b: string; emoji: string; label: string }> = {
-  any: { a: '#38bdf8', b: '#6366f1', emoji: '✒️', label: 'Any' },
-  romantic: { a: '#fda4af', b: '#e11d48', emoji: '🌹', label: 'Romantic' },
-  sad: { a: '#93c5fd', b: '#2563eb', emoji: '🌧️', label: 'Sad' },
-  inspirational: { a: '#fde68a', b: '#d97706', emoji: '🌅', label: 'Hopeful' },
-  nature: { a: '#86efac', b: '#16a34a', emoji: '🌿', label: 'Nature' },
-  philosophy: { a: '#c4b5fd', b: '#7c3aed', emoji: '🌀', label: 'Deep' },
+// Line icons rather than emoji: same look on every device, tinted with the mood colour.
+const PALETTE: Record<Filter, { a: string; b: string; icon: LucideIcon; label: string }> = {
+  any: { a: '#38bdf8', b: '#6366f1', icon: Feather, label: 'Any' },
+  romantic: { a: '#fda4af', b: '#e11d48', icon: Heart, label: 'Romantic' },
+  sad: { a: '#93c5fd', b: '#2563eb', icon: CloudRain, label: 'Sad' },
+  inspirational: { a: '#fde68a', b: '#d97706', icon: Sunrise, label: 'Hopeful' },
+  nature: { a: '#86efac', b: '#16a34a', icon: Leaf, label: 'Nature' },
+  philosophy: { a: '#c4b5fd', b: '#7c3aed', icon: Orbit, label: 'Deep' },
 }
 const FILTERS: Filter[] = ['any', ...MOODS.map(m => m.id)]
 const PREVIEW_LINES = 10
@@ -219,7 +220,7 @@ export function PoetryPage() {
             <span>№ 04 · Verses from poetrydb</span>
           </div>
           <h1
-            className="mt-5 text-[clamp(3rem,16.5vw,10.5rem)] font-extrabold uppercase leading-[0.82] tracking-[-0.04em]"
+            className="mt-5 text-[clamp(2.6rem,12vw,9.5rem)] font-extrabold uppercase leading-[0.82] tracking-[-0.04em]"
             style={mark}
           >
             <span className="whitespace-nowrap">
@@ -282,7 +283,7 @@ export function PoetryPage() {
                 )}
                 style={{ ...mono, ...(on ? { background: `linear-gradient(135deg, ${c.b}, ${c.a})` } : {}) }}
               >
-                <span aria-hidden>{c.emoji}</span>
+                <c.icon aria-hidden className="size-4" style={on ? undefined : { color: c.b }} />
                 {c.label}
               </button>
             )
@@ -464,7 +465,7 @@ export function PoetryPage() {
             </p>
             <ul className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
               {past.map(h => (
-                <li key={h.no} className="snap-start">
+                <li key={h.no} className="relative snap-start">
                   <button
                     type="button"
                     disabled={busy}
@@ -472,11 +473,14 @@ export function PoetryPage() {
                       setCard(h)
                       setExpanded(false)
                     }}
-                    className="flex h-full w-64 flex-col gap-2 rounded-2xl border border-[var(--py-line)] bg-[var(--py-card)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--py-fg)]/30 disabled:opacity-50"
+                    className="flex h-full w-64 flex-col gap-2 rounded-2xl pr-12 border border-[var(--py-line)] bg-[var(--py-card)] p-4 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--py-fg)]/30 disabled:opacity-50"
                   >
                     <span className="flex items-center gap-2 text-[10px] tracking-[0.25em] text-[var(--py-mute)]" style={mono}>
                       №{String(h.no).padStart(2, '0')}
-                      <span aria-hidden>{PALETTE[h.mood].emoji}</span>
+                      {(() => {
+                        const Icon = PALETTE[h.mood].icon
+                        return <Icon aria-hidden className="size-3.5" style={{ color: PALETTE[h.mood].b }} />
+                      })()}
                     </span>
                     <span className="line-clamp-2 text-[19px] leading-snug" style={display}>
                       {h.poem.title}
@@ -485,6 +489,7 @@ export function PoetryPage() {
                       {h.poem.author}
                     </span>
                   </button>
+                  <CopyIconButton text={`${h.poem.title}\n${h.poem.author}\n\n${h.poem.lines.join('\n')}`} lineVar="var(--py-line)" className="absolute right-2.5 top-2.5" />
                 </li>
               ))}
             </ul>
@@ -494,7 +499,7 @@ export function PoetryPage() {
         {/* The tour loops back to the start */}
         <Link
           href="/cat-facts"
-          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-xl overflow-hidden rounded-[1.4rem] border border-[var(--py-line)] bg-[var(--py-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--py-line)] bg-[var(--py-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div
             aria-hidden
@@ -512,7 +517,7 @@ export function PoetryPage() {
           <div className="mt-0.5 flex items-center justify-between gap-4">
             <div>
               <p
-                className="text-[clamp(1.15rem,3.6vw,1.6rem)] font-extrabold uppercase leading-[0.9] tracking-[-0.03em]"
+                className="text-[clamp(1rem,3vw,1.3rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em]"
                 style={mark}
               >
                 Cat facts
