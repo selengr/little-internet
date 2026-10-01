@@ -9,7 +9,7 @@ import { ArrowRight, ArrowUpRight, Cat, Dices, Dog, Feather, Laugh, Loader2 } fr
 import {
   CAT_EYE_COUNT,
   CatEyeSpinner,
-  DIE_CATEGORIES,
+  JOKE_CATEGORIES,
   DOG_BALL_COUNT,
   DogBallSpinner,
   JokeDieSpinner,
@@ -281,7 +281,7 @@ export function DevExSection() {
     )
 
   const spinForJoke = () => {
-    const category = DIE_CATEGORIES[Math.floor(Math.random() * DIE_CATEGORIES.length)]
+    const category = JOKE_CATEGORIES[Math.floor(Math.random() * JOKE_CATEGORIES.length)]
     launch(jokeSpinning, setJokeSpinning, setJokeCategory, category, () => fetchJoke(category))
   }
 
@@ -521,7 +521,7 @@ export function DevExSection() {
                           {contentLoading ? (
                       <Loader2 className="size-4 animate-spin text-muted-foreground" />
                     ) : active === 2 ? (
-                      <p className="text-[13px] leading-relaxed text-foreground/80 whitespace-pre-line font-light">
+                      <p className="text-[14px] md:text-[15px] leading-relaxed text-foreground/85 whitespace-pre-line font-light">
                         {jokeText(joke) || "Roll the die for a joke."}
                       </p>
                     ) : active === 3 ? (
@@ -536,7 +536,7 @@ export function DevExSection() {
                             {poem.lines.slice(0, 8).map((line, i) => (
                               <p
                                 key={i}
-                                className="text-[13px] leading-relaxed text-foreground/80 font-light italic"
+                                className="text-[14px] md:text-[15px] leading-relaxed text-foreground/85 font-light italic"
                               >
                                 {line || "\u00A0"}
                               </p>

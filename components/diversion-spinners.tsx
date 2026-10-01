@@ -425,6 +425,8 @@ const FACES = [
 ] as const
 export const DIE_CATEGORIES: string[] = FACES.map(f => f.cat)
 export const DIE_FACES = FACES
+/** Flavours that are actually served: the Dark face is kept on the die for its look, but never rolled. */
+export const JOKE_CATEGORIES: string[] = DIE_CATEGORIES.filter(c => c !== 'Dark')
 
 const DIE = 62
 const FACE_PLACEMENT = [

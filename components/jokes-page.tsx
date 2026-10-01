@@ -4,7 +4,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, ArrowUpRight, Code2, Dices, Ghost, Laugh, Moon, Shuffle, Smile, TreePine, type LucideIcon } from 'lucide-react'
-import { DIE_CATEGORIES, DIE_FACES, JokeDieSpinner, SPIN_MS } from '@/components/diversion-spinners'
+import { DIE_CATEGORIES, DIE_FACES, JOKE_CATEGORIES, JokeDieSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 import { GlowFrame } from '@/components/glow-frame'
@@ -27,7 +27,7 @@ const FALLBACK: { category: string; setup: string; punchline?: string }[] = [
   { category: 'Pun', setup: 'Why don’t eggs tell jokes?', punchline: 'They’d crack each other up.' },
   { category: 'Misc', setup: 'What did the ocean say to the beach?', punchline: 'Nothing, it just waved.' },
   { category: 'Misc', setup: 'Why did the scarecrow win an award?', punchline: 'He was outstanding in his field.' },
-  { category: 'Dark', setup: 'My wallet is like an onion.', punchline: 'Opening it makes me cry.' },
+  { category: 'Misc', setup: 'My wallet is like an onion.', punchline: 'Opening it makes me cry.' },
   { category: 'Spooky', setup: 'Why don’t ghosts like rain?', punchline: 'It dampens their spirits.' },
   { category: 'Christmas', setup: 'What do you call a snowman in July?', punchline: 'A puddle.' },
   { category: 'Christmas', setup: 'Why was the snowman looking through the carrots?', punchline: 'He was picking his nose.' },
@@ -152,7 +152,7 @@ export function JokesPage() {
   useEffect(() => {
     let alive = true
     void (async () => {
-      const cat = DIE_CATEGORIES[Math.floor(Math.random() * DIE_CATEGORIES.length)]
+      const cat = JOKE_CATEGORIES[Math.floor(Math.random() * JOKE_CATEGORIES.length)]
       const j = await pickJoke(cat, seen.current)
       if (!alive) return
       show(j)
@@ -169,7 +169,7 @@ export function JokesPage() {
       if (busyRef.current) return
       busyRef.current = true
       // The die always lands on a real face: with "Any", one of the six is picked for the roll.
-      const cat = category === 'Any' ? DIE_CATEGORIES[Math.floor(Math.random() * DIE_CATEGORIES.length)] : category
+      const cat = category === 'Any' ? JOKE_CATEGORIES[Math.floor(Math.random() * JOKE_CATEGORIES.length)] : category
       setDieCat(cat)
       setBusy(true)
       setSpinning(true)
@@ -294,7 +294,7 @@ export function JokesPage() {
           aria-label="Joke flavour"
           className="-mx-5 mt-10 flex gap-2 overflow-x-auto px-5 pb-2 md:mx-0 md:flex-wrap md:justify-center md:overflow-visible md:px-0"
         >
-          {['Any', ...DIE_CATEGORIES].map(c => {
+          {['Any', ...JOKE_CATEGORIES].map(c => {
             const on = filter === c
             const f = c === 'Any' ? null : faceOf(c)
             return (
