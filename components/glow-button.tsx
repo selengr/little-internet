@@ -59,7 +59,12 @@ export function GlowButton({
   children,
   className,
   style,
+  size = 'md',
+  icon,
 }: {
+  size?: 'md' | 's'
+  /** Replaces the arrow. */
+  icon?: React.ReactNode
   from: string
   to: string
   ink?: string
@@ -92,7 +97,8 @@ export function GlowButton({
         e.currentTarget.style.setProperty('--by', `${e.clientY - r.top}px`)
       }}
       className={cn(
-        'gb group/gb relative isolate inline-flex h-12 w-full items-center justify-center overflow-hidden rounded-full px-7 text-[13px] font-medium tracking-wide outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-wait sm:w-auto',
+        'gb group/gb relative isolate inline-flex items-center justify-center overflow-hidden rounded-full font-medium tracking-wide outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-wait',
+        size === 's' ? 'h-9 px-4 text-[11px]' : 'h-12 w-full px-7 text-[13px] sm:w-auto',
         className,
       )}
       style={{ '--gb-a': from, '--gb-b': to, color: ink, ...style } as React.CSSProperties}
@@ -129,7 +135,9 @@ export function GlowButton({
 
       <span className="relative z-10 flex items-center gap-2">
         {children}
-        <ArrowRight className="size-4 transition-transform duration-300 group-hover/gb:translate-x-1" />
+        {icon ?? (
+          <ArrowRight className="size-4 transition-transform duration-300 group-hover/gb:translate-x-1" />
+        )}
       </span>
     </button>
   )

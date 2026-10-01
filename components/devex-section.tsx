@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
+import { GlowButton } from "@/components/glow-button"
 import { GlowFrame } from "@/components/glow-frame"
 import { ArrowRight, ArrowUpRight, Cat, Dices, Dog, Feather, Laugh, Loader2 } from "lucide-react"
 import {
@@ -560,24 +561,21 @@ export function DevExSection() {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-3 shrink-0">
-                  <button
-                    type="button"
+                  <GlowButton
+                    size="s"
+                    from={ACCENTS[active].a}
+                    to={ACCENTS[active].b}
+                    busy={spinningNow}
                     onClick={() => {
                       if (active === 0) spinCat()
                       else if (active === 1) spinDog()
                       else if (active === 2) spinForJoke()
                       else spinPoem()
                     }}
-                    disabled={spinningNow}
-                    style={{
-                      borderColor: `rgba(${ACCENTS[active].rgb},.4)`,
-                      background: `linear-gradient(90deg, rgba(${ACCENTS[active].rgb},.2), rgba(${ACCENTS[active].rgb},.06))`,
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[11px] tracking-wide hover:brightness-110 active:scale-[0.97] disabled:opacity-50 transition-all cursor-pointer"
+                    icon={<Dices className="size-3.5 transition-transform duration-500 group-hover/gb:rotate-[200deg]" />}
                   >
-                    <Dices className={`size-3.5 ${spinningNow ? "animate-spin" : ""}`} />
                     {spinningNow ? step.busyLabel : step.spinLabel}
-                  </button>
+                  </GlowButton>
 
                   <Link
                     href={step.moreHref}
