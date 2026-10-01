@@ -315,7 +315,7 @@ export function DevExSection() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 items-start">
           <div className={cn("flex flex-col gap-3", PANEL_H)} role="tablist" aria-label="Diversions">
             {STEPS.map((s, i) => {
               const selected = active === i
@@ -332,7 +332,8 @@ export function DevExSection() {
                       ? {
                           borderColor: `rgba(${c.rgb},.45)`,
                           background: `linear-gradient(100deg, rgba(${c.rgb},.14), transparent 70%)`,
-                          boxShadow: `0 10px 30px -14px rgba(${c.rgb},.55)`,
+                          // Short on purpose: it must stay inside the gap between this column and the big card.
+                          boxShadow: `0 8px 18px -14px rgba(${c.rgb},.6)`,
                         }
                       : undefined
                   }
@@ -442,13 +443,13 @@ export function DevExSection() {
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 rounded-xl border border-border/70 bg-background/55 p-5 flex flex-col overflow-hidden backdrop-blur-[2px]">
+            <div className="flex-1 min-h-0 rounded-xl border border-border/70 bg-background/70 p-5 flex flex-col overflow-hidden">
               <div
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
                 style={{
                   opacity: visible ? 1 : 0,
-                  filter: visible ? "blur(0px)" : "blur(6px)",
-                  transform: visible ? "translateY(0)" : "translateY(6px)",
+                  filter: visible ? "none" : "blur(6px)",
+                  transform: visible ? "none" : "translateY(6px)",
                   transition:
                     "opacity 220ms cubic-bezier(0.16,1,0.3,1), filter 220ms cubic-bezier(0.16,1,0.3,1), transform 220ms cubic-bezier(0.16,1,0.3,1)",
                 }}

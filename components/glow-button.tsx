@@ -20,8 +20,8 @@ const CSS = `
   }
   .gb:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 16px 36px -12px color-mix(in srgb, var(--gb-b) 95%, transparent),
-                0 0 0 4px color-mix(in srgb, var(--gb-a) 22%, transparent);
+    box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--gb-b) 90%, transparent),
+                0 0 0 3px color-mix(in srgb, var(--gb-a) 22%, transparent);
   }
   .gb:active:not(:disabled) { transform: translateY(0) scale(.97); }
   .gb-inner {
@@ -105,33 +105,41 @@ export function GlowButton({
     >
       <style>{CSS}</style>
 
+      {/* Every light effect lives in this layer, clipped to the pill shape, so none of them can show
+          outside the rounded corners. (The halo around the button is a box-shadow on the button.) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
+        style={{ clipPath: 'inset(0 round 9999px)', transform: 'translateZ(0)' }}
+      >
       {/* Light that lives inside the border */}
-      <span aria-hidden className="gb-inner pointer-events-none absolute inset-0 rounded-full" />
-      {/* A sheen sweeping across */}
-      <span
-        aria-hidden
-        className="gb-sweep pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-white/35 to-transparent"
-      />
-      {/* Spotlight under the pointer */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover/gb:opacity-100"
-        style={{
-          background: 'radial-gradient(110px circle at var(--bx, 50%) var(--by, 50%), rgba(255,255,255,.85), transparent 70%)',
-          mixBlendMode: 'overlay', // lightens without washing the colour out to grey
-        }}
-      />
-      {/* A point of light circling the edge while busy */}
-      <span aria-hidden className="gb-ring pointer-events-none absolute inset-0 rounded-full opacity-0" />
-      {/* Ripples from the press point */}
-      {ripples.map(r => (
+        <span aria-hidden className="gb-inner pointer-events-none absolute inset-0 rounded-full" />
+        {/* A sheen sweeping across */}
         <span
-          key={r.id}
           aria-hidden
-          className="pointer-events-none absolute rounded-full bg-white"
-          style={{ left: r.x, top: r.y, width: 220, height: 220, animation: 'gb-ripple .65s ease-out forwards' }}
+          className="gb-sweep pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-white/35 to-transparent"
         />
-      ))}
+        {/* Spotlight under the pointer */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover/gb:opacity-100"
+          style={{
+            background: 'radial-gradient(110px circle at var(--bx, 50%) var(--by, 50%), rgba(255,255,255,.55), transparent 70%)',
+                    }}
+        />
+        {/* A point of light circling the edge while busy */}
+        <span aria-hidden className="gb-ring pointer-events-none absolute inset-0 rounded-full opacity-0" />
+        {/* Ripples from the press point */}
+        {ripples.map(r => (
+          <span
+            key={r.id}
+            aria-hidden
+            className="pointer-events-none absolute rounded-full bg-white"
+            style={{ left: r.x, top: r.y, width: 220, height: 220, animation: 'gb-ripple .65s ease-out forwards' }}
+          />
+        ))}
+
+      </span>
 
       <span className="relative z-10 flex items-center gap-2">
         {children}
