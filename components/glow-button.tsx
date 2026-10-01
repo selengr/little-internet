@@ -20,7 +20,7 @@ const CSS = `
   }
   .gb:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--gb-b) 90%, transparent),
+    box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--gb-b) 90%, transparent),
                 0 0 0 3px color-mix(in srgb, var(--gb-a) 22%, transparent);
   }
   .gb:active:not(:disabled) { transform: translateY(0) scale(.97); }

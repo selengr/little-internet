@@ -444,8 +444,10 @@ export function DevExSection() {
             </div>
 
             <div className="flex-1 min-h-0 rounded-xl border border-border/70 bg-background/70 p-5 flex flex-col overflow-hidden">
+              {/* -m-3/p-3: the wrapper clips to its own box, and the button's glow reaches a few px past the
+                  button. Without this padding the glow was cut off in a straight line (a "square edge"). */}
               <div
-                className="flex-1 flex flex-col min-h-0 overflow-hidden"
+                className="-m-3 flex min-h-0 flex-1 flex-col overflow-hidden p-3"
                 style={{
                   opacity: visible ? 1 : 0,
                   filter: visible ? "none" : "blur(6px)",
