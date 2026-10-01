@@ -551,7 +551,7 @@ export function JokesPage() {
         {/* Next page */}
         <Link
           href="/poetry"
-          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--jk-line)] bg-[var(--jk-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-none sm:max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--jk-line)] bg-[var(--jk-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div
             aria-hidden

@@ -386,7 +386,7 @@ export function CatFactsPage() {
         {/* Next page */}
         <Link
           href="/dog-facts"
-          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--cf-line)] bg-[var(--cf-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-none sm:max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--cf-line)] bg-[var(--cf-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-40 transition-opacity duration-500 group-hover/next:opacity-90 dark:opacity-60 dark:group-hover/next:opacity-100">
             <div

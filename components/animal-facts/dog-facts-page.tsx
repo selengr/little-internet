@@ -411,7 +411,7 @@ export function DogFactsPage() {
         {/* Next page */}
         <Link
           href="/jokes"
-          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--df-line)] bg-[var(--df-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
+          className="group/next relative isolate mx-auto mt-[13rem] block w-full max-w-none sm:max-w-[18rem] overflow-hidden rounded-[1.4rem] border border-[var(--df-line)] bg-[var(--df-card)] px-5 py-3 transition-transform duration-300 hover:-translate-y-0.5 md:px-6"
         >
           <div
             aria-hidden
