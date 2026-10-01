@@ -12,6 +12,7 @@ import {
 } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
+import { GlowFrame } from '@/components/glow-frame'
 import { CopyButton, CopyIconButton } from '@/components/copy-button'
 import { GlowButton } from '@/components/glow-button'
 import { cn } from '@/lib/utils'
@@ -175,7 +176,6 @@ export function CatFactsPage() {
   }, [next])
 
   const palette = CAT_IRISES[iris]
-  const glowVars = { '--cf-g1': palette.b, '--cf-g2': palette.a } as React.CSSProperties
   const words = fact?.text.split(' ') ?? []
   const past = history.filter(h => h.no !== fact?.no)
 
@@ -252,16 +252,8 @@ export function CatFactsPage() {
             e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
           }}
         >
-          {/* Light inside the border: coloured gradient under a blurred plate in the card colour. The
-              colours follow the iris of the eye, so every spin repaints the room. */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-60 dark:opacity-90">
-            <div className="cf-glow absolute inset-0" style={glowVars} />
-            <div
-              className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/stage:opacity-100"
-              style={{ background: `radial-gradient(340px circle at var(--mx,50%) var(--my,50%), ${palette.b}38, transparent 70%)` }}
-            />
-            <div className="absolute inset-[22px] rounded-[1.6rem] bg-[var(--cf-card)] blur-[26px] transition-[inset] duration-700 ease-out group-hover/stage:inset-[38px]" />
-          </div>
+          {/* Light inside the border (see GlowFrame). */}
+          <GlowFrame a={palette.a} b={palette.b} plate="bg-[var(--cf-card)]" radius="1.7rem" />
 
           <div className="grid items-center gap-8 p-6 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-14 lg:p-14">
             <div className="flex flex-col items-center gap-4">

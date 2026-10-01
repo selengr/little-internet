@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
+import { GlowFrame } from "@/components/glow-frame"
 import { ArrowRight, ArrowUpRight, Cat, Dices, Dog, Feather, Laugh, Loader2 } from "lucide-react"
 import {
   CAT_EYE_COUNT,
@@ -408,34 +409,8 @@ export function DevExSection() {
               "h-[440px] lg:h-[360px]",
             )}
           >
-            {/* Light that lives inside the border: a coloured gradient, covered by a blurred plate in the
-                card colour, so only a soft band along the edges shines through. It breathes slowly, reaches
-                deeper on hover, and each toy has its own colours that fade into one another. */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-55 dark:opacity-85">
-              {ACCENTS.map((c, i) => (
-                <div
-                  key={i}
-                  className="absolute inset-0 transition-opacity duration-700"
-                  style={{ opacity: active === i ? 1 : 0 }}
-                >
-                  <div
-                    className="devex-glow-layer absolute inset-0"
-                    style={{
-                      backgroundImage: `linear-gradient(135deg, ${c.a}, ${c.b} 50%, ${c.c})`,
-                      backgroundSize: "200% 200%",
-                      animation: "devex-breathe 6s ease-in-out infinite, devex-drift 18s ease-in-out infinite",
-                    }}
-                  />
-                  <div
-                    className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/glow:opacity-100"
-                    style={{
-                      background: `radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(${c.rgb},.22), transparent 70%)`,
-                    }}
-                  />
-                </div>
-              ))}
-              <div className="absolute inset-[18px] rounded-[1.25rem] bg-card blur-[20px] transition-[inset] duration-700 ease-out group-hover/glow:inset-[30px]" />
-            </div>
+            {/* Light inside the border (see GlowFrame); its colours follow the active toy. */}
+            <GlowFrame a={ACCENTS[active].c} b={ACCENTS[active].a} plate="bg-card" radius="1.25rem" />
 
             <div className="flex items-center justify-between mb-4 shrink-0">
               <div

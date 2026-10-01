@@ -8,6 +8,7 @@ import { PoemInkSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 import { MOODS, normalizePoem, pickFallbackPoem, pickRandomFallback } from '@/lib/poetry'
+import { GlowFrame } from '@/components/glow-frame'
 import { CopyButton, CopyIconButton } from '@/components/copy-button'
 import { GlowButton } from '@/components/glow-button'
 import { cn } from '@/lib/utils'
@@ -171,7 +172,6 @@ export function PoetryPage() {
   }, [roll])
 
   const palette = PALETTE[card?.mood ?? filter]
-  const glowVars = { '--py-g1': palette.b, '--py-g2': palette.a } as React.CSSProperties
   const past = history.filter(h => h.no !== card?.no)
   const lines = card?.poem.lines ?? []
   const long = lines.length > PREVIEW_LINES
@@ -301,17 +301,8 @@ export function PoetryPage() {
             e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
           }}
         >
-          {/* Light inside the border, in the colours of the mood. */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-60 dark:opacity-90">
-            <div className="py-glow absolute inset-0" style={glowVars} />
-            <div
-              className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover/stage:opacity-100"
-              style={{
-                background: `radial-gradient(340px circle at var(--mx,50%) var(--my,50%), ${palette.b}38, transparent 70%)`,
-              }}
-            />
-            <div className="absolute inset-[22px] rounded-[1.6rem] bg-[var(--py-card)] blur-[26px] transition-[inset] duration-700 ease-out group-hover/stage:inset-[38px]" />
-          </div>
+          {/* Light inside the border (see GlowFrame). */}
+          <GlowFrame a={palette.a} b={palette.b} plate="bg-[var(--py-card)]" radius="1.7rem" />
 
           <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-14 lg:p-14">
             <div className="flex flex-col items-center gap-4 lg:sticky lg:top-28 lg:self-start">
