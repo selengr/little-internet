@@ -14,6 +14,7 @@ import { RevealText } from "@/components/reveal-text";
 import { PhotoShowcaseStack } from "@/components/photo-showcase-stack";
 import { MobileNav } from "@/components/mobile-nav";
 import { DevExSection } from "@/components/devex-section";
+import { ToolsMarquee } from "@/components/tools-marquee";
 import Banner from "@/components/views/banner/banner";
 import { MarketsBanner } from "@/components/markets-banner";
 import { MarketsBentoCards } from "@/components/markets-bento-cards";
@@ -457,70 +458,7 @@ export default function AgenticPage() {
 
       <DevExSection />
 
-      <section className="py-0 border-t border-border overflow-hidden select-none">
-        <div
-          className="flex border-b border-border"
-          style={{ animation: "marqueeLeft 28s linear infinite" }}
-        >
-          {[...Array(3)].map((_, rep) => (
-            <div key={rep} className="flex shrink-0">
-              {[
-                "QR Codes",
-                "Currency Convert",
-                "File Convert",
-                "Cat Facts",
-                "Dog Facts",
-                "Daily Poetry",
-                "Joke Spinner",
-                "Live Markets",
-                "Crypto Prices",
-                "Photo Discovery",
-              ].map((cap) => (
-                <div
-                  key={cap}
-                  className="flex items-center gap-6 px-10 py-5 border-r border-border shrink-0"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 shrink-0" />
-                  <span className="text-sm text-muted-foreground whitespace-nowrap tracking-wide">
-                    {cap}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-        <div
-          className="flex"
-          style={{ animation: "marqueeRight 22s linear infinite" }}
-        >
-          {[...Array(3)].map((_, rep) => (
-            <div key={rep} className="flex shrink-0">
-              {[
-                "English Suite",
-                "Dictionary",
-                "Book Explorer",
-                "Art Gallery",
-                "Lyrics Finder",
-                "Music Browse",
-                "Country Explorer",
-                "Where Am I",
-                "Notion Notes",
-                "Barcode Maker",
-              ].map((cap) => (
-                <div
-                  key={cap}
-                  className="flex items-center gap-6 px-10 py-5 border-r border-border shrink-0"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/25 shrink-0" />
-                  <span className="text-sm text-muted-foreground/80 whitespace-nowrap tracking-wide">
-                    {cap}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
+      <ToolsMarquee />
 
       {/* <section
         id="live"
