@@ -162,10 +162,21 @@ function mapIpwho(raw: IpwhoResponse): IpstackData {
 async function fetchIpwho(ip: string | null): Promise<IpstackData> {
   // Empty path = detect caller's IP from this server request
   const path = ip && !isLocalIp(ip) ? `/${encodeURIComponent(ip)}` : '/'
-  const res = await fetch(`${FREE_BASE}${path}`, {
-    cache: 'no-store',
-    headers: { Accept: 'application/json' },
-  })
+  // A slow or flaky provider should not leave the page loading forever: 6s per try, two tries.
+  let res: Response | undefined
+  let lastErr: unknown
+  for (let attempt = 0; attempt < 2 && !res; attempt++) {
+    try {
+      res = await fetch(`${FREE_BASE}${path}`, {
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(6000),
+      })
+    } catch (err) {
+      lastErr = err
+    }
+  }
+  if (!res) throw lastErr instanceof Error ? lastErr : new Error('Location lookup timed out')
   const raw = (await res.json()) as IpwhoResponse
 
   if (!res.ok || raw.success === false) {
@@ -200,6 +211,38 @@ async function fetchIpstack(
   return data as IpstackData
 }
 
+/** The free IP provider omits currency and capital for many countries; fill them from countries.dev. */
+async function fillCountryDetails(data: IpstackData): Promise<IpstackData> {
+  if ((data.currency.code && data.location.capital) || !data.country_code) return data
+  try {
+    const res = await fetch(`https://countries.dev/alpha/${encodeURIComponent(data.country_code)}`, {
+      signal: AbortSignal.timeout(3500),
+      next: { revalidate: 86400 },
+    })
+    if (!res.ok) return data
+    const c = (await res.json()) as {
+      capital?: string
+      currencies?: { code?: string; name?: string; symbol?: string }[]
+    }
+    const cur = c.currencies?.[0]
+    return {
+      ...data,
+      currency: data.currency.code
+        ? data.currency
+        : {
+            ...data.currency,
+            code: cur?.code ?? '',
+            name: cur?.name ?? '',
+            symbol: cur?.symbol ?? '',
+            symbol_native: cur?.symbol ?? '',
+          },
+      location: { ...data.location, capital: data.location.capital || c.capital || '' },
+    }
+  } catch {
+    return data
+  }
+}
+
 export async function GET(request: NextRequest) {
   const accessKey = process.env.IPSTACK_ACCESS_KEY?.trim()
   const ipParam = request.nextUrl.searchParams.get('ip')
@@ -211,7 +254,7 @@ export async function GET(request: NextRequest) {
       ? await fetchIpstack(accessKey, ipParam, clientIp)
       : await fetchIpwho(ipParam || (isLocalIp(clientIp) ? null : clientIp))
 
-    return NextResponse.json(data, {
+    return NextResponse.json(await fillCountryDetails(data), {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
       },

@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RefreshCw, Crosshair, Search, Copy, Check } from 'lucide-react'
+import { RefreshCw, Crosshair, Search, Copy, Check, ExternalLink, ShieldAlert } from 'lucide-react'
 import type { IpstackData } from '@/types/ipstack'
 import { cn } from '@/lib/utils'
 
@@ -79,6 +79,106 @@ async function forwardGeocode(query: string): Promise<PreciseLocation | null> {
   }
 }
 
+/** 3 -> "GMT+3", 3.5 -> "GMT+3:30", -4.5 -> "GMT-4:30" */
+function gmtText(hours: number) {
+  const sign = hours >= 0 ? '+' : '-'
+  const abs = Math.abs(hours)
+  const h = Math.floor(abs)
+  const m = Math.round((abs - h) * 60)
+  return `GMT${sign}${h}${m ? `:${String(m).padStart(2, '0')}` : ''}`
+}
+
+const LOCATING_PHASES = [
+  'Listening to the network…',
+  'Tracing your connection…',
+  'Triangulating the city…',
+  'Almost there…',
+]
+
+/** Shown while the first lookup runs: a radar sweep with blips, instead of grey placeholder bars. */
+function LocatingScene({ mono, mute }: { mono: React.CSSProperties; mute: string }) {
+  const [phase, setPhase] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setPhase(p => (p + 1) % LOCATING_PHASES.length), 1500)
+    return () => clearInterval(id)
+  }, [])
+
+  const blips = [
+    { x: '68%', y: '30%', d: '0s' },
+    { x: '28%', y: '62%', d: '0.9s' },
+    { x: '58%', y: '72%', d: '1.8s' },
+    { x: '36%', y: '28%', d: '2.7s' },
+  ]
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 md:px-10">
+      <div
+        role="status"
+        aria-live="polite"
+        className="relative flex min-h-[70vh] flex-col items-center justify-center gap-8"
+      >
+        <style>{`
+          @keyframes loc-sweep { to { transform: rotate(360deg); } }
+          @keyframes loc-ping { 0% { transform: scale(.4); opacity: .9 } 70%,100% { transform: scale(2.6); opacity: 0 } }
+          @keyframes loc-blip { 0%,100% { opacity: .15 } 8%,30% { opacity: 1 } }
+          @media (prefers-reduced-motion: reduce) { .loc-anim { animation: none !important } }
+        `}</style>
+
+        <div className="relative size-[min(78vw,320px)] border border-[color:var(--loc-line)] bg-[color:var(--loc-paper)]">
+          <CornerMarks />
+          <div className="absolute inset-6 overflow-hidden rounded-full border border-[color:var(--loc-signal)]/30">
+            {[100, 66, 33].map(size => (
+              <span
+                key={size}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--loc-signal)]/25"
+                style={{ width: `${size}%`, height: `${size}%` }}
+              />
+            ))}
+            <span className="absolute left-1/2 inset-y-0 w-px bg-[color:var(--loc-signal)]/20" />
+            <span className="absolute top-1/2 inset-x-0 h-px bg-[color:var(--loc-signal)]/20" />
+            <span
+              className="loc-anim absolute inset-0 rounded-full"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 250deg, var(--loc-signal-soft) 320deg, var(--loc-signal) 360deg)',
+                animation: 'loc-sweep 2.4s linear infinite',
+              }}
+            />
+            {blips.map(b => (
+              <span
+                key={b.d}
+                className="loc-anim absolute size-1.5 rounded-full bg-[color:var(--loc-signal)]"
+                style={{ left: b.x, top: b.y, animation: 'loc-blip 3.6s ease-out infinite', animationDelay: b.d }}
+              />
+            ))}
+            <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[color:var(--loc-signal)]" />
+            <span
+              className="loc-anim absolute left-1/2 top-1/2 -ml-2 -mt-2 size-4 rounded-full border border-[color:var(--loc-signal)]"
+              style={{ animation: 'loc-ping 2s ease-out infinite' }}
+            />
+          </div>
+        </div>
+
+        <div className="h-5 text-center">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={phase}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+              className={cn('text-[11px] uppercase tracking-[0.28em]', mute)}
+              style={mono}
+            >
+              {LOCATING_PHASES[phase]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function LiveClock({ timeZone, fallbackIso }: { timeZone: string; fallbackIso: string }) {
   const [now, setNow] = useState(() => formatLocalTime(fallbackIso))
 
@@ -121,6 +221,8 @@ function CornerMarks({ className }: { className?: string }) {
 export function UserLocationFinder() {
   const [data, setData] = useState<IpstackData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const hasData = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -152,17 +254,21 @@ export function UserLocationFinder() {
   }, [searchQuery])
 
   const fetchLocation = useCallback(async () => {
-    setLoading(true)
+    // A rescan keeps what is on screen and only dims it, instead of replacing the page with a loader.
+    if (hasData.current) setRefreshing(true)
+    else setLoading(true)
     setError(null)
     try {
       const res = await fetch(`/api/location?t=${Date.now()}`, { cache: 'no-store' })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Failed to load location')
       setData(json as IpstackData)
+      hasData.current = true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }, [])
 
@@ -236,24 +342,16 @@ export function UserLocationFinder() {
   const display = { fontFamily: 'var(--font-loc-display), Georgia, serif' } as const
   const mark = { fontFamily: 'var(--font-loc-mark), system-ui, sans-serif' } as const
 
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-10">
-        <div className="relative min-h-[70vh] flex flex-col justify-center gap-8">
-          <div className="h-3 w-40 bg-[color:var(--loc-fg)]/10 animate-pulse" />
-          <div className="h-20 md:h-28 w-full max-w-xl bg-[color:var(--loc-fg)]/10 animate-pulse" />
-          <div className="h-14 w-full max-w-lg bg-[color:var(--loc-fg)]/10 animate-pulse" />
-          <div className="h-[42vh] w-full bg-[color:var(--loc-fg)]/10 animate-pulse mt-4" />
-        </div>
-      </div>
-    )
-  }
+  if (loading) return <LocatingScene mono={mono} mute={mute} />
 
   if (error || !data) {
     return (
       <div className="max-w-md mx-auto px-6 text-center py-24">
-        <p className={cn('text-sm mb-6', mute)} style={mono}>
-          {error ?? 'No signal'}
+        <p className={cn('text-2xl mb-2', ink)} style={display}>
+          We couldn&apos;t find you.
+        </p>
+        <p className={cn('text-sm mb-6 leading-relaxed', mute)}>
+          The location service didn&apos;t answer{error ? ` (${error})` : ''}. This is usually brief, so try again in a moment.
         </p>
         <button
           type="button"
@@ -280,12 +378,15 @@ export function UserLocationFinder() {
       : data.region_name
 
   const gmtHours = data.time_zone.gmt_offset / 3600
-  const gmtLabel = gmtHours >= 0 ? `GMT+${gmtHours}` : `GMT${gmtHours}`
+  const gmtLabel = gmtText(gmtHours)
   const ipDigits = data.ip.split('')
 
   return (
-    <div className="max-w-6xl mx-auto px-6 md:px-10">
-      <section className="relative min-h-[min(78vh,820px)] flex flex-col">
+    <div
+      className={cn('max-w-6xl mx-auto px-6 md:px-10 transition-opacity duration-300', refreshing && 'opacity-60')}
+      aria-busy={refreshing}
+    >
+      <section className="relative min-h-[min(44vh,460px)] flex flex-col">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -301,14 +402,15 @@ export function UserLocationFinder() {
           <button
             type="button"
             onClick={fetchLocation}
+            disabled={refreshing}
             className={cn(
-              'inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] hover:text-[color:var(--loc-signal)] transition-colors cursor-pointer',
+              'inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] hover:text-[color:var(--loc-signal)] transition-colors cursor-pointer disabled:cursor-wait',
               mute,
             )}
             style={mono}
           >
-            <RefreshCw className="size-3" />
-            Rescan
+            <RefreshCw className={cn('size-3', refreshing && 'animate-spin')} />
+            {refreshing ? 'Scanning…' : 'Rescan'}
           </button>
         </motion.div>
 
@@ -323,7 +425,7 @@ export function UserLocationFinder() {
               className={cn('text-[10px] uppercase tracking-[0.3em] mb-4', mute)}
               style={mono}
             >
-              {usePrecise ? 'From your device' : 'From your IP'}
+              {usePrecise ? 'From your device' : 'From your IP · approximate'}
             </p>
             <h1
               className={cn(
@@ -389,10 +491,14 @@ export function UserLocationFinder() {
 
               <button
                 type="button"
-                onClick={() => {
-                  navigator.clipboard?.writeText(data.ip)
-                  setCopied(true)
-                  setTimeout(() => setCopied(false), 1600)
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(data.ip)
+                    setCopied(true)
+                    setTimeout(() => setCopied(false), 1600)
+                  } catch {
+                    // Clipboard blocked (insecure context or permissions): select-to-copy still works.
+                  }
                 }}
                 className="relative group w-full text-left cursor-pointer"
                 aria-label={`Copy IP ${data.ip}`}
@@ -434,6 +540,15 @@ export function UserLocationFinder() {
                 <span className={ink}>{data.connection.isp || 'your ISP'}</span>. Sites see
                 this address — not your private Wi‑Fi.
               </p>
+              {data.security?.is_proxy || data.security?.vpn_service || data.security?.is_tor ? (
+                <p
+                  className="relative mt-4 inline-flex items-start gap-2 text-[11px] leading-snug text-amber-900 dark:text-amber-100/90"
+                  style={mono}
+                >
+                  <ShieldAlert className="mt-px size-3.5 shrink-0" />
+                  VPN or proxy detected, so this may not be where you really are.
+                </p>
+              ) : null}
             </div>
           </motion.div>
         </div>
@@ -443,7 +558,7 @@ export function UserLocationFinder() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.65 }}
-        className="mt-6 md:mt-10"
+        className="mt-4 md:mt-6"
       >
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
           <div>
@@ -561,7 +676,6 @@ export function UserLocationFinder() {
         ) : null}
 
         <div className="relative border border-[color:var(--loc-line)] bg-[color:var(--loc-fg)]/[0.04] overflow-hidden">
-          <CornerMarks />
           <div
             className="flex items-center justify-between px-4 py-2.5 border-b border-[color:var(--loc-line-soft)] text-[10px] uppercase tracking-[0.22em]"
             style={mono}
@@ -569,11 +683,25 @@ export function UserLocationFinder() {
             <span className={mute}>
               {usePrecise ? 'Device pin' : 'IP estimate'}
             </span>
-            <code className={cn('normal-case tracking-normal text-[11px]', ink)}>
-              {activeCoords
-                ? `${activeCoords.latitude.toFixed(4)}°, ${activeCoords.longitude.toFixed(4)}°`
-                : '—'}
-            </code>
+            <span className="flex items-center gap-3">
+              <code className={cn('normal-case tracking-normal text-[11px]', ink)}>
+                {activeCoords
+                  ? `${activeCoords.latitude.toFixed(4)}°, ${activeCoords.longitude.toFixed(4)}°`
+                  : '—'}
+              </code>
+              {activeCoords ? (
+                <a
+                  href={`https://www.google.com/maps?q=${activeCoords.latitude},${activeCoords.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open this spot in Google Maps"
+                  className="inline-flex items-center gap-1 text-[color:var(--loc-signal)] hover:underline underline-offset-4"
+                >
+                  Open
+                  <ExternalLink className="size-3" />
+                </a>
+              ) : null}
+            </span>
           </div>
 
           <div className="relative">
@@ -585,6 +713,7 @@ export function UserLocationFinder() {
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
             />
+            <CornerMarks className="z-10" />
             {/* Reticle + radar over map */}
             <div className="pointer-events-none absolute inset-0" aria-hidden>
               <div
@@ -624,7 +753,7 @@ export function UserLocationFinder() {
             },
             {
               label: 'Timezone',
-              value: data.time_zone.id || gmtLabel,
+              value: data.time_zone.id ? `${data.time_zone.id} · ${gmtLabel}` : gmtLabel,
             },
             {
               label: 'Currency',
