@@ -13,6 +13,7 @@ import {
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 import { CopyButton, CopyIconButton } from '@/components/copy-button'
+import { GlowButton } from '@/components/glow-button'
 import { cn } from '@/lib/utils'
 
 const display = { fontFamily: 'var(--font-af-display), Georgia, serif' } as const
@@ -362,20 +363,16 @@ export function DogFactsPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
+              <GlowButton
+                from={palette.a}
+                to={palette.b}
+                ink={'#10140a'}
+                busy={busy}
                 onClick={() => void next()}
-                disabled={busy}
-                className="group/btn inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-[13px] font-medium tracking-wide text-[#10140a] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-50 sm:w-auto"
-                style={{
-                  ...mono,
-                  background: `linear-gradient(90deg, ${palette.a}, ${palette.b})`,
-                  transition: 'background .9s, filter .2s, transform .2s',
-                }}
+                style={mono}
               >
                 {busy ? 'Fetching…' : 'Another fact'}
-                <ArrowRight className="size-4 transition-transform group-hover/btn:translate-x-0.5" />
-              </button>
+              </GlowButton>
                 <CopyButton text={fact?.text ?? ''} disabled={busy} lineVar="var(--df-line)" style={mono} />
               </div>
             </div>
