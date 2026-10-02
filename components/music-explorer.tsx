@@ -8,7 +8,6 @@ import {
   Command,
   Play,
   Pause,
-  ExternalLink,
   Disc3,
   Users,
   Sparkles,
@@ -208,8 +207,7 @@ export function MusicExplorer() {
 
   const togglePreview = async (track: MusicTrackView) => {
     if (!track.previewUrl) {
-      window.open(track.url, '_blank', 'noopener,noreferrer')
-      return
+      return // nothing to play for this track
     }
 
     if (playingId === track.id) {
@@ -497,16 +495,6 @@ export function MusicExplorer() {
                       ))}
                     </div>
                   )}
-
-                  <a
-                    href={artist.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-music-ui)] text-[11px] uppercase tracking-[0.16em] text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-                  >
-                    Open on Deezer
-                    <ExternalLink className="size-3.5" />
-                  </a>
                 </div>
               </section>
 
@@ -559,7 +547,7 @@ export function MusicExplorer() {
                             )}
                           >
                             {track.albumName}
-                            {!track.previewUrl ? ' · open on Deezer' : ' · 30s preview'}
+                            {!track.previewUrl ? ' · no preview' : ' · 30s preview'}
                           </p>
                           {isPlaying && (
                             <div className="mt-2 h-0.5 rounded-full bg-white/20 dark:bg-stone-900/20 overflow-hidden">
@@ -695,12 +683,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function AlbumCard({ album }: { album: MusicAlbumView }) {
   return (
-    <a
-      href={album.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group shrink-0 w-40 snap-start"
-    >
+    <div className="group shrink-0 w-40 snap-start">
       <Cover
         src={album.image}
         alt={album.name}
@@ -712,18 +695,13 @@ function AlbumCard({ album }: { album: MusicAlbumView }) {
       <p className="text-[11px] text-stone-400 capitalize">
         {album.year} · {album.type}
       </p>
-    </a>
+    </div>
   )
 }
 
 function PlaylistCard({ playlist }: { playlist: MusicPlaylistView }) {
   return (
-    <a
-      href={playlist.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex items-center gap-3 rounded-2xl border border-stone-900/[0.06] dark:border-white/[0.06] bg-white/40 dark:bg-white/[0.03] p-3 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-white/[0.06] transition-colors"
-    >
+    <div className="group flex items-center gap-3 rounded-2xl border border-stone-900/[0.06] dark:border-white/[0.06] bg-white/40 dark:bg-white/[0.03] p-3 backdrop-blur-sm">
       <Cover
         src={playlist.image}
         alt={playlist.name}
@@ -737,7 +715,6 @@ function PlaylistCard({ playlist }: { playlist: MusicPlaylistView }) {
           {playlist.owner} · {playlist.tracks} tracks
         </p>
       </div>
-      <ExternalLink className="size-3.5 text-stone-300 group-hover:text-stone-500 shrink-0" />
-    </a>
+    </div>
   )
 }

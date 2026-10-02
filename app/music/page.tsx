@@ -6,7 +6,7 @@ import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
 export const metadata = {
   title: 'Music Explorer — Listening Room',
-  description: 'Search artists, top tracks, albums, and related sounds via Deezer.',
+  description: 'Search artists, top tracks, albums, and and related sounds.',
 }
 
 export default function MusicPage() {
