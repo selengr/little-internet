@@ -1,6 +1,9 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowRightLeft,
   ArrowUpRight,
@@ -22,6 +25,7 @@ import {
   Palette,
   QrCode,
   ScanBarcode,
+  X,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -71,6 +75,7 @@ const CSS = `
   .tm-row-right { animation: tm-right 40s linear infinite; }
   /* Hovering or tabbing into a row stops it, so a chip can be read and clicked. */
   .tm-row:hover, .tm-row:focus-within { animation-play-state: paused; }
+  html[data-tools-open] .tm-row { animation-play-state: paused; }
 
   .tm-chip {
     --tm: #6366f1;
@@ -141,7 +146,9 @@ const CSS = `
   }
 `
 
-function Row({ items, dir, offset, edge }: { items: Item[]; dir: 'left' | 'right'; offset: number; edge: 'first' | 'last' }) {
+type Opener = (item: Item, hue: string, rect: DOMRect) => void
+
+function Row({ items, dir, offset, edge, onOpen }: { items: Item[]; dir: 'left' | 'right'; offset: number; edge: 'first' | 'last'; onOpen: Opener }) {
   return (
     <div
       className={`tm-fade overflow-hidden ${edge === 'first' ? 'tm-first' : 'tm-last'}`}
@@ -164,6 +171,12 @@ function Row({ items, dir, offset, edge }: { items: Item[]; dir: 'left' | 'right
                   key={it.label}
                   href={it.href}
                   tabIndex={rep === 0 ? undefined : -1}
+                  onClick={e => {
+                    // Cmd/Ctrl/Shift/middle click keep their normal "open in a tab" behaviour.
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+                    e.preventDefault()
+                    onOpen(it, HUES[(i + offset) % HUES.length], e.currentTarget.getBoundingClientRect())
+                  }}
                   className="tm-chip text-foreground/85 hover:text-foreground"
                   style={{ ['--tm' as string]: HUES[(i + offset) % HUES.length] }}
                 >
@@ -190,13 +203,153 @@ function Row({ items, dir, offset, edge }: { items: Item[]; dir: 'left' | 'right
   )
 }
 
-/** Two opposite-direction ribbons of shortcuts to every tool on the site. */
+const MODAL_CSS = `
+  @keyframes tm-load { 0%,100% { transform: scaleY(.3) } 50% { transform: scaleY(1) } }
+  @media (prefers-reduced-motion: reduce) { .tm-load-bar { animation: none !important; transform: scaleY(.7) } }
+`
+
+type Opened = { item: Item; hue: string; rect: DOMRect }
+
+/** The tool's own page, shown in a frame that grows out of the chip that was clicked. */
+function ToolModal({ opened, onClose }: { opened: Opened; onClose: () => void }) {
+  const { item, hue, rect } = opened
+  const reduce = useReducedMotion()
+  const Icon = item.icon
+  const [loaded, setLoaded] = useState(false)
+  const [path, setPath] = useState(item.href)
+  const frame = useRef<HTMLIFrameElement>(null)
+
+  // The panel starts on the chip: offset from the screen centre, and scaled down to the chip's size.
+  const dx = rect.left + rect.width / 2 - window.innerWidth / 2
+  const dy = rect.top + rect.height / 2 - window.innerHeight / 2
+  const from = reduce ? { opacity: 0 } : { opacity: 0, x: dx, y: dy, scale: 0.18 }
+
+  return (
+    <DialogPrimitive.Root open onOpenChange={open => !open && onClose()}>
+      <DialogPrimitive.Portal>
+        <style>{MODAL_CSS}</style>
+        <DialogPrimitive.Overlay asChild>
+          <motion.div
+            className="fixed inset-0 z-[190] bg-black/55 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          />
+        </DialogPrimitive.Overlay>
+
+        <DialogPrimitive.Content asChild aria-describedby={undefined}>
+          <motion.div
+            className="fixed left-1/2 top-1/2 z-[200] -ml-[min(47vw,590px)] -mt-[min(46dvh,410px)] flex h-[min(92dvh,820px)] w-[min(94vw,1180px)] flex-col overflow-hidden rounded-[1.6rem] border bg-background outline-none"
+            style={{
+              borderColor: `color-mix(in srgb, ${hue} 45%, transparent)`,
+              boxShadow: `0 40px 90px -50px ${hue}, 0 0 0 1px color-mix(in srgb, ${hue} 25%, transparent)`,
+            }}
+            initial={from}
+            animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { ...from, transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] } }}
+            transition={{ type: 'spring', stiffness: 250, damping: 30, mass: 0.9 }}
+          >
+            <DialogPrimitive.Title className="sr-only">{item.label}</DialogPrimitive.Title>
+
+            <header className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-2.5">
+              <span
+                className="grid size-8 place-items-center rounded-xl text-white"
+                style={{ background: hue }}
+                aria-hidden
+              >
+                <Icon className="size-4" strokeWidth={1.8} />
+              </span>
+              <div className="min-w-0 flex-1 leading-tight">
+                <p className="truncate text-sm font-medium">{item.label}</p>
+                <p className="truncate font-mono text-[11px] text-muted-foreground">{path}</p>
+              </div>
+              <Link
+                href={path}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-3.5 text-[12px] transition-colors hover:bg-muted"
+              >
+                Open full page
+                <ArrowUpRight className="size-3.5" />
+              </Link>
+              <DialogPrimitive.Close
+                aria-label="Close"
+                className="grid size-9 place-items-center rounded-full transition-colors hover:bg-muted"
+              >
+                <X className="size-4" />
+              </DialogPrimitive.Close>
+            </header>
+
+            <div className="relative min-h-0 flex-1 overflow-hidden">
+              {/* The page's own top bar is hidden in embedded mode, so pull the frame up under the header. */}
+              <iframe
+                ref={frame}
+                src={item.href}
+                title={item.label}
+                // The location, QR scanner and English studio pages need these, and a frame must be allowed them.
+                allow="geolocation; clipboard-write; clipboard-read; fullscreen; camera; microphone; autoplay"
+                allowFullScreen
+                onLoad={() => {
+                  setLoaded(true)
+                  try {
+                    const p = frame.current?.contentWindow?.location
+                    if (p) setPath(p.pathname + p.search)
+                  } catch {
+                    /* cross-origin pages cannot be read; keep the original path */
+                  }
+                }}
+                className="absolute inset-x-0 bottom-0 -top-14 h-[calc(100%+3.5rem)] w-full border-0 bg-background"
+              />
+              <AnimatePresence>
+                {!loaded && (
+                  <motion.div
+                    className="absolute inset-0 grid place-items-center bg-background"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    role="status"
+                  >
+                    <div className="flex flex-col items-center gap-5">
+                      <div className="flex h-10 items-end gap-1.5" aria-hidden>
+                        {[0, 1, 2, 3, 4].map(i => (
+                          <span
+                            key={i}
+                            className="tm-load-bar block h-full w-1.5 origin-bottom rounded-full"
+                            style={{ background: hue, animation: `tm-load ${0.9 + (i % 3) * 0.2}s ease-in-out ${i * 0.1}s infinite` }}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">Opening {item.label}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+  )
+}
+
+/** Two opposite-direction ribbons of shortcuts to every tool on the site. Clicking one opens it in a frame. */
 export function ToolsMarquee() {
+  const [opened, setOpened] = useState<Opened | null>(null)
+  const open: Opener = (item, hue, rect) => setOpened({ item, hue, rect })
+
+  // The ribbons rest while a tool is open.
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-tools-open', Boolean(opened))
+    return () => document.documentElement.removeAttribute('data-tools-open')
+  }, [opened])
+
   return (
     <section aria-label="All tools" className="select-none overflow-hidden border-t border-border">
       <style>{CSS}</style>
-      <Row items={ROW_ONE} dir="left" offset={0} edge="first" />
-      <Row items={ROW_TWO} dir="right" offset={3} edge="last" />
+      <Row items={ROW_ONE} dir="left" offset={0} edge="first" onOpen={open} />
+      <Row items={ROW_TWO} dir="right" offset={3} edge="last" onOpen={open} />
+      <AnimatePresence>
+        {opened && <ToolModal key={opened.item.label} opened={opened} onClose={() => setOpened(null)} />}
+      </AnimatePresence>
     </section>
   )
 }

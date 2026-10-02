@@ -58,6 +58,8 @@ function collectSnapshot() {
 export function VisitorLogger() {
   useEffect(() => {
     if (typeof window === 'undefined') return
+    // A page shown inside the home page's tools modal is not a separate visit.
+    if (window.self !== window.top) return
     try {
       if (sessionStorage.getItem(SESSION_KEY) === '1') return
     } catch {

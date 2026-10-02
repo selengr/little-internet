@@ -159,6 +159,13 @@ export default function RootLayout({
       <body
         className={`${geist.variable} ${geistMono.variable} ${courierPrime.variable} ${vazirmatn.variable} font-sans antialiased bg-[#f8f8f8] text-[#37352f] dark:bg-[#2f3437] dark:text-[hsla(0,0%,100%,0.9)]`}
       >
+        {/* Pages opened inside the tools modal on the home page run in an iframe: mark them so their own
+            navigation, chat button and visit counter can step aside (see globals.css). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try{if(window.self!==window.top)document.documentElement.setAttribute('data-embedded','true')}catch(e){}",
+          }}
+        />
         <ThemeScript />
         <SeoJsonLd />
         <ThemeProvider

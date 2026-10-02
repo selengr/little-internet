@@ -217,7 +217,7 @@ export function SiteAssistant() {
     hasPersian(input) || messages.some(m => hasPersian(m.content))
 
   return (
-    <div className="pointer-events-none fixed bottom-5 right-5 z-[90] flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
+    <div data-embed-hide className="pointer-events-none fixed bottom-5 right-5 z-[90] flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
       <div
         className={cn(
           'pointer-events-auto w-[min(100vw-2.5rem,21rem)] origin-bottom-right overflow-hidden',

@@ -299,3 +299,10 @@ html {
   }
 }
 
+
+
+/* Embedded mode: a page shown inside the tools modal drops its own chrome. */
+html[data-embedded] div.fixed:has(.nav-glass),
+html[data-embedded] [data-embed-hide] {
+  display: none !important;
+}
