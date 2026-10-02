@@ -24,13 +24,6 @@ const QUICK_WORDS = [
   'luminous',
 ]
 
-const PRON_FLAG: Record<string, string> = {
-  UK: '🇬🇧',
-  US: '🇺🇸',
-  AU: '🇦🇺',
-  CA: '🇨🇦',
-}
-
 interface Suggestion {
   word: string
   score: number
@@ -42,29 +35,77 @@ function labelFromAudio(url: string): string {
   if (l.includes('-us.') || l.includes('_us.')) return 'US'
   if (l.includes('-au.') || l.includes('_au.')) return 'AU'
   if (l.includes('-ca.')) return 'CA'
-  return 'Audio'
+  return 'Recording'
 }
 
-function useAudioPlayer() {
+/**
+ * Plays a recording, and when there is none, or it will not load or play, speaks the word with the
+ * browser's own voice instead, so the Hear button always does something.
+ */
+function useVoice() {
   const ref = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState<string | null>(null)
+  const [note, setNote] = useState<string | null>(null)
+  const [canSpeak, setCanSpeak] = useState(false)
 
-  const play = useCallback((id: string, url: string) => {
-    if (!url) return
-    try {
-      ref.current?.pause()
-      const audio = new Audio(url)
-      ref.current = audio
-      setPlaying(id)
-      audio.onended = () => setPlaying(null)
-      audio.onerror = () => setPlaying(null)
-      void audio.play()
-    } catch {
-      setPlaying(null)
-    }
+  useEffect(() => {
+    setCanSpeak(typeof window !== 'undefined' && 'speechSynthesis' in window)
   }, [])
 
-  return { playing, play }
+  const stop = useCallback(() => {
+    ref.current?.pause()
+    if (typeof window !== 'undefined') window.speechSynthesis?.cancel()
+    setPlaying(null)
+  }, [])
+
+  const speak = useCallback(
+    (id: string, text: string, lang = 'en-US') => {
+      if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+        setNote('This browser cannot read words aloud.')
+        return
+      }
+      stop()
+      const u = new SpeechSynthesisUtterance(text)
+      u.lang = lang
+      u.rate = 0.9
+      const voices = window.speechSynthesis.getVoices()
+      const voice = voices.find(v => v.lang === lang) ?? voices.find(v => v.lang.startsWith(lang.slice(0, 2)))
+      if (voice) u.voice = voice
+      u.onend = () => setPlaying(null)
+      u.onerror = () => setPlaying(null)
+      setPlaying(id)
+      window.speechSynthesis.speak(u)
+    },
+    [stop],
+  )
+
+  const play = useCallback(
+    async (id: string, url: string, word: string, lang = 'en-US') => {
+      setNote(null)
+      stop()
+      let failed = false
+      const fallback = () => {
+        if (failed) return
+        failed = true
+        setNote("That recording wouldn't play, so a computer voice was used.")
+        speak(id, word, lang)
+      }
+      try {
+        const audio = new Audio(url)
+        ref.current = audio
+        audio.preload = 'auto'
+        audio.onended = () => setPlaying(null)
+        audio.onerror = fallback
+        setPlaying(id)
+        await audio.play()
+      } catch {
+        fallback()
+      }
+    },
+    [speak, stop],
+  )
+
+  return { playing, note, canSpeak, play, speak, setNote }
 }
 
 function WordPhoto({ word }: { word: string }) {
@@ -104,33 +145,49 @@ export function ClassicDictionary() {
   const [copied, setCopied] = useState(false)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const { playing, play } = useAudioPlayer()
+  const { playing, note, canSpeak, play, speak, setNote } = useVoice()
+  const [didYouMean, setDidYouMean] = useState<string[]>([])
+  const reqId = useRef(0)
+  const suggestSeq = useRef(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const lookup = useCallback(async (word: string) => {
-    if (!word.trim()) return
+    const w = word.trim()
+    if (!w) return
+    const id = ++reqId.current // a newer lookup makes an older, slower one irrelevant
+    // Autocomplete still waiting or in flight for what was just typed must not reopen the list.
+    suggestSeq.current++
+    if (suggestTimer.current) clearTimeout(suggestTimer.current)
     setLoading(true)
     setError(null)
+    setDidYouMean([])
+    setNote(null)
     setShowSuggestions(false)
+    setSuggestions([]) // otherwise the old list pops back open when the box regains focus
     setBooted(true)
     try {
-      const res = await fetch(`/api/dictionary?word=${encodeURIComponent(word.trim())}`, {
-        cache: 'no-store',
-      })
+      const res = await fetch(`/api/dictionary?word=${encodeURIComponent(w)}`, { cache: 'no-store' })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'Word not found')
+      if (id !== reqId.current) return
+      if (!res.ok) {
+        const err = new Error(json.error ?? 'Word not found') as Error & { suggestions?: string[] }
+        err.suggestions = json.suggestions ?? []
+        throw err
+      }
       setData(json as DictionaryEntry[])
-      setQuery((json as DictionaryEntry[])[0]?.word ?? word)
+      setQuery((json as DictionaryEntry[])[0]?.word ?? w)
     } catch (err) {
+      if (id !== reqId.current) return
       setData(null)
       setError(err instanceof Error ? err.message : 'Lookup failed')
+      setDidYouMean((err as { suggestions?: string[] }).suggestions ?? [])
     } finally {
-      setLoading(false)
+      if (id === reqId.current) setLoading(false)
     }
-  }, [])
+  }, [setNote])
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -154,19 +211,19 @@ export function ClassicDictionary() {
       setShowSuggestions(false)
       return
     }
+    const seq = ++suggestSeq.current
     suggestTimer.current = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `/api/dictionary?endpoint=suggest&q=${encodeURIComponent(val)}`,
-          { cache: 'no-store' },
-        )
+        const res = await fetch(`/api/dictionary?endpoint=suggest&q=${encodeURIComponent(val)}`)
         const json = await res.json()
+        if (seq !== suggestSeq.current) return // a lookup or newer keystroke replaced this one
         setSuggestions(json.suggestions ?? [])
         setShowSuggestions((json.suggestions ?? []).length > 0)
       } catch {
+        // Autocomplete is a nicety: if it fails, the search box simply keeps working.
         setSuggestions([])
       }
-    }, 280)
+    }, 200)
   }
 
   const entry = data?.[0]
@@ -177,7 +234,7 @@ export function ClassicDictionary() {
     const out: { label: string; ipa?: string; audio: string }[] = []
     for (const p of entry.phonetics) {
       if (!p.audio) continue
-      const label = labelFromAudio(p.audio)
+      const label = p.label ?? labelFromAudio(p.audio)
       const key = `${label}-${p.audio}`
       if (seen.has(key)) continue
       seen.add(key)
@@ -197,6 +254,15 @@ export function ClassicDictionary() {
       m.definitions.forEach(d => d.synonyms.forEach(s => set.add(s)))
     })
     return [...set].slice(0, 16)
+  }, [allMeanings])
+
+  const antonyms = useMemo(() => {
+    const set = new Set<string>()
+    allMeanings.forEach(m => {
+      m.antonyms.forEach(a => set.add(a))
+      m.definitions.forEach(d => d.antonyms.forEach(a => set.add(a)))
+    })
+    return [...set].slice(0, 10)
   }, [allMeanings])
 
   const copyWord = async () => {
@@ -326,7 +392,31 @@ export function ClassicDictionary() {
       </motion.div>
 
       {error ? (
-        <p className="mt-10 text-center text-sm text-destructive">{error}</p>
+        <div className="mt-10 text-center">
+          <p className="text-base text-foreground">{error}</p>
+          {didYouMean.length > 0 ? (
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Did you mean</p>
+              <div className="mt-3 flex flex-wrap justify-center gap-2">
+                {didYouMean.map(w => (
+                  <button
+                    key={w}
+                    type="button"
+                    onClick={() => {
+                      setQuery(w)
+                      void lookup(w)
+                    }}
+                    className="rounded-full border border-border bg-card px-4 py-1.5 text-sm transition-colors hover:bg-muted"
+                  >
+                    {w}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">Check the spelling, or try a simpler form of the word.</p>
+          )}
+        </div>
       ) : null}
 
       <AnimatePresence mode="wait">
@@ -365,34 +455,54 @@ export function ClassicDictionary() {
                   </p>
                 ) : null}
 
-                {pronunciations.length > 0 ? (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {pronunciations.map(p => {
-                      const id = `pron-${p.label}`
-                      const active = playing === id
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          onClick={() => play(id, p.audio)}
-                          className={cn(
-                            'inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border text-sm transition-colors',
-                            active
-                              ? 'border-foreground bg-foreground text-background'
-                              : 'border-border bg-card hover:bg-muted text-foreground',
-                          )}
-                        >
-                          <span className="text-xs opacity-80">{PRON_FLAG[p.label] ?? '🔊'}</span>
-                          <span className="text-[10px] uppercase tracking-[0.15em]">{p.label}</span>
-                          {p.ipa ? (
-                            <span className="font-mono text-xs opacity-70">{p.ipa}</span>
-                          ) : null}
-                          <Volume2 className="size-3.5 opacity-60" />
-                        </button>
-                      )
-                    })}
-                  </div>
+                <div className="mt-5 flex flex-wrap items-center gap-2">
+                  {pronunciations.map(p => {
+                    const id = `pron-${p.label}`
+                    const active = playing === id
+                    const lang = p.label === 'UK' ? 'en-GB' : p.label === 'AU' ? 'en-AU' : 'en-US'
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => (active ? undefined : void play(id, p.audio, entry.word, lang))}
+                        aria-label={`Hear ${entry.word}, ${p.label} recording`}
+                        className={cn(
+                          'inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border text-sm transition-colors',
+                          active
+                            ? 'border-foreground bg-foreground text-background'
+                            : 'border-border bg-card hover:bg-muted text-foreground',
+                        )}
+                      >
+                        <Volume2 className={cn('size-3.5', active && 'animate-pulse')} />
+                        <span className="text-[10px] uppercase tracking-[0.15em]">{p.label}</span>
+                      </button>
+                    )
+                  })}
+                  {canSpeak ? (
+                    <button
+                      type="button"
+                      onClick={() => speak('speak', entry.word, 'en-US')}
+                      aria-label={`Hear ${entry.word} read by a computer voice`}
+                      className={cn(
+                        'inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border text-sm transition-colors',
+                        playing === 'speak'
+                          ? 'border-foreground bg-foreground text-background'
+                          : 'border-dashed border-border hover:bg-muted text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      <Volume2 className={cn('size-3.5', playing === 'speak' && 'animate-pulse')} />
+                      <span className="text-[10px] uppercase tracking-[0.15em]">
+                        {pronunciations.length ? 'Computer voice' : 'Hear it'}
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
+                {pronunciations.length === 0 ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    No recording exists for this word yet{canSpeak ? ', but a computer voice can say it.' : '.'}
+                  </p>
                 ) : null}
+                {note ? <p className="mt-2 text-xs text-muted-foreground">{note}</p> : null}
               </div>
 
               <WordPhoto word={entry.word} />
@@ -416,6 +526,26 @@ export function ClassicDictionary() {
                       {i < synonyms.length - 1 ? (
                         <span className="text-muted-foreground/40 mx-1.5">·</span>
                       ) : null}
+                    </span>
+                  ))}
+                </p>
+              </section>
+            ) : null}
+
+            {antonyms.length > 0 ? (
+              <section>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-3">Opposites</p>
+                <p className="text-base leading-relaxed text-foreground/80">
+                  {antonyms.map((a, i) => (
+                    <span key={a}>
+                      <button
+                        type="button"
+                        onClick={() => lookup(a)}
+                        className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline transition-colors"
+                      >
+                        {a}
+                      </button>
+                      {i < antonyms.length - 1 ? <span className="text-muted-foreground/40 mx-1.5">·</span> : null}
                     </span>
                   ))}
                 </p>

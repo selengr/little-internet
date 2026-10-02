@@ -65,6 +65,8 @@ export async function enrichFromDictionaryApi(
     const res = await fetch(`${DICT_BASE}/${encodeURIComponent(word.trim())}`, {
       headers: { 'User-Agent': UA, Accept: 'application/json' },
       cache: 'no-store',
+      // This service often takes 20 s or never answers; the Wiktionary page works fine without it.
+      signal: AbortSignal.timeout(4000),
     })
     if (!res.ok) return null
 

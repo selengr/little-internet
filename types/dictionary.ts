@@ -14,6 +14,8 @@ export interface Phonetic {
   text?: string
   audio?: string
   sourceUrl?: string        
+  /** Accent of the recording: US, UK, AU … or "Voice" for a volunteer recording. */
+  label?: string
   license?: License         
 }
 export interface License {
