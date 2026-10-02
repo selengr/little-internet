@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       `${LYRICS_API}/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`,
       {
         headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(9000),
         next: { revalidate: 86400 },
       },
     )
