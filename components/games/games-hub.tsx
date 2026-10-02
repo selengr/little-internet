@@ -3,15 +3,16 @@
 import { useState } from 'react'
 import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
 import { TriviaGame } from '@/components/games/trivia-game'
+import { PokemonGame } from '@/components/games/pokemon-game'
 import { cn } from '@/lib/utils'
 
 type Mode = 'trivia' | 'cards' | 'rps' | 'pokemon'
 
 const MODES: { id: Mode; label: string; icon: typeof Gamepad2; live: boolean }[] = [
   { id: 'trivia', label: 'Trivia', icon: Gamepad2, live: true },
+  { id: 'pokemon', label: "Who's That Pokémon", icon: Zap, live: true },
   { id: 'cards', label: 'Memory Cards', icon: Layers, live: false },
   { id: 'rps', label: 'Rock Paper Scissors', icon: Swords, live: false },
-  { id: 'pokemon', label: "Who's That Pokémon", icon: Zap, live: false },
 ]
 
 export function GamesHub() {
@@ -51,6 +52,7 @@ export function GamesHub() {
       </div>
 
       {mode === 'trivia' && <TriviaGame />}
+      {mode === 'pokemon' && <PokemonGame />}
     </div>
   )
 }
