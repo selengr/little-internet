@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ChevronLeft, ChevronRight, Command, Maximize2, Search, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Command, Maximize2, Search, X } from 'lucide-react'
 import { CopyButton } from '@/components/copy-button'
 import { GlowFrame } from '@/components/glow-frame'
 import type { Artwork } from '@/types/met'
@@ -110,7 +110,7 @@ export function MetExplorer() {
       if (list.length === 0) setError('No artworks with a public image found. Try another keyword.')
     } catch (err) {
       if (id !== requestId.current) return
-      setError(err instanceof Error ? err.message : 'Could not reach The Met.')
+      setError(err instanceof Error ? err.message : 'Could not reach the collection.')
       setArtworks([])
     } finally {
       if (id === requestId.current) setLoading(false)
@@ -213,7 +213,7 @@ export function MetExplorer() {
   }
 
   const citation = active
-    ? `${active.title}${active.artist !== 'Unknown artist' ? `, ${active.artist}` : ''}${active.year ? ` (${active.year})` : ''}. ${active.museum}.`
+    ? `${active.title}${active.artist !== 'Unknown artist' ? `, ${active.artist}` : ''}${active.year ? ` (${active.year})` : ''}.`
     : ''
 
   return (
@@ -224,7 +224,7 @@ export function MetExplorer() {
         {/* Masthead */}
         <header className="text-center">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--art-mute)]" style={mono}>
-            The Metropolitan Museum of Art · Open Access
+            Open Access collection · half a million works
           </p>
           <h1
             className="mt-4 text-[clamp(3.4rem,17vw,10rem)] font-extrabold uppercase leading-[0.84] tracking-[-0.04em]"
@@ -236,7 +236,7 @@ export function MetExplorer() {
             </span>
           </h1>
           <p className="mx-auto mt-5 max-w-md text-[15px] leading-relaxed text-[var(--art-mute)]">
-            Search half a million works from the museum and look at them properly: big, quiet and close up.
+            Search paintings, sculpture and more, and look at each work properly: big, quiet and close up.
           </p>
         </header>
 
@@ -501,18 +501,6 @@ export function MetExplorer() {
 
                     <div className="mt-7 flex flex-wrap items-center gap-3">
                       <CopyButton text={citation} label="Copy citation" lineVar="var(--art-line)" className="!h-11 !w-auto px-5 text-[12px]" style={mono} />
-                      {active.objectURL && (
-                        <a
-                          href={active.objectURL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-[12px] text-[var(--art-mute)] transition-colors hover:text-[var(--art-fg)]"
-                          style={mono}
-                        >
-                          View at The Met
-                          <ArrowUpRight className="size-4" />
-                        </a>
-                      )}
                     </div>
                   </div>
                 </motion.div>

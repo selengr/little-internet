@@ -25,13 +25,13 @@ const mark = Syne({
 })
 
 const description =
-  'Explore The Metropolitan Museum of Art collection: search paintings, sculpture and more from over 470,000 works, and look closely at each one.'
+  'Explore a huge open-access art collection: search paintings, sculpture and more from over 470,000 works, and look closely at each one.'
 
 export const metadata = {
-  title: 'Art Gallery — The Met',
+  title: 'Art Gallery',
   description,
-  openGraph: { title: 'Art Gallery — The Met', description },
-  twitter: { title: 'Art Gallery — The Met', description },
+  openGraph: { title: 'Art Gallery', description },
+  twitter: { title: 'Art Gallery', description },
 }
 
 export default function ArtPage() {

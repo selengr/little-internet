@@ -17,7 +17,7 @@ async function metFetch(path: string, base: string = MET_API) {
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(text ? 'The Met is not answering right now.' : `Met API error ${res.status}`)
+    throw new Error(text ? 'The collection is not answering right now.' : `Met API error ${res.status}`)
   }
   return res.json()
 }
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Met Museum request failed' },
+      { error: err instanceof Error ? err.message : 'The collection could not be reached' },
       { status: 502 },
     )
   }

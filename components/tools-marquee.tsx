@@ -49,7 +49,7 @@ const ROW_TWO: Item[] = [
   { label: 'English Suite', sub: 'Study and practise', href: '/studio', icon: GraduationCap },
   { label: 'Dictionary', sub: 'Words and audio', href: '/dictionary', icon: BookA },
   { label: 'Book Explorer', sub: 'Your next read', href: '/books', icon: Library },
-  { label: 'Art Gallery', sub: "The Met's collection", href: '/art', icon: Palette },
+  { label: 'Art Gallery', sub: 'Half a million works', href: '/art', icon: Palette },
   { label: 'Lyrics Finder', sub: 'Read and learn words', href: '/lyrics', icon: MicVocal, badge: 'new' },
   { label: 'Music Browse', sub: 'Artists and albums', href: '/music', icon: Headphones },
   { label: 'Country Explorer', sub: 'An atlas of the world', href: '/countries', icon: Globe },
