@@ -45,3 +45,6 @@ next-env.d.ts
 
 # visitor device logs (PII — do not commit)
 /data/visitors.txt
+
+# pnpm local store (should never be committed)
+/.pnpm-store

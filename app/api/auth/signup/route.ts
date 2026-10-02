@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { createUser, toPublicUser } from '@/lib/users-file'
-
-// DB path kept for later — Mongo is not running yet.
-// import { connectDB } from "@/lib/mongodb";
-// import { User } from "@/models/User";
+import { createUser, toPublicUser } from '@/lib/users-db'
 
 export async function POST(req: Request) {
   try {
@@ -29,29 +25,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // --- Mongo (commented until DB is available) ---
-    // await connectDB();
-    // const existingUser = await User.findOne({ email });
-    // if (existingUser) {
-    //   return NextResponse.json({ message: "User already exists" }, { status: 400 });
-    // }
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    // const user = await User.create({
-    //   firstName,
-    //   lastName,
-    //   email,
-    //   password: hashedPassword,
-    // });
-    // const publicUser = {
-    //   id: String(user._id),
-    //   firstName: user.firstName,
-    //   lastName: user.lastName,
-    //   email: user.email,
-    //   role: "user" as const,
-    //   createdAt: user.createdAt?.toISOString?.() ?? new Date().toISOString(),
-    //   updatedAt: user.updatedAt?.toISOString?.() ?? new Date().toISOString(),
-    // };
-
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await createUser({
       firstName,
@@ -72,6 +45,14 @@ export async function POST(req: Request) {
     }
 
     console.error('[auth/signup]', error)
+
+    if (error instanceof Error && error.message.includes('MONGODB_URI')) {
+      return NextResponse.json(
+        { message: 'Accounts are not available right now' },
+        { status: 503 },
+      )
+    }
+
     return NextResponse.json({ message: 'Could not create account' }, { status: 500 })
   }
 }

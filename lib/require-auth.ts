@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth-session'
-import type { PublicUser } from '@/lib/users-file'
+import type { PublicUser } from '@/lib/users-db'
 
 export async function requireUser(): Promise<
   { user: PublicUser; error?: undefined } | { user?: undefined; error: NextResponse }

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import type { PublicUser } from '@/lib/users-file'
-import { findUserById, toPublicUser } from '@/lib/users-file'
+import type { PublicUser } from '@/lib/users-db'
+import { findUserById, toPublicUser } from '@/lib/users-db'
 import {
   SESSION_COOKIE,
   createSessionToken,
