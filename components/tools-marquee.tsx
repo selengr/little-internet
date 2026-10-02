@@ -64,6 +64,9 @@ const CSS = `
     mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
   }
   .tm-row { display: flex; width: max-content; }
+  /* No space above the first row or below the last one; just enough for the hover lift. */
+  .tm-first .tm-chip { margin-top: .2rem; }
+  .tm-last .tm-chip { margin-bottom: .2rem; }
   .tm-row-left { animation: tm-left 46s linear infinite; }
   .tm-row-right { animation: tm-right 40s linear infinite; }
   /* Hovering or tabbing into a row stops it, so a chip can be read and clicked. */
@@ -75,7 +78,7 @@ const CSS = `
     display: inline-flex;
     align-items: center;
     gap: .75rem;
-    margin: .5rem .35rem;
+    margin: .25rem .35rem;
     padding: .55rem 1.1rem .55rem .6rem;
     border-radius: 9999px;
     border: 1px solid var(--border);
@@ -112,9 +115,9 @@ const CSS = `
   }
 `
 
-function Row({ items, dir, offset }: { items: Item[]; dir: 'left' | 'right'; offset: number }) {
+function Row({ items, dir, offset, edge }: { items: Item[]; dir: 'left' | 'right'; offset: number; edge: 'first' | 'last' }) {
   return (
-    <div className="tm-fade overflow-hidden">
+    <div className={`tm-fade overflow-hidden ${edge === 'first' ? 'tm-first' : 'tm-last'}`}>
       <div className={`tm-row ${dir === 'left' ? 'tm-row-left' : 'tm-row-right'}`}>
         {[0, 1, 2].map(rep => (
           // Only the first copy is for keyboards and screen readers; the others just fill the loop.
@@ -147,13 +150,10 @@ function Row({ items, dir, offset }: { items: Item[]; dir: 'left' | 'right'; off
 /** Two opposite-direction ribbons of shortcuts to every tool on the site. */
 export function ToolsMarquee() {
   return (
-    <section aria-label="All tools" className="select-none overflow-hidden border-t border-border py-4">
+    <section aria-label="All tools" className="select-none overflow-hidden border-t border-border">
       <style>{CSS}</style>
-      <p className="px-6 pb-1 text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60">
-        Everything on this site · hover to pause
-      </p>
-      <Row items={ROW_ONE} dir="left" offset={0} />
-      <Row items={ROW_TWO} dir="right" offset={3} />
+      <Row items={ROW_ONE} dir="left" offset={0} edge="first" />
+      <Row items={ROW_TWO} dir="right" offset={3} edge="last" />
     </section>
   )
 }
