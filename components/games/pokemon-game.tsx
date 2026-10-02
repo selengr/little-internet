@@ -101,7 +101,7 @@ export function PokemonGame() {
           </div>
         )}
 
-        <div className="rounded-3xl border border-black/[0.06] bg-card/40 p-6 backdrop-blur-sm dark:border-white/[0.08] sm:p-8">
+        <div>
           <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Pokémon</p>
           <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
             {GENERATIONS.map(g => (
