@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Loader2, RotateCcw, Sparkles, Trophy, X } from 'lucide-react'
 import { GlowButton } from '@/components/glow-button'
@@ -93,6 +93,22 @@ export function TriviaGame() {
     setIndex(i => i + 1)
     setPicked(null)
   }
+
+  // Space / Enter / → advances once an answer is revealed — same shortcut as the Jokes page.
+  useEffect(() => {
+    if (stage !== 'playing' || picked === null) return
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null
+      if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(el.tagName))) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+        e.preventDefault()
+        next()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [stage, picked, next])
 
   const reset = () => {
     setStage('setup')
