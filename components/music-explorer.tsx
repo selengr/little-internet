@@ -124,7 +124,7 @@ export function MusicExplorer() {
 
   useEffect(() => {
     setRecent(loadRecent())
-    void loadArtist({ q: 'Imagine Dragons' })
+    void loadArtist({ q: 'Novan' })
   }, [loadArtist])
 
   useEffect(() => {
@@ -367,8 +367,9 @@ export function MusicExplorer() {
                                 {s.name}
                               </p>
                               <p className="text-xs text-stone-500 truncate mt-0.5">
-                                {formatFollowers(s.followers)} followers
-                                {s.genres[0] ? ` · ${s.genres[0]}` : ''}
+                                {s.followers > 0 ? `${formatFollowers(s.followers)} followers` : ''}
+                                {s.followers > 0 && s.genres[0] ? ' · ' : ''}
+                                {s.genres[0] ?? ''}
                               </p>
                             </div>
                           </button>
@@ -475,12 +476,16 @@ export function MusicExplorer() {
                   </h2>
 
                   <div className="mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 font-[family-name:var(--font-music-ui)] text-sm text-stone-600 dark:text-stone-300">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Users className="size-3.5 opacity-60" />
-                      {formatFollowers(artist.followers)} followers
-                    </span>
-                    <span className="text-stone-300 dark:text-stone-600">·</span>
-                    <span>Popularity {artist.popularity}</span>
+                    {artist.followers > 0 && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Users className="size-3.5 opacity-60" />
+                        {formatFollowers(artist.followers)} followers
+                      </span>
+                    )}
+                    {artist.followers > 0 && artist.popularity > 0 && (
+                      <span className="text-stone-300 dark:text-stone-600">·</span>
+                    )}
+                    {artist.popularity > 0 && <span>Popularity {artist.popularity}</span>}
                   </div>
 
                   {artist.genres.length > 0 && (

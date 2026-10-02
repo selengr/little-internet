@@ -11,6 +11,8 @@ export function formatDuration(ms: number): string {
 }
 
 export const FEATURED_ARTISTS = [
+  'Novan',
+  'Hamin',
   'Imagine Dragons',
   'Radiohead',
   'Billie Eilish',
