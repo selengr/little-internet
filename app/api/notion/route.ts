@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createNotionNote, getNotionConfigStatus, listNotionNotes } from '@/lib/notion'
+import { requireAdmin } from '@/lib/require-auth'
 
 export const dynamic = 'force-dynamic'
 
+// These notes write straight into Reza's personal Notion workspace, so both
+// reading and creating them is admin-only — this was previously open to
+// anyone who found the URL.
+
 export async function GET() {
+  const { error } = await requireAdmin()
+  if (error) return error
+
   const status = getNotionConfigStatus()
   if (!status.configured) {
     return NextResponse.json({ configured: false, notes: [] })
@@ -19,6 +27,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const { error } = await requireAdmin()
+  if (error) return error
+
   const status = getNotionConfigStatus()
   if (!status.configured) {
     return NextResponse.json(

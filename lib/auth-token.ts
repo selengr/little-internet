@@ -8,7 +8,17 @@ export type SessionPayload = {
 }
 
 function getSecret() {
-  return process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'dev-auth-secret-change-me'
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+  if (secret) return secret
+
+  // The fallback below signs sessions with a value anyone can read in this
+  // source file — never let that happen outside local development.
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'AUTH_SECRET (or NEXTAUTH_SECRET) must be set in production — refusing to sign sessions with a public fallback secret.',
+    )
+  }
+  return 'dev-auth-secret-change-me'
 }
 
 function toBase64Url(bytes: ArrayBuffer | Uint8Array) {

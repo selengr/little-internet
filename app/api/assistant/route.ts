@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { NextRequest } from 'next/server'
 import { buildAssistantDeskContext } from '@/lib/assistant-desk-context'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -61,6 +62,13 @@ function getConfig() {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = checkRateLimit(request, {
+    key: 'assistant',
+    limit: 20,
+    windowMs: 60_000,
+  })
+  if (limited) return limited
+
   const { apiKey, baseUrl, model } = getConfig()
   if (!apiKey) {
     return Response.json(

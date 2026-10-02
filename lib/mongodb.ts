@@ -18,7 +18,9 @@ const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null }
 global.mongoose = cached
 
 function getMongoUri() {
-  return process.env.MONGODB_URI ?? process.env.NEXT_PUBLIC_MONGODB_URI
+  // Never fall back to a NEXT_PUBLIC_ var here — anything with that prefix
+  // is bundled into client-side JS and shipped to every visitor's browser.
+  return process.env.MONGODB_URI
 }
 
 export async function connectDB() {

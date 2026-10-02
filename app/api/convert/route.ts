@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createConversionJob, getJobStatus } from '@/lib/cloudconvert'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
 
 export async function POST(request: NextRequest) {
+  const limited = checkRateLimit(request, {
+    key: 'convert',
+    limit: 10,
+    windowMs: 60_000,
+  })
+  if (limited) return limited
+
   try {
     const formData = await request.formData()
     const file = formData.get('file')
