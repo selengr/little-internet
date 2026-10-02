@@ -1,132 +1,127 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { spotifyFetch } from '@/lib/spotify'
+import {
+  deezerFetch,
+  type DzAlbum,
+  type DzArtist,
+  type DzPlaylist,
+  type DzTrack,
+} from '@/lib/deezer'
 import type {
   MusicAlbumView,
   MusicArtistView,
   MusicExplorerPayload,
   MusicPlaylistView,
   MusicTrackView,
-  SpotifyAlbum,
-  SpotifyArtist,
-  SpotifyPlaylist,
-  SpotifyTrack,
 } from '@/types/spotify'
 
+// The route keeps its old path (/api/spotify) and response shapes so the page did not have to change,
+// but the data now comes from Deezer.
 export const dynamic = 'force-dynamic'
 
-function mapArtist(a: SpotifyArtist): MusicArtistView {
+/** 10M fans is about 100; a few thousand is about 50. */
+function fanPopularity(fans: number) {
+  return Math.max(0, Math.min(100, Math.round((Math.log10(fans + 1) / 7) * 100)))
+}
+
+function mapArtist(a: DzArtist, genres: string[] = []): MusicArtistView {
+  const fans = a.nb_fan ?? 0
   return {
-    id: a.id,
+    id: String(a.id),
     name: a.name,
-    genres: a.genres ?? [],
-    popularity: a.popularity ?? 0,
-    followers: a.followers?.total ?? 0,
-    image: a.images?.[0]?.url ?? a.images?.[1]?.url ?? null,
-    spotifyUrl: a.external_urls?.spotify ?? `https://open.spotify.com/artist/${a.id}`,
+    genres,
+    popularity: fanPopularity(fans),
+    followers: fans,
+    image: a.picture_xl ?? a.picture_big ?? a.picture_medium ?? null,
+    url: a.link ?? `https://www.deezer.com/artist/${a.id}`,
   }
 }
 
-function mapTrack(t: SpotifyTrack): MusicTrackView {
+function mapTrack(t: DzTrack): MusicTrackView {
+  const names = (t.contributors ?? []).map(c => c.name)
   return {
-    id: t.id,
-    name: t.name,
-    durationMs: t.duration_ms,
-    previewUrl: t.preview_url,
-    popularity: t.popularity ?? 0,
-    albumName: t.album?.name ?? '',
-    albumImage: t.album?.images?.[0]?.url ?? t.album?.images?.[1]?.url ?? null,
-    artists: (t.artists ?? []).map(x => x.name).join(', '),
-    spotifyUrl: t.external_urls?.spotify ?? `https://open.spotify.com/track/${t.id}`,
+    id: String(t.id),
+    name: t.title_short || t.title,
+    durationMs: t.duration * 1000,
+    previewUrl: t.preview || null,
+    popularity: Math.max(0, Math.min(100, Math.round((t.rank ?? 0) / 10000))),
+    albumName: t.album?.title ?? '',
+    albumImage: t.album?.cover_big ?? t.album?.cover_medium ?? null,
+    artists: names.length ? names.join(', ') : (t.artist?.name ?? ''),
+    url: t.link ?? `https://www.deezer.com/track/${t.id}`,
   }
 }
 
-function mapAlbum(a: SpotifyAlbum): MusicAlbumView {
+function mapAlbum(a: DzAlbum): MusicAlbumView {
   return {
-    id: a.id,
-    name: a.name,
+    id: String(a.id),
+    name: a.title,
     year: (a.release_date ?? '').slice(0, 4),
-    type: a.album_type,
-    tracks: a.total_tracks,
-    image: a.images?.[0]?.url ?? a.images?.[1]?.url ?? null,
-    spotifyUrl: a.external_urls?.spotify ?? `https://open.spotify.com/album/${a.id}`,
+    type: a.record_type ?? 'album',
+    tracks: a.nb_tracks ?? 0,
+    image: a.cover_big ?? a.cover_medium ?? null,
+    url: a.link ?? `https://www.deezer.com/album/${a.id}`,
   }
 }
 
-function mapPlaylist(p: SpotifyPlaylist): MusicPlaylistView {
+function mapPlaylist(p: DzPlaylist): MusicPlaylistView {
   return {
-    id: p.id,
-    name: p.name,
-    description: (p.description ?? '').replace(/<[^>]+>/g, '').slice(0, 120),
-    image: p.images?.[0]?.url ?? null,
-    owner: p.owner?.display_name ?? 'Spotify',
-    tracks: p.tracks?.total ?? 0,
-    spotifyUrl: p.external_urls?.spotify ?? `https://open.spotify.com/playlist/${p.id}`,
+    id: String(p.id),
+    name: p.title,
+    description: '',
+    image: p.picture_big ?? p.picture_medium ?? null,
+    owner: p.user?.name ?? 'Deezer',
+    tracks: p.nb_tracks ?? 0,
+    url: p.link ?? `https://www.deezer.com/playlist/${p.id}`,
   }
 }
 
-async function similarArtists(artist: SpotifyArtist): Promise<MusicArtistView[]> {
+/** Deezer lists genres on albums, not artists, so borrow them from the artist's latest album. */
+async function genresFrom(album?: DzAlbum): Promise<string[]> {
+  if (!album) return []
   try {
-    const related = await spotifyFetch<{ artists: SpotifyArtist[] }>(
-      `/artists/${artist.id}/related-artists`,
-    )
-    if (related.artists?.length) {
-      return related.artists.slice(0, 8).map(mapArtist)
-    }
-  } catch {
-    /* related-artists may be unavailable */
-  }
-
-  const genre = artist.genres?.[0]
-  if (!genre) return []
-
-  try {
-    const data = await spotifyFetch<{ artists: { items: SpotifyArtist[] } }>(
-      `/search?q=${encodeURIComponent(`genre:"${genre}"`)}&type=artist&limit=10`,
-    )
-    return (data.artists?.items ?? [])
-      .filter(a => a.id !== artist.id)
-      .slice(0, 8)
-      .map(mapArtist)
+    const full = await deezerFetch<DzAlbum>(`/album/${album.id}`)
+    return (full.genres?.data ?? []).map(g => g.name.toLowerCase()).slice(0, 4)
   } catch {
     return []
   }
 }
 
 async function buildArtistPayload(artistId: string): Promise<MusicExplorerPayload> {
-  const [artist, top, albums] = await Promise.all([
-    spotifyFetch<SpotifyArtist>(`/artists/${artistId}`),
-    spotifyFetch<{ tracks: SpotifyTrack[] }>(`/artists/${artistId}/top-tracks?market=US`),
-    spotifyFetch<{ items: SpotifyAlbum[] }>(
-      `/artists/${artistId}/albums?include_groups=album,single&market=US&limit=16`,
-    ),
+  const [artist, top, albums, related] = await Promise.all([
+    deezerFetch<DzArtist>(`/artist/${artistId}`),
+    deezerFetch<{ data: DzTrack[] }>(`/artist/${artistId}/top?limit=10`, { fresh: true }),
+    deezerFetch<{ data: DzAlbum[] }>(`/artist/${artistId}/albums?limit=60`),
+    deezerFetch<{ data: DzArtist[] }>(`/artist/${artistId}/related?limit=8`).catch(() => ({ data: [] as DzArtist[] })),
   ])
 
-  const [similar, playlistSearch] = await Promise.all([
-    similarArtists(artist),
-    spotifyFetch<{ playlists: { items: (SpotifyPlaylist | null)[] } }>(
-      `/search?q=${encodeURIComponent(artist.name)}&type=playlist&limit=8`,
-    ).catch(() => ({ playlists: { items: [] as (SpotifyPlaylist | null)[] } })),
-  ])
+  const playlists = await deezerFetch<{ data: DzPlaylist[] }>(
+    `/search/playlist?q=${encodeURIComponent(artist.name)}&limit=8`,
+  ).catch(() => ({ data: [] as DzPlaylist[] }))
 
+  // Deezer also lists songs the artist merely appears on. Full albums come first, then EPs and singles,
+  // each newest first, and titles that read like guest spots ("ft.", "feat.") are left out.
+  const rank = (t?: string) => (t === 'album' ? 0 : t === 'ep' ? 1 : 2)
+  const sorted = [...(albums.data ?? [])]
+    .filter(a => !/\b(ft\.?|feat\.?|featuring)\b/i.test(a.title))
+    .sort((a, b) => rank(a.record_type) - rank(b.record_type) || (b.release_date ?? '').localeCompare(a.release_date ?? ''))
   const seen = new Set<string>()
   const albumViews: MusicAlbumView[] = []
-  for (const a of albums.items ?? []) {
-    const key = a.name.toLowerCase()
+  for (const a of sorted) {
+    const key = a.title.toLowerCase().replace(/\s*[(\[].*?[)\]]/g, '').trim()
     if (seen.has(key)) continue
     seen.add(key)
     albumViews.push(mapAlbum(a))
     if (albumViews.length >= 8) break
   }
 
+  const genres = await genresFrom(sorted.find(a => a.record_type === 'album') ?? sorted[0])
+
   return {
-    artist: mapArtist(artist),
-    topTracks: (top.tracks ?? []).slice(0, 10).map(mapTrack),
+    artist: mapArtist(artist, genres),
+    topTracks: (top.data ?? []).slice(0, 10).map(mapTrack),
     albums: albumViews,
-    similar,
-    playlists: (playlistSearch.playlists?.items ?? [])
-      .filter((p): p is SpotifyPlaylist => Boolean(p?.id))
-      .slice(0, 6)
-      .map(mapPlaylist),
+    similar: (related.data ?? []).slice(0, 8).map(a => mapArtist(a)),
+    playlists: (playlists.data ?? []).slice(0, 6).map(mapPlaylist),
   }
 }
 
@@ -138,13 +133,8 @@ export async function GET(request: NextRequest) {
     if (action === 'suggest') {
       const q = (searchParams.get('q') ?? '').trim()
       if (!q) return NextResponse.json({ artists: [] })
-
-      const data = await spotifyFetch<{ artists: { items: SpotifyArtist[] } }>(
-        `/search?q=${encodeURIComponent(q)}&type=artist&limit=6`,
-      )
-      return NextResponse.json({
-        artists: (data.artists?.items ?? []).map(mapArtist),
-      })
+      const data = await deezerFetch<{ data: DzArtist[] }>(`/search/artist?q=${encodeURIComponent(q)}&limit=6`)
+      return NextResponse.json({ artists: (data.data ?? []).map(a => mapArtist(a)) })
     }
 
     if (action === 'search' || action === 'artist') {
@@ -152,38 +142,22 @@ export async function GET(request: NextRequest) {
 
       if (!artistId) {
         const q = (searchParams.get('q') ?? '').trim() || 'Imagine Dragons'
-        const data = await spotifyFetch<{ artists: { items: SpotifyArtist[] } }>(
-          `/search?q=${encodeURIComponent(q)}&type=artist&limit=1`,
-        )
-        artistId = data.artists?.items?.[0]?.id ?? ''
-        if (!artistId) {
-          return NextResponse.json({ error: 'No artist found' }, { status: 404 })
-        }
+        const data = await deezerFetch<{ data: DzArtist[] }>(`/search/artist?q=${encodeURIComponent(q)}&limit=1`)
+        artistId = String(data.data?.[0]?.id ?? '')
+        if (!artistId) return NextResponse.json({ error: 'No artist found' }, { status: 404 })
       }
 
-      const payload = await buildArtistPayload(artistId)
-      return NextResponse.json(payload)
+      return NextResponse.json(await buildArtistPayload(artistId))
     }
 
     if (action === 'new-releases') {
-      const data = await spotifyFetch<{ albums: { items: SpotifyAlbum[] } }>(
-        '/browse/new-releases?limit=8&country=US',
-      )
-      return NextResponse.json({
-        albums: (data.albums?.items ?? []).map(mapAlbum),
-      })
+      const data = await deezerFetch<{ data: DzAlbum[] }>('/chart/0/albums?limit=8')
+      return NextResponse.json({ albums: (data.data ?? []).map(mapAlbum) })
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Spotify request failed'
-    const premium =
-      /premium subscription required/i.test(message)
-        ? 'Your Spotify Developer app needs a Premium account on the owner. Upgrade the account that created the app, wait a few hours, then try again.'
-        : null
-    return NextResponse.json(
-      { error: premium ?? message },
-      { status: 502 },
-    )
+    const message = err instanceof Error ? err.message : 'Music request failed'
+    return NextResponse.json({ error: message }, { status: 502 })
   }
 }

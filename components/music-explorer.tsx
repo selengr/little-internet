@@ -116,7 +116,7 @@ export function MusicExplorer() {
         setRecent(saveRecent(json.artist.name))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not reach Spotify')
+      setError(err instanceof Error ? err.message : 'Could not reach the music service')
       setData(null)
     } finally {
       setLoading(false)
@@ -208,7 +208,7 @@ export function MusicExplorer() {
 
   const togglePreview = async (track: MusicTrackView) => {
     if (!track.previewUrl) {
-      window.open(track.spotifyUrl, '_blank', 'noopener,noreferrer')
+      window.open(track.url, '_blank', 'noopener,noreferrer')
       return
     }
 
@@ -244,7 +244,7 @@ export function MusicExplorer() {
 
   return (
     <div className={cn(display.variable, ui.variable, 'relative min-h-[calc(100vh-5rem)]')}>
-      {/* Immersive artist atmosphere — not Spotify green */}
+      {/* Immersive artist atmosphere — not a brand green */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         {artist?.image && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -499,12 +499,12 @@ export function MusicExplorer() {
                   )}
 
                   <a
-                    href={artist.spotifyUrl}
+                    href={artist.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-6 inline-flex items-center gap-2 font-[family-name:var(--font-music-ui)] text-[11px] uppercase tracking-[0.16em] text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
                   >
-                    Open on Spotify
+                    Open on Deezer
                     <ExternalLink className="size-3.5" />
                   </a>
                 </div>
@@ -559,7 +559,7 @@ export function MusicExplorer() {
                             )}
                           >
                             {track.albumName}
-                            {!track.previewUrl ? ' · open on Spotify' : ' · 30s preview'}
+                            {!track.previewUrl ? ' · open on Deezer' : ' · 30s preview'}
                           </p>
                           {isPlaying && (
                             <div className="mt-2 h-0.5 rounded-full bg-white/20 dark:bg-stone-900/20 overflow-hidden">
@@ -696,7 +696,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function AlbumCard({ album }: { album: MusicAlbumView }) {
   return (
     <a
-      href={album.spotifyUrl}
+      href={album.url}
       target="_blank"
       rel="noopener noreferrer"
       className="group shrink-0 w-40 snap-start"
@@ -719,7 +719,7 @@ function AlbumCard({ album }: { album: MusicAlbumView }) {
 function PlaylistCard({ playlist }: { playlist: MusicPlaylistView }) {
   return (
     <a
-      href={playlist.spotifyUrl}
+      href={playlist.url}
       target="_blank"
       rel="noopener noreferrer"
       className="group flex items-center gap-3 rounded-2xl border border-stone-900/[0.06] dark:border-white/[0.06] bg-white/40 dark:bg-white/[0.03] p-3 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-white/[0.06] transition-colors"

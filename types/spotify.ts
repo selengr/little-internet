@@ -58,7 +58,7 @@ export interface MusicArtistView {
   popularity: number
   followers: number
   image: string | null
-  spotifyUrl: string
+  url: string
 }
 
 export interface MusicTrackView {
@@ -70,7 +70,7 @@ export interface MusicTrackView {
   albumName: string
   albumImage: string | null
   artists: string
-  spotifyUrl: string
+  url: string
 }
 
 export interface MusicAlbumView {
@@ -80,7 +80,7 @@ export interface MusicAlbumView {
   type: string
   tracks: number
   image: string | null
-  spotifyUrl: string
+  url: string
 }
 
 export interface MusicPlaylistView {
@@ -90,7 +90,7 @@ export interface MusicPlaylistView {
   image: string | null
   owner: string
   tracks: number
-  spotifyUrl: string
+  url: string
 }
 
 export interface MusicExplorerPayload {
