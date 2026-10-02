@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
+import { MemoryCardsGame } from '@/components/games/memory-cards-game'
 import { cn } from '@/lib/utils'
 
 type Mode = 'trivia' | 'cards' | 'rps' | 'pokemon'
@@ -40,7 +41,7 @@ const MODES: {
     label: 'Memory Cards',
     blurb: 'Flip and match the pairs',
     icon: Layers,
-    live: false,
+    live: true,
     from: '#06b6d4',
     to: '#3b82f6',
   },
@@ -130,6 +131,7 @@ export function GamesHub() {
         />
         {mode === 'trivia' && <TriviaGame />}
         {mode === 'pokemon' && <PokemonGame />}
+        {mode === 'cards' && <MemoryCardsGame />}
       </div>
     </div>
   )
