@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Loader2, RotateCcw, Sparkles, Trophy, X } from 'lucide-react'
 import { GlowButton } from '@/components/glow-button'
+import { CopyButton } from '@/components/copy-button'
 import { TRIVIA_CATEGORIES, TRIVIA_RESPONSE_CODE_MESSAGE, toTriviaQuestion } from '@/lib/trivia'
+import { SITE_URL } from '@/lib/site'
 import type { TriviaApiResponse, TriviaDifficulty, TriviaQuestion } from '@/types/trivia'
 import { cn } from '@/lib/utils'
 
@@ -244,6 +246,14 @@ export function TriviaGame() {
           >
             Change settings
           </button>
+        </div>
+        <div className="mt-4 flex justify-center">
+          <CopyButton
+            text={`I scored ${score}/${questions.length} on Little Internet's Trivia — try to beat it: ${SITE_URL}/games`}
+            label="Copy score"
+            lineVar="rgba(99,102,241,.35)"
+            className="!h-9 !w-auto px-4 text-[12px]"
+          />
         </div>
       </div>
     )
