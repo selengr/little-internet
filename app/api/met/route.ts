@@ -1,50 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mapArtwork, MET_API, MET_UA } from '@/lib/met'
+import { mapArtwork, MET_API, MET_SEARCH_API, MET_UA } from '@/lib/met'
 import type { MetObjectRaw, MetSearchRaw } from '@/types/met'
 
 export const dynamic = 'force-dynamic'
 
-const BATCH = 6
 const MAX_RESULTS = 24
 
-async function metFetch(path: string) {
-  const res = await fetch(`${MET_API}${path}`, {
+async function metFetch(path: string, base: string = MET_API) {
+  const res = await fetch(`${base}${path}`, {
     headers: {
       Accept: 'application/json',
       'User-Agent': MET_UA,
     },
+    signal: AbortSignal.timeout(9000),
     next: { revalidate: 3600 },
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(text || `Met API error ${res.status}`)
+    throw new Error(text ? 'The Met is not answering right now.' : `Met API error ${res.status}`)
   }
   return res.json()
 }
 
-async function hydrateIds(ids: number[], limit: number): Promise<ReturnType<typeof mapArtwork>[]> {
-  const artworks: NonNullable<ReturnType<typeof mapArtwork>>[] = []
-  let cursor = 0
+/**
+ * Turns object ids into artworks, all requested at once (they used to be fetched in small batches one
+ * after another, which made every search slow). A few extra ids are asked for because some objects
+ * have no usable image and are skipped; the order of the search results is kept.
+ */
+const CHUNK = 10
 
-  while (artworks.length < limit && cursor < ids.length) {
-    const slice = ids.slice(cursor, cursor + BATCH)
-    cursor += BATCH
-
+/**
+ * Turns object ids into artworks, ten at a time and only until there are enough. The Met's firewall
+ * blocks clients that send dozens of requests at once (a blocked server gets a 403 page), and many
+ * objects have no public image and are skipped, so this goes through the ids in small steps.
+ */
+async function hydrateIds(ids: number[], limit: number) {
+  const out: NonNullable<ReturnType<typeof mapArtwork>>[] = []
+  const pool = ids.slice(0, limit * 3)
+  for (let i = 0; i < pool.length && out.length < limit; i += CHUNK) {
     const results = await Promise.all(
-      slice.map(id =>
+      pool.slice(i, i + CHUNK).map(id =>
         metFetch(`/objects/${id}`)
           .then(o => mapArtwork(o as MetObjectRaw))
           .catch(() => null),
       ),
     )
-
-    for (const a of results) {
-      if (a) artworks.push(a)
-      if (artworks.length >= limit) break
-    }
+    for (const a of results) if (a && out.length < limit) out.push(a)
   }
+  return out
+}
 
-  return artworks
+async function searchIds(q: string, count: number, extra: Record<string, string> = {}) {
+  const params = new URLSearchParams({ q, hasImages: 'true', limit: String(count), offset: '0', ...extra })
+  const res = (await metFetch(`/search?${params}`, MET_SEARCH_API)) as MetSearchRaw
+  return { ids: res.objectIDs ?? [], total: res.total ?? 0 }
 }
 
 export async function GET(request: NextRequest) {
@@ -79,18 +88,23 @@ export async function GET(request: NextRequest) {
         MAX_RESULTS,
       )
 
-      const params = new URLSearchParams({
-        q,
-        hasImages: 'true',
-      })
+      // The museum's highlights first: they are the works people actually mean.
+      const hl = await searchIds(q, limit * 2, { isHighlight: 'true' })
+      let artworks = await hydrateIds(hl.ids, limit)
+      let total = hl.total
 
-      const search = (await metFetch(`/search?${params}`)) as MetSearchRaw
-      const ids = search.objectIDs ?? []
-      const artworks = await hydrateIds(ids, limit)
+      // Not enough highlights with a usable image: add works from the rest of the collection.
+      if (artworks.length < Math.min(limit, 8)) {
+        const plain = await searchIds(q, limit * 3)
+        const seen = new Set(artworks.map(a => a.id))
+        const more = (await hydrateIds(plain.ids.filter(id => !hl.ids.includes(id)), limit - artworks.length)).filter(a => !seen.has(a.id))
+        artworks = [...artworks, ...more].slice(0, limit)
+        total = plain.total
+      }
 
       return NextResponse.json({
         artworks,
-        total: search.total ?? 0,
+        total,
         q,
       })
     }

@@ -1,49 +1,65 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { Instrument_Serif, JetBrains_Mono, Syne } from 'next/font/google'
 import { MetExplorer } from '@/components/met-explorer'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
+const display = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-art-display',
+})
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-art-mono',
+})
+
+const mark = Syne({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-art-mark',
+})
+
+const description =
+  'Explore The Metropolitan Museum of Art collection: search paintings, sculpture and more from over 470,000 works, and look closely at each one.'
+
 export const metadata = {
-  title: 'Artwork Explorer — The Met',
-  description:
-    'Explore The Metropolitan Museum of Art collection — search paintings, sculpture, and more from over 470,000 works.',
+  title: 'Art Gallery — The Met',
+  description,
+  openGraph: { title: 'Art Gallery — The Met', description },
+  twitter: { title: 'Art Gallery — The Met', description },
 }
 
 export default function ArtPage() {
   return (
-    <main className="relative min-h-screen overflow-x-clip bg-[#f4efe6] dark:bg-[#12100e] text-stone-900 dark:text-stone-100">
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute top-[-8%] left-[15%] w-[520px] h-[520px] rounded-full bg-amber-200/20 dark:bg-amber-900/10 blur-[140px]" />
-        <div className="absolute bottom-[10%] right-[5%] w-[420px] h-[420px] rounded-full bg-stone-400/10 dark:bg-stone-700/15 blur-[120px]" />
+    <main
+      className={`${display.variable} ${mono.variable} ${mark.variable} relative min-h-screen overflow-x-clip bg-[#f4efe6] text-foreground dark:bg-[#12100e]`}
+    >
+      {/* Same header as the other pages */}
+      <div className="pointer-events-none fixed inset-x-0 top-4 z-[70] flex justify-center px-4">
         <div
-          className="absolute inset-0 opacity-[0.035] dark:opacity-[0.04]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      <div className="fixed top-0 inset-x-0 z-50 flex justify-center px-4 pt-5 pointer-events-none">
-        <div
-          className={`pointer-events-auto w-full max-w-2xl flex items-center justify-between px-4 py-2.5 rounded-full border border-stone-900/8 dark:border-amber-100/8 ${NAV_GLASS_CLASS}`}
+          className={`pointer-events-auto flex w-full max-w-3xl items-center justify-between rounded-2xl border border-black/[0.06] px-4 py-2.5 dark:border-white/[0.08] ${NAV_GLASS_CLASS}`}
           style={NAV_GLASS}
         >
           <ThemeToggle />
-          <span className="font-pixel text-[9px] tracking-[0.22em] text-stone-400/80 hidden sm:inline">
-            THE MET
+          <span className="font-pixel hidden text-[10px] tracking-[0.2em] text-black/50 sm:inline dark:text-white/50">
+            ART
           </span>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[11px] px-3 py-2 rounded-full text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors tracking-[0.1em] uppercase cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-[11px] tracking-wide text-black/70 transition-all hover:text-black dark:border-white/20 dark:text-white/70 dark:hover:text-white"
           >
-            Return
+            Back home
             <ArrowRight className="size-3.5" />
           </Link>
         </div>
       </div>
 
-      <div className="pt-24 md:pt-28">
+      <div className="pt-28 md:pt-32">
         <MetExplorer />
       </div>
     </main>

@@ -1,6 +1,8 @@
 import type { Artwork, MetObjectRaw } from '@/types/met'
 
 export const MET_API = 'https://collectionapi.metmuseum.org/public/collection/v1'
+// The v1 /search endpoint was retired on 2026-10-01; searching now uses v1.1 (paginated). Objects stay on v1.
+export const MET_SEARCH_API = 'https://collectionapi.metmuseum.org/public/collection/v1.1'
 export const MET_UA = 'FunApis/1.0 (https://github.com; educational)'
 
 export const FEATURED_SEARCHES = [
@@ -10,6 +12,8 @@ export const FEATURED_SEARCHES = [
   'Egyptian',
   'Japanese prints',
   'Armor',
+  'Impressionism',
+  'Sculpture',
 ]
 
 /** Seed when the gallery first opens. */
