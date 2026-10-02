@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Loader2, RotateCcw, Sparkles, Trophy, X } from 'lucide-react'
 import { GlowButton } from '@/components/glow-button'
@@ -45,10 +45,19 @@ export function PokemonGame() {
   const [picked, setPicked] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [usedIds] = useState(() => new Set<number>())
+  // The round after the one on screen, fetched in the background while the
+  // player is looking at the reveal, so "Next" feels instant like Trivia's.
+  const prefetchRef = useRef<Promise<Round | null> | null>(null)
+
+  const prefetchNext = useCallback(() => {
+    prefetchRef.current = buildRound(gen, usedIds).catch(() => null)
+  }, [gen, usedIds])
 
   const loadRound = useCallback(async () => {
     try {
-      const next = await buildRound(gen, usedIds)
+      const next = prefetchRef.current ? await prefetchRef.current : await buildRound(gen, usedIds)
+      prefetchRef.current = null
+      if (!next) throw new Error('no round')
       setCurrent(next)
       setPicked(null)
       setStage('playing')
@@ -62,6 +71,7 @@ export function PokemonGame() {
     setStage('loading')
     setErrorMessage(null)
     usedIds.clear()
+    prefetchRef.current = null
     setRound(0)
     setScore(0)
     await loadRound()
@@ -71,6 +81,8 @@ export function PokemonGame() {
     if (picked || !current) return
     setPicked(name)
     if (name === current.pokemon.name) setScore(s => s + 1)
+    // Get a head start on the next round while the reveal is on screen.
+    if (round + 1 < roundCount) prefetchNext()
   }
 
   const next = async () => {
@@ -79,7 +91,7 @@ export function PokemonGame() {
       return
     }
     setRound(r => r + 1)
-    setStage('loading')
+    if (!prefetchRef.current) setStage('loading')
     await loadRound()
   }
 
