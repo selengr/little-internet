@@ -4,6 +4,7 @@ import {
   formatVisitorEntry,
   type VisitorSnapshot,
 } from '@/lib/visitor-log'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -32,6 +33,9 @@ function pickSnapshot(raw: unknown): VisitorSnapshot {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = checkRateLimit(req, { key: 'visitor-log', limit: 30, windowMs: 60_000 })
+  if (limited) return limited
+
   let body: { client?: unknown } = {}
   try {
     body = await req.json()

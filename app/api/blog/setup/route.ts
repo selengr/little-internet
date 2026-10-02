@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createBlogDatabase, createBlogPost, getBlogConfigStatus } from '@/lib/blog'
+import { requireAdmin } from '@/lib/require-auth'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * One-shot: create Blog database in Notion + seed a sample published post.
  * Returns databaseId to put in NOTION_BLOG_DATABASE_ID.
+ *
+ * Admin-only — this writes directly into Reza's Notion workspace.
  */
 export async function POST() {
+  const { error } = await requireAdmin()
+  if (error) return error
+
   try {
     const status = await getBlogConfigStatus()
     if (!status.hasApiKey) {

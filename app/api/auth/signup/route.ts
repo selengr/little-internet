@@ -1,8 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { createUser, toPublicUser } from '@/lib/users-db'
+import { checkRateLimit } from '@/lib/rate-limit'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const limited = checkRateLimit(req, { key: 'signup', limit: 5, windowMs: 60_000 })
+  if (limited) return limited
+
   try {
     const body = await req.json()
     const firstName = String(body.firstName ?? '').trim()

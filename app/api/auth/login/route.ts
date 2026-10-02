@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { findUserByEmail, toPublicUser } from '@/lib/users-db'
 import { attachSessionCookie } from '@/lib/auth-session'
+import { checkRateLimit } from '@/lib/rate-limit'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const limited = checkRateLimit(req, { key: 'login', limit: 10, windowMs: 60_000 })
+  if (limited) return limited
+
   try {
     const body = await req.json()
     const email = String(body.email ?? '').trim().toLowerCase()
