@@ -2,7 +2,7 @@
 
 A small corner of the web.
 
-Books, space, languages, maps, markets, photos, poems — little tools that feel alive. Built by Reza.
+Books, space, languages, maps, markets, photos, poems, games — little tools that feel alive. Built by Reza.
 
 ## Run it
 
