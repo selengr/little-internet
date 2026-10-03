@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Hand, HandFist, RotateCcw, Scissors, Sparkles, Trophy, type LucideIcon } from 'lucide-react'
 import { GlowButton } from '@/components/glow-button'
@@ -26,29 +26,62 @@ const OUTCOME_COPY: Record<RpsRound['outcome'], string> = {
   draw: "It's a draw",
 }
 
+const CALLOUT_STEPS = ['Rock…', 'Paper…', 'Scissors…', 'Shoot!']
+const CALLOUT_STEP_MS = 320
+
 export function RpsGame() {
   const [stage, setStage] = useState<Stage>('setup')
   const [bestOf, setBestOf] = useState<number>(5)
   const [rounds, setRounds] = useState<RpsRound[]>([])
   const [current, setCurrent] = useState<RpsRound | null>(null)
+  // Set the moment a throw is picked; cleared once the suspense callout finishes and `current` reveals.
+  const [calling, setCalling] = useState(false)
+  const [calloutStep, setCalloutStep] = useState(0)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const youWins = rounds.filter(r => r.outcome === 'win').length
   const computerWins = rounds.filter(r => r.outcome === 'lose').length
   const needed = winsNeeded(bestOf)
 
+  const clearTimers = () => {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+  }
+
+  useEffect(() => clearTimers, [])
+
   const start = () => {
+    clearTimers()
     setRounds([])
     setCurrent(null)
+    setCalling(false)
     setStage('playing')
   }
 
-  const reset = () => setStage('setup')
+  const reset = () => {
+    clearTimers()
+    setCalling(false)
+    setStage('setup')
+  }
 
   const choose = (you: RpsChoice) => {
-    if (current) return
-    const computer = randomChoice()
-    const outcome = judgeRound(you, computer)
-    setCurrent({ you, computer, outcome })
+    if (current || calling) return
+    setCalling(true)
+    setCalloutStep(0)
+    CALLOUT_STEPS.forEach((_, i) => {
+      timersRef.current.push(setTimeout(() => setCalloutStep(i), i * CALLOUT_STEP_MS))
+    })
+    timersRef.current.push(
+      setTimeout(
+        () => {
+          const computer = randomChoice()
+          const outcome = judgeRound(you, computer)
+          setCurrent({ you, computer, outcome })
+          setCalling(false)
+        },
+        CALLOUT_STEPS.length * CALLOUT_STEP_MS + 200,
+      ),
+    )
   }
 
   const next = () => {
@@ -72,7 +105,7 @@ export function RpsGame() {
       if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(el.tagName))) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
 
-      if (!current) {
+      if (!current && !calling) {
         const key = e.key.toLowerCase()
         if (key === 'r' || key === 'p' || key === 's') {
           e.preventDefault()
@@ -81,7 +114,7 @@ export function RpsGame() {
         return
       }
 
-      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+      if (current && (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight')) {
         e.preventDefault()
         next()
       }
@@ -89,7 +122,7 @@ export function RpsGame() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage, current])
+  }, [stage, current, calling])
 
   if (stage === 'setup') {
     return (
@@ -181,7 +214,28 @@ export function RpsGame() {
       </div>
 
       <AnimatePresence mode="wait">
-        {!current ? (
+        {calling ? (
+          <motion.div
+            key="calling"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex h-[196px] items-center justify-center"
+          >
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={calloutStep}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.1 }}
+                transition={{ duration: 0.18 }}
+                className="text-3xl font-semibold tracking-tight"
+              >
+                {CALLOUT_STEPS[calloutStep]}
+              </motion.p>
+            </AnimatePresence>
+          </motion.div>
+        ) : !current ? (
           <motion.div key="choose" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="grid grid-cols-3 gap-3">
               {RPS_CHOICES.map(c => {
