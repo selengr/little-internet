@@ -298,7 +298,10 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
             <p className="mt-5 text-[14px] font-medium">{OUTCOME_COPY[current.outcome]}</p>
             <div className="mt-6 flex justify-center">
               <GlowButton from="#10b981" to="#14b8a6" onClick={next} size="s">
-                Next round
+                {(current.outcome === 'win' && youWins + 1 >= needed) ||
+                (current.outcome === 'lose' && computerWins + 1 >= needed)
+                  ? 'See results'
+                  : 'Next round'}
               </GlowButton>
             </div>
           </motion.div>
