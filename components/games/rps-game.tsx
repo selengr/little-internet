@@ -64,13 +64,23 @@ export function RpsGame() {
     }
   }
 
-  // Space / Enter / → advances once a round is revealed — same shortcut as the other games.
+  // R / P / S picks a throw; Space / Enter / → advances once the round is revealed.
   useEffect(() => {
-    if (stage !== 'playing' || !current) return
+    if (stage !== 'playing') return
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null
       if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(el.tagName))) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
+
+      if (!current) {
+        const key = e.key.toLowerCase()
+        if (key === 'r' || key === 'p' || key === 's') {
+          e.preventDefault()
+          choose(key === 'r' ? 'rock' : key === 'p' ? 'paper' : 'scissors')
+        }
+        return
+      }
+
       if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
         e.preventDefault()
         next()
@@ -172,28 +182,29 @@ export function RpsGame() {
 
       <AnimatePresence mode="wait">
         {!current ? (
-          <motion.div
-            key="choose"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="grid grid-cols-3 gap-3"
-          >
-            {RPS_CHOICES.map(c => {
-              const meta = CHOICE_META[c]
-              const Icon = meta.icon
-              return (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => choose(c)}
-                  className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 py-6 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] dark:border-white/15"
-                >
-                  <Icon className="size-7" />
-                  <span className="text-[12.5px]">{meta.label}</span>
-                </button>
-              )
-            })}
+          <motion.div key="choose" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="grid grid-cols-3 gap-3">
+              {RPS_CHOICES.map(c => {
+                const meta = CHOICE_META[c]
+                const Icon = meta.icon
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => choose(c)}
+                    className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 py-6 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] dark:border-white/15"
+                  >
+                    <Icon className="size-7" />
+                    <span className="text-[12.5px]">{meta.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-4 text-center text-[11px] text-muted-foreground">
+              Tip: press <kbd className="rounded border border-black/10 px-1 dark:border-white/15">R</kbd>,{' '}
+              <kbd className="rounded border border-black/10 px-1 dark:border-white/15">P</kbd> or{' '}
+              <kbd className="rounded border border-black/10 px-1 dark:border-white/15">S</kbd>
+            </p>
           </motion.div>
         ) : (
           <motion.div
