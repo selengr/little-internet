@@ -42,7 +42,7 @@ async function fetchQuestions(
   }
 }
 
-export function TriviaGame() {
+export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [difficulty, setDifficulty] = useState<TriviaDifficulty | 'any'>('any')
@@ -249,7 +249,7 @@ export function TriviaGame() {
         </div>
         <div className="mt-4 flex justify-center">
           <CopyButton
-            text={`I scored ${score}/${questions.length} on Little Internet's Trivia — try to beat it: ${SITE_URL}/games`}
+            text={`I scored ${score}/${questions.length} on Little Internet's Trivia — try to beat it: ${shareUrl}`}
             label="Copy score"
             lineVar="rgba(99,102,241,.35)"
             className="!h-9 !w-auto px-4 text-[12px]"

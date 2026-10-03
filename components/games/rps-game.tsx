@@ -29,7 +29,7 @@ const OUTCOME_COPY: Record<RpsRound['outcome'], string> = {
 const CALLOUT_STEPS = ['Rock…', 'Paper…', 'Scissors…', 'Shoot!']
 const CALLOUT_STEP_MS = 320
 
-export function RpsGame() {
+export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [bestOf, setBestOf] = useState<number>(5)
   const [rounds, setRounds] = useState<RpsRound[]>([])
@@ -180,7 +180,7 @@ export function RpsGame() {
         </div>
         <div className="mt-4 flex justify-center">
           <CopyButton
-            text={`I ${won ? 'won' : 'lost'} ${youWins}-${computerWins} in Little Internet's Rock Paper Scissors — try to beat it: ${SITE_URL}/games`}
+            text={`I ${won ? 'won' : 'lost'} ${youWins}-${computerWins} in Little Internet's Rock Paper Scissors — try to beat it: ${shareUrl}`}
             label="Copy score"
             lineVar="rgba(16,185,129,.35)"
             className="!h-9 !w-auto px-4 text-[12px]"

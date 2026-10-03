@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
 import { MemoryCardsGame } from '@/components/games/memory-cards-game'
 import { RpsGame } from '@/components/games/rps-game'
+import { SITE_URL } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 type Mode = 'trivia' | 'cards' | 'rps' | 'pokemon'
@@ -57,9 +59,28 @@ const MODES: {
   },
 ]
 
+const MODE_IDS = MODES.map(m => m.id)
+
+function readModeFromParams(params: URLSearchParams): Mode {
+  const raw = params.get('mode')
+  return (MODE_IDS as string[]).includes(raw ?? '') ? (raw as Mode) : 'trivia'
+}
+
 export function GamesHub() {
-  const [mode, setMode] = useState<Mode>('trivia')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [mode, setModeState] = useState<Mode>(() => readModeFromParams(searchParams))
   const active = MODES.find(m => m.id === mode)!
+
+  const setMode = useCallback(
+    (next: Mode) => {
+      setModeState(next)
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('mode', next)
+      router.replace(`/games?${params.toString()}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
 
   return (
     <div>
@@ -130,10 +151,10 @@ export function GamesHub() {
           className="mb-6 h-[3px] w-14 rounded-full"
           style={{ backgroundImage: `linear-gradient(90deg, ${active.from}, ${active.to})` }}
         />
-        {mode === 'trivia' && <TriviaGame />}
-        {mode === 'pokemon' && <PokemonGame />}
-        {mode === 'cards' && <MemoryCardsGame />}
-        {mode === 'rps' && <RpsGame />}
+        {mode === 'trivia' && <TriviaGame shareUrl={`${SITE_URL}/games?mode=trivia`} />}
+        {mode === 'pokemon' && <PokemonGame shareUrl={`${SITE_URL}/games?mode=pokemon`} />}
+        {mode === 'cards' && <MemoryCardsGame shareUrl={`${SITE_URL}/games?mode=cards`} />}
+        {mode === 'rps' && <RpsGame shareUrl={`${SITE_URL}/games?mode=rps`} />}
       </div>
     </div>
   )

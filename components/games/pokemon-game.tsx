@@ -37,7 +37,7 @@ async function buildRound(gen: PokemonGeneration, usedIds: Set<number>): Promise
   return { pokemon, options }
 }
 
-export function PokemonGame() {
+export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [gen, setGen] = useState<PokemonGeneration>('kanto')
   const [roundCount, setRoundCount] = useState<number>(10)
@@ -217,7 +217,7 @@ export function PokemonGame() {
         </div>
         <div className="mt-4 flex justify-center">
           <CopyButton
-            text={`I scored ${score}/${roundCount} on Little Internet's Who's That Pokémon — try to beat it: ${SITE_URL}/games`}
+            text={`I scored ${score}/${roundCount} on Little Internet's Who's That Pokémon — try to beat it: ${shareUrl}`}
             label="Copy score"
             lineVar="rgba(245,158,11,.35)"
             className="!h-9 !w-auto px-4 text-[12px]"

@@ -15,7 +15,7 @@ const PAIR_COUNTS = [6, 8, 12] as const
 
 const MISMATCH_DELAY_MS = 700
 
-export function MemoryCardsGame() {
+export function MemoryCardsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [pairCount, setPairCount] = useState<number>(8)
   const [tiles, setTiles] = useState<MemoryTile[]>([])
@@ -161,7 +161,7 @@ export function MemoryCardsGame() {
         </div>
         <div className="mt-4 flex justify-center">
           <CopyButton
-            text={`I matched ${pairCount} pairs in ${moves} moves in Little Internet's Memory Cards — try to beat it: ${SITE_URL}/games`}
+            text={`I matched ${pairCount} pairs in ${moves} moves in Little Internet's Memory Cards — try to beat it: ${shareUrl}`}
             label="Copy score"
             lineVar="rgba(6,182,212,.35)"
             className="!h-9 !w-auto px-4 text-[12px]"

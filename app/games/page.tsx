@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { GamesHub } from '@/components/games/games-hub'
@@ -67,7 +68,9 @@ export default function GamesPage() {
             Little games built right into the site. Pick one below — no sign-in, nothing to install.
           </p>
         </div>
-        <GamesHub />
+        <Suspense fallback={null}>
+          <GamesHub />
+        </Suspense>
       </div>
     </main>
   )
