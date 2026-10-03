@@ -149,8 +149,8 @@ export function RpsGame() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-        <span>Rock Paper Scissors · First to {needed}</span>
+      <div className="mb-5 flex flex-col gap-1 text-[11px] uppercase tracking-[0.2em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+        <span>First to {needed}</span>
         <span>
           You {youWins} – {computerWins} Computer
         </span>
