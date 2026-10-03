@@ -4,7 +4,7 @@ import { GamesHub } from '@/components/games/games-hub'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
-const description = 'Trivia, a Pokémon guessing game and Memory Cards right now — Rock–Paper–Scissors next. No account, no install, just play.'
+const description = 'Trivia, a Pokémon guessing game, Memory Cards and Rock–Paper–Scissors — four little games, no account, no install, just play.'
 
 export const metadata = {
   title: 'Games',
@@ -52,7 +52,7 @@ export default function GamesPage() {
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-28 md:px-8 md:pt-32">
         <div className="mb-14 text-center">
           <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-card/40 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-muted-foreground backdrop-blur-sm dark:border-white/10">
-            Three live · one on the way
+            Four games · zero sign-ins
           </p>
           <h1
             className="text-[clamp(3.2rem,11vw,6.5rem)] font-extrabold leading-[0.95] tracking-[-0.03em] bg-clip-text text-transparent"
