@@ -220,7 +220,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex h-[196px] items-center justify-center"
+            className="flex h-[138px] items-center justify-center"
           >
             <AnimatePresence mode="wait">
               <motion.p
