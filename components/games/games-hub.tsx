@@ -5,6 +5,7 @@ import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
 import { MemoryCardsGame } from '@/components/games/memory-cards-game'
+import { RpsGame } from '@/components/games/rps-game'
 import { cn } from '@/lib/utils'
 
 type Mode = 'trivia' | 'cards' | 'rps' | 'pokemon'
@@ -50,7 +51,7 @@ const MODES: {
     label: 'Rock Paper Scissors',
     blurb: 'Best of five, no mercy',
     icon: Swords,
-    live: false,
+    live: true,
     from: '#10b981',
     to: '#14b8a6',
   },
@@ -132,6 +133,7 @@ export function GamesHub() {
         {mode === 'trivia' && <TriviaGame />}
         {mode === 'pokemon' && <PokemonGame />}
         {mode === 'cards' && <MemoryCardsGame />}
+        {mode === 'rps' && <RpsGame />}
       </div>
     </div>
   )
