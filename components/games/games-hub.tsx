@@ -151,7 +151,7 @@ export function GamesHub() {
           initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduceMotion ? 0 : 0.22 }}
-          className="rounded-[28px] border p-5 sm:p-8"
+          className="rounded-[28px] border bg-card/20 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-8 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
           style={{
             borderColor: `${active.accent}26`,
             backgroundImage: `linear-gradient(180deg, ${active.accent}0f, transparent 45%)`,
