@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
@@ -56,6 +56,7 @@ const MODES: {
 ]
 
 const MODE_IDS = MODES.map(m => m.id)
+const LAST_MODE_KEY = 'little-internet:last-game'
 
 function readModeFromParams(params: URLSearchParams): Mode {
   const raw = params.get('mode')
@@ -72,6 +73,11 @@ export function GamesHub() {
 
   const setMode = useCallback(
     (next: Mode) => {
+      try {
+        localStorage.setItem(LAST_MODE_KEY, next)
+      } catch {
+        // private browsing / storage disabled — fine, it just won't be remembered
+      }
       if (next === mode) return
       setModeState(next)
       const params = new URLSearchParams(searchParams.toString())
@@ -80,6 +86,23 @@ export function GamesHub() {
     },
     [mode, router, searchParams],
   )
+
+  // No explicit ?mode= in the link — pick up where this visitor last left off,
+  // the way a console remembers the last game you had open. Runs client-side
+  // only, after the deterministic server-rendered default, so there's no
+  // hydration mismatch — just a quick settle to the right game on arrival.
+  useEffect(() => {
+    if (searchParams.get('mode')) return
+    try {
+      const saved = localStorage.getItem(LAST_MODE_KEY)
+      if (saved && (MODE_IDS as string[]).includes(saved)) {
+        setModeState(saved as Mode)
+      }
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
