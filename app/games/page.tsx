@@ -8,6 +8,11 @@ import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
 const description = 'Trivia, a Pokémon guessing game, Memory Cards and Rock–Paper–Scissors — four little games, no account, no install, just play.'
 
+// The selected game depends on the request's ?mode= — must render per-request,
+// not be baked into one static snapshot, or the server HTML can mismatch what
+// the client hydrates against (a stale cached shell vs a live ?mode= link).
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Games',
   description,
