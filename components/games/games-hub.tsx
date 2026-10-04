@@ -116,7 +116,7 @@ export function GamesHub() {
               tabIndex={isActive ? 0 : -1}
               onClick={() => setMode(m.id)}
               onKeyDown={e => onTabKeyDown(e, index)}
-              className="group flex flex-col items-center gap-1.5"
+              className="group flex flex-col items-center gap-1.5 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <span
                 className={cn(
