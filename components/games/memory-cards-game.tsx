@@ -173,8 +173,7 @@ export function MemoryCardsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-        <span>Memory Cards</span>
+      <div className="mb-5 flex items-center justify-center text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
         <span>
           Matched {matchedCount}/{pairCount} · Moves {moves}
         </span>

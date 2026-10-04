@@ -235,7 +235,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-        <span>Who&apos;s that Pokémon?</span>
+        <span>{GENERATIONS.find(g => g.id === gen)?.label}</span>
         <span>
           {round + 1} / {roundCount} · Score {score}
         </span>
