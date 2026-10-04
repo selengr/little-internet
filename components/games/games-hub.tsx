@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
@@ -80,20 +80,42 @@ export function GamesHub() {
     [mode, router, searchParams],
   )
 
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  // Left/Right (or Home/End) move focus between games, the standard ARIA tabs pattern.
+  const onTabKeyDown = (e: React.KeyboardEvent, index: number) => {
+    let nextIndex: number | null = null
+    if (e.key === 'ArrowRight') nextIndex = (index + 1) % MODES.length
+    else if (e.key === 'ArrowLeft') nextIndex = (index - 1 + MODES.length) % MODES.length
+    else if (e.key === 'Home') nextIndex = 0
+    else if (e.key === 'End') nextIndex = MODES.length - 1
+    if (nextIndex === null) return
+    e.preventDefault()
+    const next = MODES[nextIndex]
+    setMode(next.id)
+    tabRefs.current[next.id]?.focus()
+  }
+
   return (
     <div>
       {/* The shelf — a row of game icons, like a console's home screen. */}
       <div role="tablist" aria-label="Choose a game" className="mb-7 flex justify-center gap-2.5 sm:gap-3.5">
-        {MODES.map(m => {
+        {MODES.map((m, index) => {
           const Icon = m.icon
           const isActive = mode === m.id
           return (
             <button
               key={m.id}
+              ref={el => {
+                tabRefs.current[m.id] = el
+              }}
               type="button"
               role="tab"
               aria-selected={isActive}
+              aria-label={m.label}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => setMode(m.id)}
+              onKeyDown={e => onTabKeyDown(e, index)}
               className="group flex flex-col items-center gap-1.5"
             >
               <span
