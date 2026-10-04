@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
@@ -67,6 +67,7 @@ export function GamesHub() {
   const searchParams = useSearchParams()
   const [mode, setModeState] = useState<Mode>(() => readModeFromParams(searchParams))
   const active = MODES.find(m => m.id === mode)!
+  const reduceMotion = useReducedMotion()
   const ActiveIcon = active.icon
 
   const setMode = useCallback(
@@ -147,9 +148,9 @@ export function GamesHub() {
       <AnimatePresence mode="wait">
         <motion.div
           key={mode}
-          initial={{ opacity: 0, y: 6 }}
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.22 }}
+          transition={{ duration: reduceMotion ? 0 : 0.22 }}
           className="rounded-[28px] border p-5 sm:p-8"
           style={{
             borderColor: `${active.accent}26`,
