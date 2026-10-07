@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/page-header'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
-const description = 'Trivia, a Pokémon guessing game, Memory Cards and Rock–Paper–Scissors — four little games, no account, no install, just play.'
+const description = 'Trivia, chess puzzles, Sudoku, a Pokémon guessing game, Higher or Lower and Rock–Paper–Scissors — six little games, no account, no install.'
 
 // The selected game depends on the request's ?mode= — must render per-request,
 // not be baked into one static snapshot, or the server HTML can mismatch what
@@ -50,7 +50,7 @@ export default function GamesPage() {
         <PageHeader
           badge="Games"
           title="Pick something to play"
-          subtitle="Four little games, no account needed — just pick one and go."
+          subtitle="Six little games, no account needed — just pick one and go."
         />
         <Suspense fallback={null}>
           <GamesHub />
