@@ -94,10 +94,13 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
     if (!selected || !puzzle) return
     const { row, col } = selected
     if (puzzle.given[row][col]) return
+    // Mistake-counting lives outside the setBoard updater — updater functions
+    // can run more than once (React does this deliberately in development to
+    // surface exactly this kind of side effect), which was double-counting.
+    const wrong = digit !== 0 && puzzle.solution[row][col] !== digit
+    if (wrong) setMistakes(m => m + 1)
     setBoard(prev => {
       const next = cloneGrid(prev)
-      const wrong = digit !== 0 && puzzle.solution[row][col] !== digit
-      if (wrong) setMistakes(m => m + 1)
       next[row][col] = digit
       return next
     })
@@ -188,7 +191,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
         </span>
       </div>
 
-      <div className="grid grid-cols-9 gap-[1px] overflow-hidden rounded-xl border-2 border-foreground/70 bg-foreground/70">
+      <div className="grid grid-cols-9 overflow-hidden rounded-xl border-2 border-foreground/70">
         {board.map((row, r) =>
           row.map((value, c) => {
             const isGiven = puzzle.given[r][c]
@@ -202,15 +205,19 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setSelected({ row: r, col: c })}
                 className={cn(
-                  'flex aspect-square items-center justify-center bg-background text-[15px] transition-colors sm:text-[17px]',
-                  (c % 3 === 2 && c !== 8) && 'border-r-2 border-r-foreground/70',
-                  (r % 3 === 2 && r !== 8) && 'border-b-2 border-b-foreground/70',
-                  isGiven ? 'font-semibold text-foreground' : 'font-normal text-indigo-600 dark:text-indigo-300',
+                  // Real borders on every cell, not a dark parent bg showing through a gap —
+                  // that gap trick means any translucent cell background (hover, selection,
+                  // peer highlight) lets the dark "grid line" layer bleed through instead of
+                  // reading as a soft tint, which is a real bug this ran into twice.
+                  'flex aspect-square items-center justify-center border-b border-r border-black/15 text-[15px] transition-colors last:border-r-0 sm:text-[17px] dark:border-white/15',
                   isSelected
-                    ? 'bg-indigo-500/20'
+                    ? 'bg-indigo-100 dark:bg-indigo-500/30'
                     : isPeer
-                      ? 'bg-indigo-500/[0.06]'
-                      : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05]',
+                      ? 'bg-indigo-50 dark:bg-indigo-500/[0.12]'
+                      : 'bg-background hover:bg-black/[0.035] dark:hover:bg-white/[0.06]',
+                  c % 3 === 2 && c !== 8 && 'border-r-2 border-r-foreground/70',
+                  r % 3 === 2 && r !== 8 && 'border-b-2 border-b-foreground/70',
+                  isGiven ? 'font-semibold text-foreground' : 'font-normal text-indigo-600 dark:text-indigo-300',
                   hasConflict && 'text-rose-600 dark:text-rose-400',
                 )}
               >

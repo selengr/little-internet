@@ -3,15 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Gamepad2, Layers, Swords, Zap } from 'lucide-react'
+import { ChessKnight, Gamepad2, Grid3x3, Swords, TrendingUpDown, Zap } from 'lucide-react'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
-import { MemoryCardsGame } from '@/components/games/memory-cards-game'
 import { RpsGame } from '@/components/games/rps-game'
+import { ChessPuzzleGame } from '@/components/games/chess-puzzle-game'
+import { SudokuGame } from '@/components/games/sudoku-game'
+import { HigherLowerGame } from '@/components/games/higher-lower-game'
 import { SITE_URL } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
-type Mode = 'trivia' | 'cards' | 'rps' | 'pokemon'
+type Mode = 'trivia' | 'pokemon' | 'rps' | 'chess' | 'sudoku' | 'higherlower'
 
 const MODES: {
   id: Mode
@@ -38,12 +40,28 @@ const MODES: {
     accent: '#f59e0b',
   },
   {
-    id: 'cards',
-    label: 'Memory Cards',
-    shelfLabel: 'Cards',
-    blurb: 'Flip and match the pairs',
-    icon: Layers,
-    accent: '#0891b2',
+    id: 'chess',
+    label: 'Chess Puzzle',
+    shelfLabel: 'Chess',
+    blurb: 'Find the winning move',
+    icon: ChessKnight,
+    accent: '#475569',
+  },
+  {
+    id: 'sudoku',
+    label: 'Sudoku',
+    shelfLabel: 'Sudoku',
+    blurb: 'A fresh grid every time',
+    icon: Grid3x3,
+    accent: '#3b82f6',
+  },
+  {
+    id: 'higherlower',
+    label: 'Higher or Lower',
+    shelfLabel: 'H or L',
+    blurb: 'Guess the Steam rating',
+    icon: TrendingUpDown,
+    accent: '#f43f5e',
   },
   {
     id: 'rps',
@@ -123,7 +141,7 @@ export function GamesHub() {
   return (
     <div>
       {/* The shelf — a row of game icons, like a console's home screen. */}
-      <div role="tablist" aria-label="Choose a game" className="mb-7 flex justify-center gap-2.5 sm:gap-3.5">
+      <div role="tablist" aria-label="Choose a game" className="mb-7 flex flex-wrap justify-center gap-2.5 sm:gap-3.5">
         {MODES.map((m, index) => {
           const Icon = m.icon
           const isActive = mode === m.id
@@ -195,7 +213,9 @@ export function GamesHub() {
 
           {mode === 'trivia' && <TriviaGame shareUrl={`${SITE_URL}/games?mode=trivia`} />}
           {mode === 'pokemon' && <PokemonGame shareUrl={`${SITE_URL}/games?mode=pokemon`} />}
-          {mode === 'cards' && <MemoryCardsGame shareUrl={`${SITE_URL}/games?mode=cards`} />}
+          {mode === 'chess' && <ChessPuzzleGame shareUrl={`${SITE_URL}/games?mode=chess`} />}
+          {mode === 'sudoku' && <SudokuGame shareUrl={`${SITE_URL}/games?mode=sudoku`} />}
+          {mode === 'higherlower' && <HigherLowerGame shareUrl={`${SITE_URL}/games?mode=higherlower`} />}
           {mode === 'rps' && <RpsGame shareUrl={`${SITE_URL}/games?mode=rps`} />}
         </motion.div>
       </AnimatePresence>
