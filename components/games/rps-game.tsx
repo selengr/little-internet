@@ -254,11 +254,6 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
                 )
               })}
             </div>
-            <p className="mt-4 text-center text-[11px] text-muted-foreground">
-              Tip: press <kbd className="rounded border border-black/10 px-1 dark:border-white/15">R</kbd>,{' '}
-              <kbd className="rounded border border-black/10 px-1 dark:border-white/15">P</kbd> or{' '}
-              <kbd className="rounded border border-black/10 px-1 dark:border-white/15">S</kbd>
-            </p>
           </motion.div>
         ) : (
           <motion.div

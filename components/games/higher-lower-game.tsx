@@ -104,8 +104,7 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
           </div>
         )}
         <p className="text-[13.5px] leading-relaxed text-muted-foreground">
-          Two Steam games, side by side. You see the first one&apos;s rating — guess whether the next one
-          is rated higher or lower. Keep a streak going for as long as you can.
+          Guess if the next game is rated higher or lower. Keep the streak going!
         </p>
         <GlowButton from="#f43f5e" to="#fb923c" onClick={start} className="mt-6">
           <Sparkles className="mr-2 size-4" />

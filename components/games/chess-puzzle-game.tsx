@@ -100,9 +100,6 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
             </button>
           ))}
         </div>
-        <p className="mt-4 text-[12.5px] leading-relaxed text-muted-foreground">
-          Real puzzles from Lichess games. Find the winning move — {ROUND_COUNT} rounds.
-        </p>
         <GlowButton from="#1e293b" to="#475569" onClick={start} className="mt-6">
           <Sparkles className="mr-2 size-4" />
           Find the move
