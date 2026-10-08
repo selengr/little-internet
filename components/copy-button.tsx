@@ -103,7 +103,7 @@ export function CopyButton({
         timer.current = setTimeout(() => setState('idle'), 1800)
       }}
       className={cn(
-        'inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border px-5 text-[13px] tracking-wide transition-all hover:-translate-y-0.5 hover:bg-black/[0.04] active:scale-[0.98] disabled:opacity-40 sm:w-auto dark:hover:bg-white/[0.06]',
+        'inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border px-5 text-[13px] tracking-wide outline-none transition-all hover:-translate-y-0.5 hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.98] disabled:opacity-40 sm:w-auto dark:hover:bg-white/[0.06]',
         className,
       )}
       style={{ borderColor: lineVar, ...style }}
