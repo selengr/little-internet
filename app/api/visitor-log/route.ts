@@ -49,9 +49,7 @@ export async function POST(req: NextRequest) {
     if (referer) {
       try {
         snap.path = new URL(referer).pathname
-      } catch {
-        /* ignore */
-      }
+      } catch {}
     }
   }
   if (!snap.referrer) {
