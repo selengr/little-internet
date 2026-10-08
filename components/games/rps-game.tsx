@@ -246,7 +246,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
                     key={c}
                     type="button"
                     onClick={() => choose(c)}
-                    className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 py-6 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] dark:border-white/15"
+                    className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 py-6 outline-none transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] focus-visible:ring-2 focus-visible:ring-offset-2 dark:border-white/15"
                   >
                     <Icon className="size-7" />
                     <span className="text-[12.5px]">{meta.label}</span>

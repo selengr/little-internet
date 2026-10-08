@@ -206,14 +206,14 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
           <button
             type="button"
             onClick={() => guess('higher')}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 py-3.5 text-[13.5px] font-medium transition-colors hover:border-rose-500/40 hover:bg-rose-500/[0.06] dark:border-white/15"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 py-3.5 text-[13.5px] font-medium outline-none transition-colors hover:border-rose-500/40 hover:bg-rose-500/[0.06] focus-visible:ring-2 focus-visible:ring-offset-2 dark:border-white/15"
           >
             <ArrowUp className="size-4" /> Higher
           </button>
           <button
             type="button"
             onClick={() => guess('lower')}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 py-3.5 text-[13.5px] font-medium transition-colors hover:border-rose-500/40 hover:bg-rose-500/[0.06] dark:border-white/15"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 py-3.5 text-[13.5px] font-medium outline-none transition-colors hover:border-rose-500/40 hover:bg-rose-500/[0.06] focus-visible:ring-2 focus-visible:ring-offset-2 dark:border-white/15"
           >
             <ArrowDown className="size-4" /> Lower
           </button>

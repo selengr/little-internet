@@ -288,7 +288,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
                   onClick={() => choose(name)}
                   disabled={revealed}
                   className={cn(
-                    'flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[14px] transition-colors',
+                    'flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-[14px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2',
                     !revealed && 'border-black/10 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                     revealed && isThisCorrect && 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
                     revealed && isPicked && !isThisCorrect && 'border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300',
