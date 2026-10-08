@@ -1,5 +1,6 @@
 'use client'
 
+import type { CSSProperties } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import type { GameEntry } from '@/lib/games-catalog'
 
@@ -11,7 +12,8 @@ export function GamePlayHeader({ game, onBack }: { game: GameEntry; onBack: () =
       <button
         type="button"
         onClick={onBack}
-        className="flex size-10 shrink-0 items-center justify-center rounded-full border border-black/10 text-foreground/70 transition-colors hover:bg-black/[0.04] active:scale-95 dark:border-white/15 dark:hover:bg-white/[0.06]"
+        style={{ '--hover-tint': `${game.to}1a` } as CSSProperties}
+        className="flex size-10 shrink-0 items-center justify-center rounded-full border border-black/10 text-foreground/70 transition-colors hover:border-transparent hover:bg-(--hover-tint) active:scale-95 dark:border-white/15"
         aria-label="Back to all games"
       >
         <ArrowLeft className="size-4" />
