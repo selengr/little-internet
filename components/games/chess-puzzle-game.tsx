@@ -208,7 +208,7 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
               onClick={() => choose(opt.uci)}
               disabled={revealed}
               className={cn(
-                'rounded-xl border px-3 py-2.5 text-center text-[13.5px] font-medium transition-colors',
+                'rounded-xl border px-3 py-2.5 text-center text-[13.5px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2',
                 !revealed && 'border-black/10 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                 revealed && isThisCorrect && 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
                 revealed && isPicked && !isThisCorrect && 'border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300',
