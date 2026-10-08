@@ -31,7 +31,7 @@ function pickSnapshot(raw: unknown): VisitorSnapshot {
     referrer: str('referrer'),
   }
 }
-
+// test git
 export async function POST(req: NextRequest) {
   const limited = checkRateLimit(req, { key: 'visitor-log', limit: 30, windowMs: 60_000 })
   if (limited) return limited
