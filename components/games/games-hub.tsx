@@ -1,9 +1,11 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ChessKnight, Gamepad2, Grid3x3, Swords, TrendingUpDown, Zap } from 'lucide-react'
+import { GAMES, isGameId, type GameId } from '@/lib/games-catalog'
+import { GameCard } from '@/components/games/game-card'
+import { GamePlayHeader } from '@/components/games/game-play-header'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
 import { RpsGame } from '@/components/games/rps-game'
@@ -11,213 +13,82 @@ import { ChessPuzzleGame } from '@/components/games/chess-puzzle-game'
 import { SudokuGame } from '@/components/games/sudoku-game'
 import { HigherLowerGame } from '@/components/games/higher-lower-game'
 import { SITE_URL } from '@/lib/site'
-import { cn } from '@/lib/utils'
-
-type Mode = 'trivia' | 'pokemon' | 'rps' | 'chess' | 'sudoku' | 'higherlower'
-
-const MODES: {
-  id: Mode
-  label: string
-  shelfLabel: string
-  blurb: string
-  icon: typeof Gamepad2
-  accent: string
-}[] = [
-  {
-    id: 'trivia',
-    label: 'Trivia',
-    shelfLabel: 'Trivia',
-    blurb: '10 categories, any difficulty',
-    icon: Gamepad2,
-    accent: '#6366f1',
-  },
-  {
-    id: 'pokemon',
-    label: "Who's That Pokémon",
-    shelfLabel: 'Pokémon',
-    blurb: 'Guess from the silhouette',
-    icon: Zap,
-    accent: '#f59e0b',
-  },
-  {
-    id: 'chess',
-    label: 'Chess Puzzle',
-    shelfLabel: 'Chess',
-    blurb: 'Find the winning move',
-    icon: ChessKnight,
-    accent: '#475569',
-  },
-  {
-    id: 'sudoku',
-    label: 'Sudoku',
-    shelfLabel: 'Sudoku',
-    blurb: 'A fresh grid every time',
-    icon: Grid3x3,
-    accent: '#3b82f6',
-  },
-  {
-    id: 'higherlower',
-    label: 'Higher or Lower',
-    shelfLabel: 'H or L',
-    blurb: 'Guess the Steam rating',
-    icon: TrendingUpDown,
-    accent: '#f43f5e',
-  },
-  {
-    id: 'rps',
-    label: 'Rock Paper Scissors',
-    shelfLabel: 'RPS',
-    blurb: 'Best of five, no mercy',
-    icon: Swords,
-    accent: '#10b981',
-  },
-]
-
-const MODE_IDS = MODES.map(m => m.id)
-const LAST_MODE_KEY = 'little-internet:last-game'
-
-function readModeFromParams(params: URLSearchParams): Mode {
-  const raw = params.get('mode')
-  return (MODE_IDS as string[]).includes(raw ?? '') ? (raw as Mode) : 'trivia'
-}
 
 export function GamesHub() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [mode, setModeState] = useState<Mode>(() => readModeFromParams(searchParams))
-  const active = MODES.find(m => m.id === mode)!
   const reduceMotion = useReducedMotion()
-  const ActiveIcon = active.icon
 
-  const setMode = useCallback(
-    (next: Mode) => {
-      try {
-        localStorage.setItem(LAST_MODE_KEY, next)
-      } catch {
-        // private browsing / storage disabled — fine, it just won't be remembered
-      }
-      if (next === mode) return
-      setModeState(next)
+  // null = showing the grid of games to pick from.
+  const [gameId, setGameId] = useState<GameId | null>(() => {
+    const raw = searchParams.get('mode')
+    return isGameId(raw) ? raw : null
+  })
+
+  const openGame = useCallback(
+    (id: GameId) => {
+      setGameId(id)
       const params = new URLSearchParams(searchParams.toString())
-      params.set('mode', next)
+      params.set('mode', id)
       router.replace(`/games?${params.toString()}`, { scroll: false })
     },
-    [mode, router, searchParams],
+    [router, searchParams],
   )
 
-  // No explicit ?mode= in the link — pick up where this visitor last left off,
-  // the way a console remembers the last game you had open. Runs client-side
-  // only, after the deterministic server-rendered default, so there's no
-  // hydration mismatch — just a quick settle to the right game on arrival.
-  useEffect(() => {
-    if (searchParams.get('mode')) return
-    try {
-      const saved = localStorage.getItem(LAST_MODE_KEY)
-      if (saved && (MODE_IDS as string[]).includes(saved)) {
-        setModeState(saved as Mode)
-      }
-    } catch {
-      // ignore
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const backToGrid = useCallback(() => {
+    setGameId(null)
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('mode')
+    const query = params.toString()
+    router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+  }, [router, searchParams])
 
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-
-  // Left/Right (or Home/End) move focus between games, the standard ARIA tabs pattern.
-  const onTabKeyDown = (e: React.KeyboardEvent, index: number) => {
-    let nextIndex: number | null = null
-    if (e.key === 'ArrowRight') nextIndex = (index + 1) % MODES.length
-    else if (e.key === 'ArrowLeft') nextIndex = (index - 1 + MODES.length) % MODES.length
-    else if (e.key === 'Home') nextIndex = 0
-    else if (e.key === 'End') nextIndex = MODES.length - 1
-    if (nextIndex === null) return
-    e.preventDefault()
-    const next = MODES[nextIndex]
-    setMode(next.id)
-    tabRefs.current[next.id]?.focus()
-  }
+  // A direct link like /games?mode=chess opens straight into that game.
+  // Otherwise every visit starts on the picker grid — no "remembers what you
+  // last played" magic, so the page behaves the same way every time.
+  const game = gameId ? GAMES.find(g => g.id === gameId) : null
 
   return (
     <div>
-      {/* The shelf — a row of game icons, like a console's home screen. */}
-      <div role="tablist" aria-label="Choose a game" className="mb-7 flex flex-wrap justify-center gap-2.5 sm:gap-3.5">
-        {MODES.map((m, index) => {
-          const Icon = m.icon
-          const isActive = mode === m.id
-          return (
-            <button
-              key={m.id}
-              ref={el => {
-                tabRefs.current[m.id] = el
-              }}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-label={m.label}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => setMode(m.id)}
-              onKeyDown={e => onTabKeyDown(e, index)}
-              className="group flex flex-col items-center gap-1.5 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              <span
-                className={cn(
-                  'flex size-12 items-center justify-center rounded-2xl transition-all duration-200 sm:size-14',
-                  isActive ? 'scale-[1.06] text-white shadow-md' : 'text-foreground/55 group-hover:text-foreground',
-                )}
-                style={{
-                  backgroundColor: isActive ? m.accent : `${m.accent}14`,
-                  boxShadow: isActive ? `0 8px 20px -8px ${m.accent}80` : undefined,
-                }}
-              >
-                <Icon className="size-5 sm:size-6" />
-              </span>
-              <span
-                className={cn(
-                  'text-[10.5px] transition-colors',
-                  isActive ? 'font-medium text-foreground' : 'text-muted-foreground group-hover:text-foreground/80',
-                )}
-              >
-                {m.shelfLabel}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* The stage — selected game, in a panel softly tinted with its own colour. */}
       <AnimatePresence mode="wait">
-        <motion.div
-          key={mode}
-          initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 0.22 }}
-          className="rounded-[28px] border bg-card/20 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-8 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
-          style={{
-            borderColor: `${active.accent}26`,
-            backgroundImage: `linear-gradient(180deg, ${active.accent}0f, transparent 45%)`,
-          }}
-        >
-          <div className="mb-7 flex items-center gap-3.5">
-            <span
-              className="flex size-11 shrink-0 items-center justify-center rounded-2xl text-white sm:size-12"
-              style={{ backgroundColor: active.accent }}
+        {!game ? (
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
+          >
+            {GAMES.map(g => (
+              <GameCard key={g.id} game={g} onPlay={() => openGame(g.id)} />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            key={game.id}
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+          >
+            <GamePlayHeader game={game} onBack={backToGrid} />
+            <div
+              className="rounded-[28px] border bg-card/20 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-7 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+              style={{
+                borderColor: `${game.to}26`,
+                backgroundImage: `linear-gradient(180deg, ${game.to}0f, transparent 45%)`,
+              }}
             >
-              <ActiveIcon className="size-5" />
-            </span>
-            <div className="min-w-0">
-              <h2 className="truncate text-[16px] font-semibold text-foreground sm:text-[17px]">{active.label}</h2>
-              <p className="truncate text-[12.5px] text-muted-foreground">{active.blurb}</p>
+              {game.id === 'trivia' && <TriviaGame shareUrl={`${SITE_URL}/games?mode=trivia`} />}
+              {game.id === 'pokemon' && <PokemonGame shareUrl={`${SITE_URL}/games?mode=pokemon`} />}
+              {game.id === 'chess' && <ChessPuzzleGame shareUrl={`${SITE_URL}/games?mode=chess`} />}
+              {game.id === 'sudoku' && <SudokuGame shareUrl={`${SITE_URL}/games?mode=sudoku`} />}
+              {game.id === 'higherlower' && <HigherLowerGame shareUrl={`${SITE_URL}/games?mode=higherlower`} />}
+              {game.id === 'rps' && <RpsGame shareUrl={`${SITE_URL}/games?mode=rps`} />}
             </div>
-          </div>
-
-          {mode === 'trivia' && <TriviaGame shareUrl={`${SITE_URL}/games?mode=trivia`} />}
-          {mode === 'pokemon' && <PokemonGame shareUrl={`${SITE_URL}/games?mode=pokemon`} />}
-          {mode === 'chess' && <ChessPuzzleGame shareUrl={`${SITE_URL}/games?mode=chess`} />}
-          {mode === 'sudoku' && <SudokuGame shareUrl={`${SITE_URL}/games?mode=sudoku`} />}
-          {mode === 'higherlower' && <HigherLowerGame shareUrl={`${SITE_URL}/games?mode=higherlower`} />}
-          {mode === 'rps' && <RpsGame shareUrl={`${SITE_URL}/games?mode=rps`} />}
-        </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   )
