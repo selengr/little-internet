@@ -137,7 +137,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
               type="button"
               onClick={() => setCategoryId(null)}
               className={cn(
-                'rounded-full border px-3.5 py-1.5 text-[12.5px] transition-colors',
+                'rounded-full border px-3.5 py-1.5 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
                 categoryId === null
                   ? 'border-transparent bg-foreground text-background'
                   : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
@@ -151,7 +151,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setCategoryId(c.id)}
                 className={cn(
-                  'rounded-full border px-3.5 py-1.5 text-[12.5px] transition-colors',
+                  'rounded-full border px-3.5 py-1.5 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
                   categoryId === c.id
                     ? 'border-transparent bg-foreground text-background'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
@@ -170,7 +170,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setDifficulty(d.id)}
                 className={cn(
-                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] transition-colors',
+                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
                   difficulty === d.id
                     ? 'border-transparent bg-foreground text-background'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
@@ -189,7 +189,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setAmount(a)}
                 className={cn(
-                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] transition-colors',
+                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
                   amount === a
                     ? 'border-transparent bg-foreground text-background'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',

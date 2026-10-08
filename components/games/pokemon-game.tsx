@@ -140,7 +140,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
                 type="button"
                 onClick={() => setGen(g.id)}
                 className={cn(
-                  'rounded-2xl border px-4 py-3 text-left transition-colors',
+                  'rounded-2xl border px-4 py-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
                   gen === g.id
                     ? 'border-transparent bg-foreground text-background'
                     : 'border-black/10 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
@@ -162,7 +162,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
                 type="button"
                 onClick={() => setRoundCount(n)}
                 className={cn(
-                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] transition-colors',
+                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
                   roundCount === n
                     ? 'border-transparent bg-foreground text-background'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
