@@ -209,7 +209,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                   // that gap trick means any translucent cell background (hover, selection,
                   // peer highlight) lets the dark "grid line" layer bleed through instead of
                   // reading as a soft tint, which is a real bug this ran into twice.
-                  'flex aspect-square items-center justify-center border-b border-r border-black/15 text-[15px] transition-colors last:border-r-0 sm:text-[17px] dark:border-white/15',
+                  'flex aspect-square items-center justify-center border-b border-r border-black/15 text-[15px] outline-none transition-colors last:border-r-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 sm:text-[17px] dark:border-white/15',
                   isSelected
                     ? 'bg-indigo-100 dark:bg-indigo-500/30'
                     : isPeer
@@ -235,7 +235,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
             type="button"
             onClick={() => place(n)}
             disabled={!selected || (selected ? puzzle.given[selected.row][selected.col] : true)}
-            className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-[14px] font-medium transition-colors hover:bg-black/[0.04] disabled:opacity-30 dark:border-white/15 dark:hover:bg-white/[0.06]"
+            className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-[14px] font-medium outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-30 dark:border-white/15 dark:hover:bg-white/[0.06]"
           >
             {n}
           </button>
@@ -244,7 +244,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
           type="button"
           onClick={() => place(0)}
           disabled={!selected || (selected ? puzzle.given[selected.row][selected.col] : true)}
-          className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-foreground/60 transition-colors hover:bg-black/[0.04] disabled:opacity-30 dark:border-white/15 dark:hover:bg-white/[0.06]"
+          className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-foreground/60 outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-30 dark:border-white/15 dark:hover:bg-white/[0.06]"
           aria-label="Erase"
         >
           <Eraser className="size-4" />
