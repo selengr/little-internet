@@ -209,6 +209,32 @@
   }
 }
 
+/* The /games card grid popping in, one card at a time (each card sets its own animation-delay
+   inline). A CSS media query — not a JS reduced-motion hook — turns it off: a hook like
+   useReducedMotion() reads window.matchMedia, which isn't available during SSR and can disagree
+   with the client's first paint, baking a real hydration mismatch into the rendered HTML. This
+   rule is evaluated by the browser itself, so it can't cause that kind of mismatch. */
+@keyframes game-card-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.game-card-pop-in {
+  animation: game-card-pop 0.3s both ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-card-pop-in {
+    animation: none;
+  }
+}
+
 /* Bento shimmer on hover */
 @keyframes shimmer {
   0% { transform: translateX(-100%) }

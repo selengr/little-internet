@@ -54,14 +54,12 @@ export function GamesHub() {
         {!game ? (
           <motion.div
             key="grid"
-            initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
-            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
           >
-            {GAMES.map(g => (
-              <GameCard key={g.id} game={g} onPlay={() => openGame(g.id)} />
+            {GAMES.map((g, index) => (
+              <GameCard key={g.id} game={g} index={index} onPlay={() => openGame(g.id)} />
             ))}
           </motion.div>
         ) : (
