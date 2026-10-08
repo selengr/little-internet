@@ -1,8 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Gamepad2 } from 'lucide-react'
 import { GamesHub } from '@/components/games/games-hub'
-import { PageHeader } from '@/components/page-header'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
@@ -47,11 +46,15 @@ export default function GamesPage() {
       </div>
 
       <div className="mx-auto max-w-2xl px-5 pb-24 pt-28 md:px-8 md:pt-32">
-        <PageHeader
-          badge="Games"
-          title="Pick something to play"
-          subtitle="Six little games, no account needed — just pick one and go."
-        />
+        <div className="mb-8 text-center sm:mb-10">
+          <h1 className="flex items-center justify-center gap-3 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+            <Gamepad2 className="size-9 shrink-0 text-indigo-500 sm:size-10" strokeWidth={2.25} />
+            Pick a game
+          </h1>
+          <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
+            Six little games. Tap one and start playing.
+          </p>
+        </div>
         <Suspense fallback={null}>
           <GamesHub />
         </Suspense>
