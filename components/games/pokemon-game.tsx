@@ -64,7 +64,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
       setPicked(null)
       setStage('playing')
     } catch {
-      setErrorMessage('Could not reach PokéAPI. Try again in a moment.')
+      setErrorMessage('Could not load a Pokémon. Try again in a moment.')
       setStage('error')
     }
   }, [gen, usedIds])

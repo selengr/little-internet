@@ -43,7 +43,7 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
       setPicked(null)
       setStage('playing')
     } catch {
-      setErrorMessage('Could not reach Lichess for a puzzle. Try again in a moment.')
+      setErrorMessage('Could not load a puzzle. Try again in a moment.')
       setStage('error')
     }
   }, [difficulty])
