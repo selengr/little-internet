@@ -82,7 +82,7 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
             {errorMessage}
           </div>
         )}
-        <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Difficulty</p>
+        <p className="text-[13px] font-semibold text-foreground">Pick a difficulty</p>
         <div className="mt-3 flex gap-2">
           {DIFFICULTIES.map(d => (
             <button
@@ -90,11 +90,12 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
               type="button"
               onClick={() => setDifficulty(d.id)}
               className={cn(
-                'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2',
                 difficulty === d.id
-                  ? 'border-transparent bg-foreground text-background'
+                  ? 'border-transparent text-white'
                   : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
               )}
+              style={difficulty === d.id ? { backgroundImage: 'linear-gradient(145deg, #1e293b, #475569)' } : undefined}
             >
               {d.label}
             </button>
@@ -159,7 +160,7 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
 
   return (
     <div className="mx-auto max-w-md">
-      <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="mb-5 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
         <span>Rating ~{puzzle.rating}</span>
         <span>
           {round + 1} / {ROUND_COUNT} · Score {score}
