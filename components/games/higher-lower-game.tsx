@@ -117,7 +117,7 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
   if (stage === 'loading') {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-muted-foreground">
-        <Loader2 className="size-6 animate-spin" />
+        <Loader2 className="size-6 animate-spin text-rose-500" />
         <p className="text-sm">Pulling games from CheapShark…</p>
       </div>
     )
