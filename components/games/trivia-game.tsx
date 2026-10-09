@@ -267,7 +267,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="mb-5 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
         <span>
           {current.category} · {current.difficulty}
         </span>
