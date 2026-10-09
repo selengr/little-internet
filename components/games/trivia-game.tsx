@@ -54,6 +54,10 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [bestStreak, setBestStreak] = useState(0)
   const streakRef = useRef(0)
+  // Eleven category pills at once is a lot to scan — show the six most
+  // popular up front and let a tap reveal the rest.
+  const [showAllCategories, setShowAllCategories] = useState(false)
+  const visibleCategories = showAllCategories ? TRIVIA_CATEGORIES : TRIVIA_CATEGORIES.slice(0, 6)
 
   const start = useCallback(async () => {
     setStage('loading')
@@ -146,7 +150,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
             >
               Any
             </button>
-            {TRIVIA_CATEGORIES.map(c => (
+            {visibleCategories.map(c => (
               <button
                 key={c.id}
                 type="button"
@@ -162,6 +166,15 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 {c.label}
               </button>
             ))}
+            {!showAllCategories && (
+              <button
+                type="button"
+                onClick={() => setShowAllCategories(true)}
+                className="rounded-full border border-dashed border-black/15 px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-white/20 dark:hover:bg-white/[0.06]"
+              >
+                +{TRIVIA_CATEGORIES.length - visibleCategories.length} more
+              </button>
+            )}
           </div>
 
           <p className="mt-6 text-[13px] font-semibold text-foreground">Difficulty</p>
