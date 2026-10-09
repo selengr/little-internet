@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { Gamepad2 } from 'lucide-react'
 import { GAMES, isGameId, type GameId } from '@/lib/games-catalog'
 import { GameCard } from '@/components/games/game-card'
 import { GamePlayHeader } from '@/components/games/game-play-header'
@@ -50,6 +51,20 @@ export function GamesHub() {
 
   return (
     <div>
+      {/* The heading only makes sense on the picker grid — showing "Pick a
+          game" above an in-progress game you already picked is confusing,
+          so it lives here instead of the static page shell. */}
+      {!game && (
+        <div className="mb-8 text-center sm:mb-10">
+          <h1 className="flex items-center justify-center gap-3 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+            <Gamepad2 className="size-9 shrink-0 text-indigo-500 sm:size-10" strokeWidth={2.25} />
+            Pick a game
+          </h1>
+          <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
+            Six little games. Tap one and start playing.
+          </p>
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {!game ? (
           <motion.div
