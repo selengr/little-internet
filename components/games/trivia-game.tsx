@@ -131,17 +131,18 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
         )}
 
         <div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Category</p>
+          <p className="text-[13px] font-semibold text-foreground">Category</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setCategoryId(null)}
               className={cn(
-                'rounded-full border px-3.5 py-1.5 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                'rounded-full border px-3.5 py-1.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
                 categoryId === null
-                  ? 'border-transparent bg-foreground text-background'
+                  ? 'border-transparent text-white'
                   : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
               )}
+              style={categoryId === null ? { backgroundImage: 'linear-gradient(145deg, #6366f1, #a855f7)' } : undefined}
             >
               Any
             </button>
@@ -151,18 +152,19 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setCategoryId(c.id)}
                 className={cn(
-                  'rounded-full border px-3.5 py-1.5 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                  'rounded-full border px-3.5 py-1.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
                   categoryId === c.id
-                    ? 'border-transparent bg-foreground text-background'
+                    ? 'border-transparent text-white'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                 )}
+                style={categoryId === c.id ? { backgroundImage: 'linear-gradient(145deg, #6366f1, #a855f7)' } : undefined}
               >
                 {c.label}
               </button>
             ))}
           </div>
 
-          <p className="mt-6 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Difficulty</p>
+          <p className="mt-6 text-[13px] font-semibold text-foreground">Difficulty</p>
           <div className="mt-3 flex gap-2">
             {DIFFICULTIES.map(d => (
               <button
@@ -170,18 +172,19 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setDifficulty(d.id)}
                 className={cn(
-                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                  'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
                   difficulty === d.id
-                    ? 'border-transparent bg-foreground text-background'
+                    ? 'border-transparent text-white'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                 )}
+                style={difficulty === d.id ? { backgroundImage: 'linear-gradient(145deg, #6366f1, #a855f7)' } : undefined}
               >
                 {d.label}
               </button>
             ))}
           </div>
 
-          <p className="mt-6 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Questions</p>
+          <p className="mt-6 text-[13px] font-semibold text-foreground">Questions</p>
           <div className="mt-3 flex gap-2">
             {AMOUNTS.map(a => (
               <button
@@ -189,11 +192,12 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                 type="button"
                 onClick={() => setAmount(a)}
                 className={cn(
-                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                  'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
                   amount === a
-                    ? 'border-transparent bg-foreground text-background'
+                    ? 'border-transparent text-white'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                 )}
+                style={amount === a ? { backgroundImage: 'linear-gradient(145deg, #6366f1, #a855f7)' } : undefined}
               >
                 {a}
               </button>
