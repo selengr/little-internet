@@ -115,6 +115,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
             <button
               key={d.id}
               type="button"
+              aria-pressed={difficulty === d.id}
               onClick={() => setDifficulty(d.id)}
               className={cn(
                 'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',

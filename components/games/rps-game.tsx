@@ -133,6 +133,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
             <button
               key={n}
               type="button"
+              aria-pressed={bestOf === n}
               onClick={() => setBestOf(n)}
               className={cn(
                 'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
