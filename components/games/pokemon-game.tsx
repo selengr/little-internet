@@ -138,6 +138,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
               <button
                 key={g.id}
                 type="button"
+                aria-pressed={gen === g.id}
                 onClick={() => setGen(g.id)}
                 className={cn(
                   'rounded-2xl border px-4 py-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
@@ -161,6 +162,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
               <button
                 key={n}
                 type="button"
+                aria-pressed={roundCount === n}
                 onClick={() => setRoundCount(n)}
                 className={cn(
                   'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',

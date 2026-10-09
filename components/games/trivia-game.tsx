@@ -139,6 +139,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
+              aria-pressed={categoryId === null}
               onClick={() => setCategoryId(null)}
               className={cn(
                 'rounded-full border px-3.5 py-1.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
@@ -154,6 +155,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
               <button
                 key={c.id}
                 type="button"
+                aria-pressed={categoryId === c.id}
                 onClick={() => setCategoryId(c.id)}
                 className={cn(
                   'rounded-full border px-3.5 py-1.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
@@ -183,6 +185,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
               <button
                 key={d.id}
                 type="button"
+                aria-pressed={difficulty === d.id}
                 onClick={() => setDifficulty(d.id)}
                 className={cn(
                   'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
@@ -203,6 +206,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
               <button
                 key={a}
                 type="button"
+                aria-pressed={amount === a}
                 onClick={() => setAmount(a)}
                 className={cn(
                   'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
