@@ -132,7 +132,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
         )}
 
         <div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Pokémon</p>
+          <p className="text-[13px] font-semibold text-foreground">Generation</p>
           <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
             {GENERATIONS.map(g => (
               <button
@@ -140,21 +140,22 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
                 type="button"
                 onClick={() => setGen(g.id)}
                 className={cn(
-                  'rounded-2xl border px-4 py-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                  'rounded-2xl border px-4 py-3 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
                   gen === g.id
-                    ? 'border-transparent bg-foreground text-background'
+                    ? 'border-transparent text-white'
                     : 'border-black/10 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                 )}
+                style={gen === g.id ? { backgroundImage: 'linear-gradient(145deg, #f59e0b, #ef4444)' } : undefined}
               >
                 <div className="text-[13px] font-medium">{g.label}</div>
-                <div className={cn('text-[11.5px]', gen === g.id ? 'opacity-70' : 'text-muted-foreground')}>
+                <div className={cn('text-[11.5px]', gen === g.id ? 'text-white/80' : 'text-muted-foreground')}>
                   {g.hint}
                 </div>
               </button>
             ))}
           </div>
 
-          <p className="mt-6 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Rounds</p>
+          <p className="mt-6 text-[13px] font-semibold text-foreground">Rounds</p>
           <div className="mt-3 flex gap-2">
             {ROUND_COUNTS.map(n => (
               <button
@@ -162,11 +163,12 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
                 type="button"
                 onClick={() => setRoundCount(n)}
                 className={cn(
-                  'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                  'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
                   roundCount === n
-                    ? 'border-transparent bg-foreground text-background'
+                    ? 'border-transparent text-white'
                     : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
                 )}
+                style={roundCount === n ? { backgroundImage: 'linear-gradient(145deg, #f59e0b, #ef4444)' } : undefined}
               >
                 {n}
               </button>
@@ -234,7 +236,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="mb-5 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
         <span>{GENERATIONS.find(g => g.id === gen)?.label}</span>
         <span>
           {round + 1} / {roundCount} · Score {score}
