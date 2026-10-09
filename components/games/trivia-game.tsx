@@ -171,6 +171,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
             {!showAllCategories && (
               <button
                 type="button"
+                aria-expanded={showAllCategories}
                 onClick={() => setShowAllCategories(true)}
                 className="rounded-full border border-dashed border-black/15 px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-white/20 dark:hover:bg-white/[0.06]"
               >
