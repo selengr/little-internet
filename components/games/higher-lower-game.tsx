@@ -160,11 +160,8 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-5 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-        <span>Higher or lower?</span>
-        <span>
-          Streak {streak} · Best {best}
-        </span>
+      <div className="mb-5 text-center text-[13px] font-medium text-muted-foreground">
+        Streak {streak} · Best {best}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
