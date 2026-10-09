@@ -127,7 +127,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
   if (stage === 'setup') {
     return (
       <div className="mx-auto max-w-xl">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Best of</p>
+        <p className="text-[13px] font-semibold text-foreground">Best of</p>
         <div className="mt-3 flex gap-2">
           {BEST_OF_OPTIONS.map(n => (
             <button
@@ -135,11 +135,12 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
               type="button"
               onClick={() => setBestOf(n)}
               className={cn(
-                'flex-1 rounded-xl border px-3 py-2 text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2',
+                'flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
                 bestOf === n
-                  ? 'border-transparent bg-foreground text-background'
+                  ? 'border-transparent text-white'
                   : 'border-black/10 text-foreground/70 hover:bg-black/[0.04] dark:border-white/15 dark:hover:bg-white/[0.06]',
               )}
+              style={bestOf === n ? { backgroundImage: 'linear-gradient(145deg, #10b981, #14b8a6)' } : undefined}
             >
               {n} rounds
             </button>
@@ -192,7 +193,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-5 flex flex-col gap-1 text-[11px] uppercase tracking-[0.2em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+      <div className="mb-5 flex flex-col gap-1 text-[13px] font-medium text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <span>First to {needed}</span>
         <span>
           You {youWins} – {computerWins} Computer
