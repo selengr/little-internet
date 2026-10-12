@@ -151,7 +151,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
     return (
       <div className="mx-auto max-w-md text-center">
         <Trophy className="mx-auto size-10 text-amber-500" />
-        <h2 className="mt-4 text-3xl font-light tracking-tight">Solved!</h2>
+        <h2 className="mt-4 text-3xl font-bold tracking-tight text-blue-600 dark:text-blue-400">Solved!</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {elapsed < 60 ? `${elapsed}s` : `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`}
           {mistakes > 0 && ` · ${mistakes} mistake${mistakes === 1 ? '' : 's'}`}
