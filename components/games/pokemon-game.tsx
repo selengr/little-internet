@@ -200,7 +200,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: str
     return (
       <div className="mx-auto max-w-md text-center">
         <Trophy className="mx-auto size-10 text-amber-500" />
-        <h2 className="mt-4 text-3xl font-light tracking-tight">
+        <h2 className="mt-4 text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
           {score} / {roundCount}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
