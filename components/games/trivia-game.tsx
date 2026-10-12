@@ -245,7 +245,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
     return (
       <div className="mx-auto max-w-md text-center">
         <Trophy className="mx-auto size-10 text-amber-500" />
-        <h2 className="mt-4 text-3xl font-light tracking-tight">
+        <h2 className="mt-4 text-3xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">
           {score} / {questions.length}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
