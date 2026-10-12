@@ -164,7 +164,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
           <button
             type="button"
             onClick={reset}
-            className="rounded-full border border-black/10 px-4 text-[12.5px] text-foreground/70 outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2 dark:border-white/15 dark:hover:bg-white/[0.06]"
+            className="rounded-full border border-black/10 px-4 text-[12.5px] text-foreground/70 outline-none transition-colors hover:border-blue-500/40 hover:bg-blue-500/[0.06] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-white/15"
           >
             Change difficulty
           </button>
