@@ -175,7 +175,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
           <button
             type="button"
             onClick={reset}
-            className="rounded-full border border-black/10 px-4 text-[12.5px] text-foreground/70 outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2 dark:border-white/15 dark:hover:bg-white/[0.06]"
+            className="rounded-full border border-black/10 px-4 text-[12.5px] text-foreground/70 outline-none transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:border-white/15"
           >
             Change settings
           </button>
