@@ -216,7 +216,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
                     ? 'bg-indigo-100 dark:bg-indigo-500/30'
                     : isPeer
                       ? 'bg-indigo-50 dark:bg-indigo-500/[0.12]'
-                      : 'bg-background hover:bg-black/[0.035] dark:hover:bg-white/[0.06]',
+                      : 'bg-background hover:bg-blue-500/[0.05] dark:hover:bg-blue-500/[0.08]',
                   c % 3 === 2 && c !== 8 && 'border-r-2 border-r-foreground/70',
                   r % 3 === 2 && r !== 8 && 'border-b-2 border-b-foreground/70',
                   isGiven ? 'font-semibold text-foreground' : 'font-normal text-indigo-600 dark:text-indigo-300',
@@ -237,7 +237,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
             type="button"
             onClick={() => place(n)}
             disabled={!selected || (selected ? puzzle.given[selected.row][selected.col] : true)}
-            className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-[14px] font-medium outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-30 dark:border-white/15 dark:hover:bg-white/[0.06]"
+            className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-[14px] font-medium outline-none transition-colors hover:border-blue-500/40 hover:bg-blue-500/[0.06] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-30 dark:border-white/15"
           >
             {n}
           </button>
@@ -246,7 +246,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
           type="button"
           onClick={() => place(0)}
           disabled={!selected || (selected ? puzzle.given[selected.row][selected.col] : true)}
-          className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-foreground/60 outline-none transition-colors hover:bg-black/[0.04] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-30 dark:border-white/15 dark:hover:bg-white/[0.06]"
+          className="flex aspect-square items-center justify-center rounded-lg border border-black/10 text-foreground/60 outline-none transition-colors hover:border-blue-500/40 hover:bg-blue-500/[0.06] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-30 dark:border-white/15"
           aria-label="Erase"
         >
           <Eraser className="size-4" />
