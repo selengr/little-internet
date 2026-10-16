@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowDown, ArrowUp, Loader2, RotateCcw, Sparkles, Trophy } from 'lucide-react'
 import { GlowButton } from '@/components/glow-button'
@@ -8,6 +8,7 @@ import { CopyButton } from '@/components/copy-button'
 import { SITE_URL } from '@/lib/site'
 import type { GameCard } from '@/types/higher-lower'
 import { cn } from '@/lib/utils'
+import { getBestScore, saveBestScore } from '@/lib/game-scores'
 
 type Stage = 'setup' | 'loading' | 'playing' | 'results' | 'error'
 
@@ -39,6 +40,15 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
   const [correct, setCorrect] = useState<boolean | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const bestRef = useRef(0)
+  // null on the server and on first client render (no window), then filled
+  // in by this effect post-mount — reading localStorage any earlier risks
+  // the exact hydration mismatch the reduced-motion bug ran into.
+  const [allTimeBest, setAllTimeBest] = useState<number | null>(null)
+  const [isNewBest, setIsNewBest] = useState(false)
+
+  useEffect(() => {
+    setAllTimeBest(getBestScore('higherlower'))
+  }, [])
 
   const start = useCallback(async () => {
     setStage('loading')
@@ -81,6 +91,8 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
   const advance = () => {
     if (!revealed) return
     if (correct === false) {
+      setIsNewBest(allTimeBest === null ? best > 0 : best > allTimeBest)
+      setAllTimeBest(saveBestScore('higherlower', best, true))
       setStage('results')
       return
     }
@@ -106,6 +118,7 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
         <p className="text-[13.5px] leading-relaxed text-muted-foreground">
           Guess if the next game is rated higher or lower. Keep the streak going!
         </p>
+        {!!allTimeBest && <p className="mt-2 text-[13px] font-medium text-rose-600 dark:text-rose-400">Your best streak: {allTimeBest}</p>}
         <GlowButton from="#f43f5e" to="#fb923c" onClick={start} className="mt-6">
           <Sparkles className="mr-2 size-4" />
           Start guessing
@@ -127,9 +140,16 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
     return (
       <div className="mx-auto max-w-md text-center">
         <Trophy className="mx-auto size-10 text-amber-500" />
-        <h2 className="mt-4 text-3xl font-light tracking-tight">Streak: {best}</h2>
+        <h2 className="mt-4 text-3xl font-bold tracking-tight text-rose-600 dark:text-rose-400">Streak: {best}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {best >= 8 ? "You've got a feel for this." : best >= 4 ? 'Solid run.' : 'Everyone starts somewhere — go again.'}
+          {isNewBest
+            ? 'New personal best!'
+            : best >= 8
+              ? "You've got a feel for this."
+              : best >= 4
+                ? 'Solid run.'
+                : 'Everyone starts somewhere — go again.'}
+          {!isNewBest && allTimeBest !== null && allTimeBest > best && ` Best: ${allTimeBest}.`}
         </p>
         <div className="mt-8 flex justify-center gap-3">
           <GlowButton from="#f43f5e" to="#fb923c" onClick={start} size="s">
