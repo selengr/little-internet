@@ -9,6 +9,7 @@ import { RPS_CHOICES, judgeRound, randomChoice, winsNeeded } from '@/lib/rps'
 import { SITE_URL } from '@/lib/site'
 import type { RpsChoice, RpsRound } from '@/types/rps'
 import { cn } from '@/lib/utils'
+import { getBestScore, saveBestScore } from '@/lib/game-scores'
 
 type Stage = 'setup' | 'playing' | 'results'
 
@@ -38,6 +39,16 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
   const [calling, setCalling] = useState(false)
   const [calloutStep, setCalloutStep] = useState(0)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  // Tracked per-match (resets each "Throw down"), not the overall win/lose
+  // tally — a run of consecutive wins is the more fun thing to chase.
+  const winStreakRef = useRef(0)
+  const matchBestStreakRef = useRef(0)
+  const [allTimeBest, setAllTimeBest] = useState<number | null>(null)
+  const [isNewBest, setIsNewBest] = useState(false)
+
+  useEffect(() => {
+    setAllTimeBest(getBestScore('rps'))
+  }, [])
 
   const youWins = rounds.filter(r => r.outcome === 'win').length
   const computerWins = rounds.filter(r => r.outcome === 'lose').length
@@ -55,6 +66,8 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
     setRounds([])
     setCurrent(null)
     setCalling(false)
+    winStreakRef.current = 0
+    matchBestStreakRef.current = 0
     setStage('playing')
   }
 
@@ -90,9 +103,18 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
     setRounds(nextRounds)
     setCurrent(null)
 
+    if (current.outcome === 'win') {
+      winStreakRef.current += 1
+      matchBestStreakRef.current = Math.max(matchBestStreakRef.current, winStreakRef.current)
+    } else if (current.outcome === 'lose') {
+      winStreakRef.current = 0
+    }
+
     const wins = nextRounds.filter(r => r.outcome === 'win').length
     const losses = nextRounds.filter(r => r.outcome === 'lose').length
     if (wins >= needed || losses >= needed) {
+      setIsNewBest(allTimeBest === null ? matchBestStreakRef.current > 0 : matchBestStreakRef.current > allTimeBest)
+      setAllTimeBest(saveBestScore('rps', matchBestStreakRef.current, true))
       setStage('results')
     }
   }
@@ -148,6 +170,10 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
           ))}
         </div>
 
+        {!!allTimeBest && (
+          <p className="mt-2 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">Your best win streak: {allTimeBest}</p>
+        )}
+
         <GlowButton from="#10b981" to="#14b8a6" onClick={start} className="mt-8">
           <Sparkles className="mr-2 size-4" />
           Throw down
@@ -161,11 +187,15 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string 
     return (
       <div className="mx-auto max-w-md text-center">
         <Trophy className={cn('mx-auto size-10', won ? 'text-amber-500' : 'text-muted-foreground')} />
-        <h2 className="mt-4 text-3xl font-light tracking-tight">
+        <h2 className="mt-4 text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
           {youWins} – {computerWins}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {won ? 'You took it.' : 'Computer takes this one — go again.'}
+          {isNewBest
+            ? `New best win streak: ${matchBestStreakRef.current}!`
+            : won
+              ? 'You took it.'
+              : 'Computer takes this one — go again.'}
         </p>
         <div className="mt-8 flex justify-center gap-3">
           <GlowButton from="#10b981" to="#14b8a6" onClick={start} size="s">
