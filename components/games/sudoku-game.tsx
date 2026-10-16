@@ -8,6 +8,7 @@ import { generateSudoku } from '@/lib/sudoku'
 import { SITE_URL } from '@/lib/site'
 import type { SudokuDifficulty, SudokuGrid, SudokuPuzzle } from '@/types/sudoku'
 import { cn } from '@/lib/utils'
+import { getBestScore, saveBestScore } from '@/lib/game-scores'
 
 type Stage = 'setup' | 'loading' | 'playing' | 'results'
 
@@ -25,6 +26,10 @@ function boxOf(row: number, col: number): number {
   return Math.floor(row / 3) * 3 + Math.floor(col / 3)
 }
 
+function formatTime(seconds: number): string {
+  return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`
+}
+
 export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [difficulty, setDifficulty] = useState<SudokuDifficulty>('easy')
@@ -34,6 +39,14 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
   const [mistakes, setMistakes] = useState(0)
   const [startedAt, setStartedAt] = useState(0)
   const [elapsed, setElapsed] = useState(0)
+  // Best time is per-difficulty — easy and hard aren't comparable. Loaded
+  // post-mount only (see lib/game-scores.ts) to stay hydration-safe.
+  const [allTimeBest, setAllTimeBest] = useState<number | null>(null)
+  const [isNewBest, setIsNewBest] = useState(false)
+
+  useEffect(() => {
+    setAllTimeBest(getBestScore(`sudoku:${difficulty}`))
+  }, [difficulty])
 
   const start = useCallback(() => {
     setStage('loading')
@@ -87,7 +100,13 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
   const isComplete = board.length > 0 && board.every(row => row.every(v => v !== 0)) && conflicts.size === 0
 
   useEffect(() => {
-    if (stage === 'playing' && isComplete) setStage('results')
+    if (stage !== 'playing' || !isComplete) return
+    setIsNewBest(allTimeBest === null ? true : elapsed < allTimeBest)
+    setAllTimeBest(saveBestScore(`sudoku:${difficulty}`, elapsed, false))
+    setStage('results')
+    // Deliberately omitting allTimeBest/elapsed/difficulty — this should only
+    // react to the puzzle actually completing, not to the best score it just wrote.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, isComplete])
 
   const place = (digit: number) => {
@@ -130,6 +149,10 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
           ))}
         </div>
 
+        {allTimeBest !== null && (
+          <p className="mt-2 text-[13px] font-medium text-blue-600 dark:text-blue-400">Your best ({difficulty}): {formatTime(allTimeBest)}</p>
+        )}
+
         <GlowButton from="#3b82f6" to="#6366f1" onClick={start} className="mt-8">
           <Sparkles className="mr-2 size-4" />
           New puzzle
@@ -153,8 +176,9 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
         <Trophy className="mx-auto size-10 text-amber-500" />
         <h2 className="mt-4 text-3xl font-bold tracking-tight text-blue-600 dark:text-blue-400">Solved!</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {elapsed < 60 ? `${elapsed}s` : `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`}
+          {formatTime(elapsed)}
           {mistakes > 0 && ` · ${mistakes} mistake${mistakes === 1 ? '' : 's'}`}
+          {isNewBest ? ' · New best!' : allTimeBest !== null && allTimeBest < elapsed ? ` · Best: ${formatTime(allTimeBest)}` : ''}
         </p>
         <div className="mt-8 flex justify-center gap-3">
           <GlowButton from="#3b82f6" to="#6366f1" onClick={start} size="s">
@@ -188,7 +212,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: stri
       <div className="mb-4 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
         <span className="capitalize">{difficulty}</span>
         <span>
-          {elapsed < 60 ? `${elapsed}s` : `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`}
+          {formatTime(elapsed)}
           {mistakes > 0 && ` · ${mistakes} mistake${mistakes === 1 ? '' : 's'}`}
         </span>
       </div>
