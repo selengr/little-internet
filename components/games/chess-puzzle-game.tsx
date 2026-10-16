@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Loader2, RotateCcw, Sparkles, Trophy } from 'lucide-react'
 import { GlowButton } from '@/components/glow-button'
 import { CopyButton } from '@/components/copy-button'
@@ -8,6 +8,7 @@ import { fetchPuzzle, type BoardGrid } from '@/lib/chess-puzzle'
 import { SITE_URL } from '@/lib/site'
 import type { ChessPuzzle, MoveOption, PuzzleDifficulty } from '@/types/chess-puzzle'
 import { cn } from '@/lib/utils'
+import { getBestScore, saveBestScore } from '@/lib/game-scores'
 
 type Stage = 'setup' | 'loading' | 'playing' | 'results' | 'error'
 
@@ -33,6 +34,12 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
   const [options, setOptions] = useState<MoveOption[]>([])
   const [picked, setPicked] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [allTimeBest, setAllTimeBest] = useState<number | null>(null)
+  const [isNewBest, setIsNewBest] = useState(false)
+
+  useEffect(() => {
+    setAllTimeBest(getBestScore('chess'))
+  }, [])
 
   const loadRound = useCallback(async () => {
     try {
@@ -66,6 +73,8 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
 
   const next = async () => {
     if (round + 1 >= ROUND_COUNT) {
+      setIsNewBest(allTimeBest === null ? score > 0 : score > allTimeBest)
+      setAllTimeBest(saveBestScore('chess', score, true))
       setStage('results')
       return
     }
@@ -102,6 +111,10 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
             </button>
           ))}
         </div>
+        {!!allTimeBest && (
+          <p className="mt-2 text-[13px] font-medium text-slate-600 dark:text-slate-300">Your best: {allTimeBest} / {ROUND_COUNT}</p>
+        )}
+
         <GlowButton from="#1e293b" to="#475569" onClick={start} className="mt-6">
           <Sparkles className="mr-2 size-4" />
           Find the move
@@ -127,7 +140,13 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?:
           {score} / {ROUND_COUNT}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {score === ROUND_COUNT ? 'A clean sweep.' : score >= ROUND_COUNT / 2 ? 'Solid reading of the board.' : 'Tricky ones — go again.'}
+          {isNewBest
+            ? 'New personal best!'
+            : score === ROUND_COUNT
+              ? 'A clean sweep.'
+              : score >= ROUND_COUNT / 2
+                ? 'Solid reading of the board.'
+                : 'Tricky ones — go again.'}
         </p>
         <div className="mt-8 flex justify-center gap-3">
           <GlowButton from="#1e293b" to="#475569" onClick={start} size="s">
