@@ -9,15 +9,9 @@ import { formatPct, formatUsd } from '@/lib/crypto-format'
 const REFRESH_MS = 30_000
 
 const CARD_IMAGES = {
-  // Gold bitcoin on dark keyboard — premium, readable under text
-  crypto:
-    'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=1400&q=85',
-  // Cool-toned dollar field — clear “currency convert” signal
-  convert:
-    'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1400&q=85',
-  // Glowing trading screens — charts / candles
-  charts:
-    'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1400&q=85',
+  crypto: '/images/cards/markets-crypto.jpg',
+  convert: '/images/cards/markets-convert.jpg',
+  charts: '/images/cards/markets-charts.jpg',
 } as const
 
 function useInView(threshold = 0.1) {

@@ -91,7 +91,6 @@ const FALLBACK_IDS = [
   "photo-1506905925346-21bda4d32df4",
   "photo-1517694712202-14dd9538aa97",
   "photo-1522202176988-66273c2fd55f",
-  "photo-1531485608785-913a5c4d4af3",
   "photo-1552664730-d307ca884978",
   "photo-1573497019940-1c28c88b4f3e",
   "photo-1581091226825-a6a2a5aee158",
@@ -139,12 +138,16 @@ function largeUrl(url: string) {
   return `${base}?auto=format&fit=crop&crop=faces,entropy&w=${LARGE_W}&h=${LARGE_H}&q=80`
 }
 
-const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => ({
-  id: `fallback-${id}`,
-  alt: "",
-  tileSrc: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${IMG_PX}&h=${IMG_PX}&crop=top&q=85`,
-  largeSrc: largeUrl(`https://images.unsplash.com/${id}`),
-}))
+const FALLBACK_PHOTOS: GridPhoto[] = FALLBACK_IDS.map(id => {
+  const local = `/images/cards/marquee/${id}.jpg`
+  return {
+    id: `fallback-${id}`,
+    alt: "",
+    tileSrc: local,
+    // Local tile is enough for fallback lightbox when Unsplash is down.
+    largeSrc: local,
+  }
+})
 
 let photoCache: GridPhoto[] | null = null
 

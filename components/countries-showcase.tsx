@@ -14,30 +14,26 @@ type Featured = {
   imageAlt: string
 }
 
-/** Top countries by population — scenic Unsplash anchors + live API data */
+/** Top countries by population — local scenic anchors + live API data */
 const FEATURED: Featured[] = [
   {
     code: 'CN',
-    image:
-      'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?auto=format&fit=crop&w=1400&q=80',
+    image: '/images/cards/country-cn.jpg',
     imageAlt: 'Great Wall of China',
   },
   {
     code: 'IN',
-    image:
-      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1400&q=80',
+    image: '/images/cards/country-in.jpg',
     imageAlt: 'Taj Mahal, India',
   },
   {
     code: 'US',
-    image:
-      'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1400&q=80',
+    image: '/images/cards/country-us.jpg',
     imageAlt: 'New York City skyline',
   },
   {
     code: 'ID',
-    image:
-      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1400&q=80',
+    image: '/images/cards/country-id.jpg',
     imageAlt: 'Bali temple, Indonesia',
   },
 ]

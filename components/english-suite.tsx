@@ -40,9 +40,7 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Definitions, phonetics, and examples — a quiet reading room for every word.',
     href: '/dictionary',
     live: true,
-    // Grand library aisle — warm wood, depth, cinematic
-    image:
-      'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1800&q=85',
+    image: '/images/cards/english-dictionary.jpg',
     imageAlt: 'Sunlit aisle in a grand library',
     imagePosition: 'object-[center_40%]',
     glyph: 'Aa',
@@ -59,9 +57,7 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Etymology, native audio, and meanings across languages.',
     href: '/wiktionary',
     live: true,
-    // Earth at night — global languages, luminous cities
-    image:
-      'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=85',
+    image: '/images/cards/english-wiktionary.jpg',
     imageAlt: 'Earth from space at night with city lights',
     imagePosition: 'object-center',
     glyph: '文',
@@ -77,9 +73,7 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Tense maps and sentence refinement — not available yet.',
     href: null,
     live: false,
-    // Desk with pen and notes — craft of writing
-    image:
-      'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=1600&q=85',
+    image: '/images/cards/english-grammar.jpg',
     imageAlt: 'Notebook and pen on a writing desk',
     imagePosition: 'object-[center_35%]',
     glyph: 'S—V',
@@ -95,9 +89,7 @@ const ENGLISH_TOOLS: Tool[] = [
     desc: 'Type a word and hear real people say it in authentic videos — US, UK, AUS.',
     href: '/studio',
     live: true,
-    // Vinyl / music atmosphere — sound and voice
-    image:
-      'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1800&q=85',
+    image: '/images/cards/english-studio.jpg',
     imageAlt: 'Music studio mixing console with warm light',
     imagePosition: 'object-[center_45%]',
     glyph: 'ə',
