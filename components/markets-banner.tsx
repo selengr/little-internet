@@ -9,8 +9,7 @@ import { formatPct, formatUsd } from '@/lib/crypto-format'
 const REFRESH_MS = 30_000
 
 /** Night city lights — cinematic depth, cool atmosphere for the pulse */
-const ATMOSPHERE =
-  'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=2000&q=85'
+const ATMOSPHERE = '/images/cards/markets-atmosphere.jpg'
 
 function buildHorizon(prices: number[], w = 1200, h = 280) {
   if (prices.length < 2) return null
