@@ -5,7 +5,7 @@ import { GamesHub } from '@/components/games/games-hub'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 
-const description = 'Trivia, chess puzzles, Sudoku, a Pokémon guessing game, Higher or Lower and Rock–Paper–Scissors — six little games, no account, no install.'
+const description = 'Portal Faces, trivia, chess puzzles, Sudoku, Pokémon, Higher or Lower and Rock–Paper–Scissors — little games, no account, no install.'
 
 // The selected game depends on the request's ?mode= — must render per-request,
 // not be baked into one static snapshot, or the server HTML can mismatch what

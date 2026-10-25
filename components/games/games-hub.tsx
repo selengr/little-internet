@@ -13,6 +13,7 @@ import { RpsGame } from '@/components/games/rps-game'
 import { ChessPuzzleGame } from '@/components/games/chess-puzzle-game'
 import { SudokuGame } from '@/components/games/sudoku-game'
 import { HigherLowerGame } from '@/components/games/higher-lower-game'
+import { RickMortyGame } from '@/components/games/rick-morty-game'
 import { SITE_URL } from '@/lib/site'
 
 export function GamesHub() {
@@ -61,7 +62,10 @@ export function GamesHub() {
             Pick a game
           </h1>
           <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
-            Six little games. Tap one and start playing.
+            Tap a game and start playing.{' '}
+            <a href="/games-v2" className="underline underline-offset-2">
+              New table
+            </a>
           </p>
         </div>
       )}
@@ -93,6 +97,7 @@ export function GamesHub() {
                 backgroundImage: `linear-gradient(180deg, ${game.to}0f, transparent 45%)`,
               }}
             >
+              {game.id === 'portal' && <RickMortyGame shareUrl={`${SITE_URL}/games?mode=portal`} />}
               {game.id === 'trivia' && <TriviaGame shareUrl={`${SITE_URL}/games?mode=trivia`} />}
               {game.id === 'pokemon' && <PokemonGame shareUrl={`${SITE_URL}/games?mode=pokemon`} />}
               {game.id === 'chess' && <ChessPuzzleGame shareUrl={`${SITE_URL}/games?mode=chess`} />}
