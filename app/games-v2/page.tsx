@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { BlackjackTable } from '@/components/games-v2/blackjack-table'
+import { PricierGame } from '@/components/games-v2/pricier-game'
 
-const description = 'A quieter table. Blackjack, dealt from a real shuffled deck.'
+const description = 'Two Magic cards. Pick the one that costs more. Keep the streak.'
 
 export const metadata = {
   title: 'Games v2',
@@ -16,9 +16,9 @@ export default function GamesV2Page() {
     <main className="relative min-h-screen overflow-x-hidden bg-[#efe8dc] text-[#1a1612] dark:bg-[#0e0d0b] dark:text-[#f3efe6]">
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-8vw] top-16 select-none font-sans text-[28vw] font-semibold leading-none tracking-[-0.08em] text-[#1a1612]/[0.05] dark:text-[#f3efe6]/[0.05]"
+        className="pointer-events-none absolute right-[-6vw] top-16 select-none font-sans text-[22vw] font-semibold leading-none tracking-[-0.08em] text-[#1a1612]/[0.05] dark:text-[#f3efe6]/[0.05]"
       >
-        21
+        $
       </div>
 
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8">
@@ -41,16 +41,16 @@ export default function GamesV2Page() {
           <div>
             <p className="font-pixel text-[10px] tracking-[0.38em] text-[#e23d28]">TABLE 01</p>
             <h1 className="mt-3 max-w-xl text-6xl font-semibold leading-[0.86] tracking-[-0.05em] sm:text-8xl">
-              Black
-              <span className="block pl-[12%] text-[#e23d28]">jack.</span>
+              Pric
+              <span className="text-[#e23d28]">ier.</span>
             </h1>
           </div>
           <p className="max-w-xs text-sm leading-relaxed text-[#1a1612]/70 dark:text-[#f3efe6]/70 md:justify-self-end md:pb-2">
-            One deck. Hit, stand, or double. The dealer draws to 17 and stops.
+            Look at the art. Choose the card that sells for more. One wrong tap clears the streak.
           </p>
         </div>
 
-        <BlackjackTable />
+        <PricierGame />
       </div>
     </main>
   )
