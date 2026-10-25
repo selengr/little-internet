@@ -1,6 +1,6 @@
-import { ChessKnight, Gamepad2, Grid3x3, Swords, TrendingUpDown, Zap, type LucideIcon } from 'lucide-react'
+import { ChessKnight, Gamepad2, Grid3x3, Orbit, Swords, TrendingUpDown, Zap, type LucideIcon } from 'lucide-react'
 
-export type GameId = 'trivia' | 'pokemon' | 'rps' | 'chess' | 'sudoku' | 'higherlower'
+export type GameId = 'portal' | 'trivia' | 'pokemon' | 'rps' | 'chess' | 'sudoku' | 'higherlower'
 
 export interface GameEntry {
   id: GameId
@@ -15,6 +15,14 @@ export interface GameEntry {
 }
 
 export const GAMES: GameEntry[] = [
+  {
+    id: 'portal',
+    name: 'Portal Faces',
+    tag: 'Name the silhouette',
+    icon: Orbit,
+    from: '#bef264',
+    to: '#65a30d',
+  },
   {
     id: 'trivia',
     name: 'Trivia',
