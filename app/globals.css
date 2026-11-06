@@ -229,6 +229,11 @@
   animation: game-card-pop 0.3s both ease-out;
 }
 
+.game-card-pop-in:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .game-card-pop-in {
     animation: none;
