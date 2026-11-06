@@ -2,27 +2,45 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { GamesHub } from '@/components/games/games-hub'
+import GamesLoading from '@/app/games/loading'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
+import { GAMES_PAGE_DESCRIPTION, gamesPageJsonLd } from '@/lib/games-seo'
 
-const description =
-  'Seven quick tables: Portal Faces, trivia, chess puzzles, Sudoku, Pokémon, Higher or Lower and Rock–Paper–Scissors — pick one, play a round, no account.'
+const description = GAMES_PAGE_DESCRIPTION
 
 // The selected game depends on the request's ?mode= — must render per-request,
 // not be baked into one static snapshot, or the server HTML can mismatch what
 // the client hydrates against (a stale cached shell vs a live ?mode= link).
 export const dynamic = 'force-dynamic'
 
+const jsonLd = gamesPageJsonLd()
+
 export const metadata = {
   title: 'Games',
   description,
-  openGraph: { title: 'Games', description },
-  twitter: { title: 'Games', description },
+  keywords: [
+    'browser games',
+    'trivia',
+    'Sudoku',
+    'chess puzzle',
+    'Little Internet',
+    'no install games',
+  ],
+  alternates: { canonical: '/games' },
+  openGraph: {
+    title: 'Games — Little Internet arcade',
+    description,
+    url: '/games',
+    type: 'website',
+  },
+  twitter: { title: 'Games', description, card: 'summary_large_image' },
 }
 
 export default function GamesPage() {
   return (
     <main className="relative min-h-screen bg-background">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-5%,oklch(0.7_0.04_280_/0.1),transparent_55%)] dark:bg-[radial-gradient(ellipse_70%_50%_at_50%_-5%,oklch(0.4_0.04_280_/0.18),transparent_55%)]" />
       </div>
@@ -43,8 +61,8 @@ export default function GamesPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-5 pb-24 pt-28 md:px-8 md:pt-32">
-        <Suspense fallback={null}>
+      <div className="mx-auto max-w-3xl px-5 pb-24 pt-28 md:px-8 md:pt-32 lg:max-w-[56rem]">
+        <Suspense fallback={<GamesLoading />}>
           <GamesHub />
         </Suspense>
       </div>
