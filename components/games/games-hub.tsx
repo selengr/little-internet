@@ -1,10 +1,13 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Gamepad2 } from 'lucide-react'
-import { GAMES, isGameId, type GameId } from '@/lib/games-catalog'
+import { Gamepad2, Sparkles } from 'lucide-react'
+import { GAMES, gameShareUrl, isGameId, type GameId } from '@/lib/games-catalog'
+import { getLastPlayedGameId, setLastPlayedGameId } from '@/lib/game-scores'
+import { useGamesArcadeDocTitle } from '@/components/games/games-arcade-doc-title'
+import { useGamesArcadeShortcuts } from '@/components/games/games-arcade-shortcuts'
 import { GameCard } from '@/components/games/game-card'
 import { GamePlayHeader } from '@/components/games/game-play-header'
 import { TriviaGame } from '@/components/games/trivia-game'
@@ -14,7 +17,6 @@ import { ChessPuzzleGame } from '@/components/games/chess-puzzle-game'
 import { SudokuGame } from '@/components/games/sudoku-game'
 import { HigherLowerGame } from '@/components/games/higher-lower-game'
 import { RickMortyGame } from '@/components/games/rick-morty-game'
-import { SITE_URL } from '@/lib/site'
 
 export function GamesHub() {
   const router = useRouter()
@@ -27,8 +29,15 @@ export function GamesHub() {
     return isGameId(raw) ? raw : null
   })
 
+  useEffect(() => {
+    const raw = searchParams.get('mode')
+    const next = isGameId(raw) ? raw : null
+    setGameId(prev => (prev === next ? prev : next))
+  }, [searchParams])
+
   const openGame = useCallback(
     (id: GameId) => {
+      setLastPlayedGameId(id)
       setGameId(id)
       const params = new URLSearchParams(searchParams.toString())
       params.set('mode', id)
@@ -45,13 +54,32 @@ export function GamesHub() {
     router.replace(query ? `/games?${query}` : '/games', { scroll: false })
   }, [router, searchParams])
 
+  const pickRandom = useCallback(() => {
+    const pick = GAMES[Math.floor(Math.random() * GAMES.length)]!
+    openGame(pick.id)
+  }, [openGame])
+
+  const resumeLast = useCallback(() => {
+    const last = getLastPlayedGameId()
+    if (last) openGame(last)
+    else pickRandom()
+  }, [openGame, pickRandom])
+
   // A direct link like /games?mode=chess opens straight into that game.
   // Otherwise every visit starts on the picker grid — no "remembers what you
   // last played" magic, so the page behaves the same way every time.
   const game = gameId ? GAMES.find(g => g.id === gameId) : null
 
+  const sectionLabel = useMemo(
+    () => (game ? `${game.name} — playing` : 'Game picker — choose a table'),
+    [game],
+  )
+
+  useGamesArcadeDocTitle(gameId)
+  useGamesArcadeShortcuts({ gameId, onRandom: pickRandom, onBackToGrid: backToGrid })
+
   return (
-    <div>
+    <div aria-label={sectionLabel}>
       {/* The heading only makes sense on the picker grid — showing "Pick a
           game" above an in-progress game you already picked is confusing,
           so it lives here instead of the static page shell. */}
@@ -62,10 +90,31 @@ export function GamesHub() {
             Pick a game
           </h1>
           <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
-            Pick a corner — each table is one round with a clean scoreboard.{' '}
+            {GAMES.length} quick tables — each one is a round with a clean scoreboard.{' '}
             <a href="/games-v2" className="underline underline-offset-2">
               New table
             </a>
+          </p>
+          <div className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={pickRandom}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-[11px] font-medium text-foreground shadow-sm transition-colors hover:border-foreground/25 hover:bg-muted/60"
+            >
+              <Sparkles className="size-3.5 text-amber-500" aria-hidden />
+              Surprise me
+            </button>
+            <button
+              type="button"
+              onClick={resumeLast}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-transparent px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+            >
+              Last table
+            </button>
+          </div>
+          <p className="mt-3 text-[10px] text-muted-foreground/80">
+            <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">R</kbd> random ·{' '}
+            <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">Esc</kbd> back to grid
           </p>
         </div>
       )}
@@ -89,7 +138,7 @@ export function GamesHub() {
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
           >
-            <GamePlayHeader game={game} onBack={backToGrid} />
+            <GamePlayHeader game={game} shareUrl={gameShareUrl(game.id)} onBack={backToGrid} />
             <div
               className="rounded-[28px] border bg-card/20 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-7 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
               style={{
@@ -97,13 +146,13 @@ export function GamesHub() {
                 backgroundImage: `linear-gradient(180deg, ${game.to}0f, transparent 45%)`,
               }}
             >
-              {game.id === 'portal' && <RickMortyGame shareUrl={`${SITE_URL}/games?mode=portal`} />}
-              {game.id === 'trivia' && <TriviaGame shareUrl={`${SITE_URL}/games?mode=trivia`} />}
-              {game.id === 'pokemon' && <PokemonGame shareUrl={`${SITE_URL}/games?mode=pokemon`} />}
-              {game.id === 'chess' && <ChessPuzzleGame shareUrl={`${SITE_URL}/games?mode=chess`} />}
-              {game.id === 'sudoku' && <SudokuGame shareUrl={`${SITE_URL}/games?mode=sudoku`} />}
-              {game.id === 'higherlower' && <HigherLowerGame shareUrl={`${SITE_URL}/games?mode=higherlower`} />}
-              {game.id === 'rps' && <RpsGame shareUrl={`${SITE_URL}/games?mode=rps`} />}
+              {game.id === 'portal' && <RickMortyGame shareUrl={gameShareUrl('portal')} />}
+              {game.id === 'trivia' && <TriviaGame shareUrl={gameShareUrl('trivia')} />}
+              {game.id === 'pokemon' && <PokemonGame shareUrl={gameShareUrl('pokemon')} />}
+              {game.id === 'chess' && <ChessPuzzleGame shareUrl={gameShareUrl('chess')} />}
+              {game.id === 'sudoku' && <SudokuGame shareUrl={gameShareUrl('sudoku')} />}
+              {game.id === 'higherlower' && <HigherLowerGame shareUrl={gameShareUrl('higherlower')} />}
+              {game.id === 'rps' && <RpsGame shareUrl={gameShareUrl('rps')} />}
             </div>
           </motion.div>
         )}
