@@ -1,11 +1,34 @@
 'use client'
 
+import { isGameId, type GameId } from '@/lib/games-catalog'
+
 // Personal-best tracking for the /games arcade, stored in the visitor's own
 // browser — no account, no server round trip. Each game picks whichever
 // metric makes sense (accuracy %, time, streak) and whether a higher or
 // lower number is the win.
 
 const PREFIX = 'li-games-best:'
+
+/** Last opened arcade table on /games — used by Surprise me / Last table. */
+export const GAMES_LAST_MODE_KEY = 'li-games-last-mode'
+
+export function getLastPlayedGameId(): GameId | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(GAMES_LAST_MODE_KEY)
+    return isGameId(raw) ? raw : null
+  } catch {
+    return null
+  }
+}
+
+export function setLastPlayedGameId(id: GameId) {
+  try {
+    window.localStorage.setItem(GAMES_LAST_MODE_KEY, id)
+  } catch {
+    /* quota or private mode */
+  }
+}
 
 export function getBestScore(key: string): number | null {
   if (typeof window === 'undefined') return null
