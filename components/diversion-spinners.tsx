@@ -71,7 +71,7 @@ function Stage({
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
       className={cn(
-        "group relative block shrink-0 cursor-pointer overflow-hidden border border-black/10 outline-none transition-transform duration-300 hover:scale-[1.04] focus-visible:ring-2 focus-visible:ring-foreground/50 disabled:cursor-wait dark:border-white/10",
+        "group relative block shrink-0 cursor-pointer overflow-hidden border border-black/10 outline-none transition-[transform,box-shadow] duration-300 hover:scale-[1.04] hover:shadow-[0_12px_28px_-14px_rgba(15,20,28,0.35)] focus-visible:ring-2 focus-visible:ring-foreground/50 disabled:cursor-wait dark:border-white/10 dark:hover:shadow-[0_14px_32px_-12px_rgba(0,0,0,0.55)]",
         size ? "" : "size-[112px] rounded-[30px] sm:size-36",
         className,
       )}
