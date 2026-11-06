@@ -5,7 +5,18 @@ import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
 import { GlowButton } from "@/components/glow-button"
 import { GlowFrame } from "@/components/glow-frame"
-import { ArrowRight, ArrowUpRight, Cat, Dices, Dog, Feather, Laugh, Loader2 } from "lucide-react"
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Cat,
+  Dices,
+  Dog,
+  Feather,
+  Laugh,
+  Loader2,
+  Sparkles,
+  Zap,
+} from "lucide-react"
 import {
   CAT_EYE_COUNT,
   CatEyeSpinner,
@@ -28,8 +39,9 @@ const STEPS = [
     label: "catfact.ninja",
     moreHref: "/cat-facts",
     moreLabel: "More cat facts",
-    spinLabel: "Wake the cat",
-    busyLabel: "Purring…",
+    spinLabel: "Jolt the oracle",
+    busyLabel: "Whiskers loading…",
+    spinHint: "One tap — a new fact, a new iris color.",
   },
   {
     num: "02",
@@ -38,8 +50,9 @@ const STEPS = [
     label: "dog-facts api",
     moreHref: "/dog-facts",
     moreLabel: "More dog facts",
-    spinLabel: "Throw the ball",
-    busyLabel: "Fetching…",
+    spinLabel: "Launch the ball",
+    busyLabel: "Chasing tails…",
+    spinHint: "Physics, shadow, fetch — then the fact lands.",
   },
   {
     num: "03",
@@ -48,8 +61,9 @@ const STEPS = [
     label: "jokeapi",
     moreHref: "/jokes",
     moreLabel: "More jokes",
-    spinLabel: "Roll the die",
-    busyLabel: "Rolling…",
+    spinLabel: "Tumble the die",
+    busyLabel: "Dice in motion…",
+    spinHint: "Six faces, six moods — fate picks the punchline.",
   },
   {
     num: "04",
@@ -58,8 +72,9 @@ const STEPS = [
     label: "poetrydb",
     moreHref: "/poetry",
     moreLabel: "More poetry",
-    spinLabel: "Drop the ink",
-    busyLabel: "Blooming…",
+    spinLabel: "Spill the ink",
+    busyLabel: "Ink blooming…",
+    spinHint: "Symmetry blooms, then a line breaks silence.",
   },
 ] as const
 
@@ -74,6 +89,9 @@ const ACCENTS = [
 ] as const
 
 const TAB_ICONS = [Cat, Dog, Laugh, Feather] as const
+
+/** Matches STEPS order — icon beside the main spin GlowButton. */
+const SPIN_LEADING_ICONS = [Zap, Dog, Dices, Sparkles] as const
 
 const GLOW_CSS = `
   @keyframes devex-progress { from { transform: scaleX(0) } to { transform: scaleX(1) } }
@@ -525,7 +543,7 @@ export function DevExSection() {
                       <Loader2 className="size-4 animate-spin text-muted-foreground" />
                     ) : active === 2 ? (
                       <p className="text-[14px] md:text-[15px] leading-relaxed text-foreground/85 whitespace-pre-line font-light">
-                        {jokeText(joke) || "Roll the die for a joke."}
+                        {jokeText(joke) || "Tumble the die for a joke."}
                       </p>
                     ) : active === 3 ? (
                       poem ? (
@@ -550,7 +568,7 @@ export function DevExSection() {
                           </div>
                         </>
                       ) : (
-                        <p className="text-sm text-muted-foreground">Drop the ink for a poem.</p>
+                        <p className="text-sm text-muted-foreground">Spill the ink for a poem.</p>
                       )
                     ) : (
                       <p className="text-[14px] md:text-[16px] leading-relaxed text-foreground/85 font-light">
@@ -563,7 +581,7 @@ export function DevExSection() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-3 shrink-0">
+                <div className="mt-4 pt-3 border-t border-border flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 shrink-0">
                   <GlowButton
                     size="s"
                     from={ACCENTS[active].a}
@@ -575,10 +593,17 @@ export function DevExSection() {
                       else if (active === 2) spinForJoke()
                       else spinPoem()
                     }}
-                    icon={<Dices className="size-3.5 transition-transform duration-500 group-hover/gb:rotate-[200deg]" />}
+                    leadingIcon={(() => {
+                      const Icon = SPIN_LEADING_ICONS[active]
+                      return <Icon className="size-3.5 transition-transform duration-500 group-hover/gb:scale-110 group-hover/gb:rotate-6" aria-hidden />
+                    })()}
+                    icon={<ArrowRight className="size-3.5 transition-transform duration-500 group-hover/gb:translate-x-1" />}
                   >
                     {spinningNow ? step.busyLabel : step.spinLabel}
                   </GlowButton>
+                  <p className="text-[10px] leading-snug text-muted-foreground/85 max-w-[min(100%,14rem)] sm:max-w-[11rem] sm:text-right">
+                    {step.spinHint}
+                  </p>
 
                   <Link
                     href={step.moreHref}
