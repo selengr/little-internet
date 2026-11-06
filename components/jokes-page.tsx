@@ -266,7 +266,7 @@ export function JokesPage() {
             </span>
           </h1>
           <p className="mx-auto mt-6 max-w-md text-[15px] leading-relaxed text-[var(--jk-mute)]">
-            Roll the die, read the setup, then decide whether you’re ready for the punchline.
+            Tumble the die, read the setup, then decide whether you’re ready for the punchline.
           </p>
         </header>
 
@@ -347,7 +347,7 @@ export function JokesPage() {
           <div className="grid items-center gap-8 p-6 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-14 lg:p-14">
             <div className="flex flex-col items-center gap-4">
               <JokeDieSpinner
-                label="Roll the die for another joke"
+                label="Tumble the die for another joke"
                 spinning={spinning}
                 category={dieCat}
                 onSpin={() => void roll()}
@@ -478,8 +478,12 @@ export function JokesPage() {
                   busy={busy}
                   onClick={primary}
                   style={mono}
+                  leadingIcon={
+                    <Dices className="size-3.5 transition-transform duration-500 group-hover/gb:rotate-[90deg]" aria-hidden />
+                  }
+                  icon={<ArrowRight className="size-3.5 transition-transform duration-500 group-hover/gb:translate-x-1" />}
                 >
-                  {busy ? 'Rolling…' : pending ? 'Reveal the punchline' : 'Roll again'}
+                  {busy ? 'Rolling…' : pending ? 'Reveal the punchline' : 'Tumble again'}
                 </GlowButton>
                 <CopyButton
                   text={card ? [card.setup, card.punchline].filter(Boolean).join('\n') : ''}
