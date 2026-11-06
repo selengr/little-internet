@@ -41,7 +41,7 @@ const ROW_ONE: Item[] = [
   { label: 'Dog Facts', sub: 'Launch the ball', href: '/dog-facts', icon: Dog, badge: 'new' },
   { label: 'Daily Poetry', sub: 'A verse by mood', href: '/poetry', icon: Feather, badge: 'new' },
   { label: 'Joke Spinner', sub: 'Tumble the die', href: '/jokes', icon: Laugh, badge: 'new' },
-  { label: 'Games', sub: 'Four to play', href: '/games', icon: Gamepad2, badge: 'new' },
+  { label: 'Games', sub: 'Seven quick tables', href: '/games', icon: Gamepad2, badge: 'new' },
   { label: 'Live Markets', sub: 'Charts and candles', href: '/charts', icon: ChartCandlestick, badge: 'live' },
   { label: 'Crypto Prices', sub: 'The top coins', href: '/crypto', icon: Bitcoin, badge: 'live' },
   { label: 'Photo Discovery', sub: 'Fresh from Unsplash', href: '/photos', icon: Camera },
