@@ -60,10 +60,13 @@ export function GlowButton({
   className,
   style,
   size = 'md',
+  /** Shown before the label (e.g. thematic icon). */
+  leadingIcon,
+  /** Replaces the trailing arrow. */
   icon,
 }: {
   size?: 'md' | 's'
-  /** Replaces the arrow. */
+  leadingIcon?: React.ReactNode
   icon?: React.ReactNode
   from: string
   to: string
@@ -142,6 +145,7 @@ export function GlowButton({
       </span>
 
       <span className="relative z-10 flex items-center gap-2">
+        {leadingIcon ? <span className="shrink-0 opacity-90">{leadingIcon}</span> : null}
         {children}
         {icon ?? (
           <ArrowRight className="size-4 transition-transform duration-300 group-hover/gb:translate-x-1" />
