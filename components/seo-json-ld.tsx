@@ -54,6 +54,7 @@ export function SeoJsonLd() {
       { '@type': 'ListItem', position: 8, name: 'Dictionary', url: absoluteUrl('/dictionary') },
       { '@type': 'ListItem', position: 9, name: 'Pronunciation Studio', url: absoluteUrl('/studio') },
       { '@type': 'ListItem', position: 10, name: 'Currency convert', url: absoluteUrl('/convert') },
+      { '@type': 'ListItem', position: 11, name: 'Games arcade', url: absoluteUrl('/games') },
     ],
   }
 
