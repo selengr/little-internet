@@ -20,7 +20,8 @@ const mark = Syne({
   variable: '--font-af-mark',
 })
 
-const description = 'Wake the eye, meet a fact: fresh, curious cat facts one tap at a time.'
+const description =
+  'Jolt the oracle, meet a fact: fresh, curious cat facts one tap at a time.'
 
 export const metadata = {
   title: 'Cat facts',
