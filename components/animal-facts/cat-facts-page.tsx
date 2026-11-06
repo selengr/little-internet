@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Zap } from 'lucide-react'
 import {
   CAT_EYE_COUNT,
   CAT_IRISES,
@@ -223,7 +223,7 @@ export function CatFactsPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--cf-mute)]">
-            Wake the eye, meet a fact. Every tap fetches a fresh curiosity from the feline world.
+            Jolt the oracle, meet a fact. Every tap fetches a fresh curiosity from the feline world.
           </p>
         </header>
 
@@ -258,7 +258,7 @@ export function CatFactsPage() {
           <div className="grid items-center gap-8 p-6 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-14 lg:p-14">
             <div className="flex flex-col items-center gap-4">
               <CatEyeSpinner
-                label="Wake the cat for another fact"
+                label="Jolt the oracle for another fact"
                 spinning={spinning}
                 target={target}
                 onSpin={() => void next()}
@@ -337,8 +337,10 @@ export function CatFactsPage() {
                 busy={busy}
                 onClick={() => void next()}
                 style={mono}
+                leadingIcon={<Zap className="size-3.5 transition-transform duration-500 group-hover/gb:scale-110" aria-hidden />}
+                icon={<ArrowRight className="size-3.5 transition-transform duration-500 group-hover/gb:translate-x-1" />}
               >
-                {busy ? 'Purring…' : 'Another fact'}
+                {busy ? 'Purring…' : 'Jolt the oracle'}
               </GlowButton>
                 <CopyButton text={fact?.text ?? ''} disabled={busy} lineVar="var(--cf-line)" style={mono} />
               </div>
