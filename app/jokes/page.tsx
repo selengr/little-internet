@@ -20,7 +20,8 @@ const mark = Syne({
   variable: '--font-jk-mark',
 })
 
-const description = 'Roll the die, read the setup, then reveal the punchline: puns, programming and more.'
+const description =
+  'Tumble the die, read the setup, then reveal the punchline: puns, programming and more.'
 
 export const metadata = {
   title: 'Jokes',
