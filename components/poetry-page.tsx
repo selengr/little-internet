@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ArrowUpRight, CloudRain, Feather, Heart, Leaf, Orbit, Sunrise, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, CloudRain, Feather, Heart, Leaf, Orbit, Sparkles, Sunrise, type LucideIcon } from 'lucide-react'
 import { PoemInkSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
@@ -234,7 +234,7 @@ export function PoetryPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--py-mute)]">
-            Drop a little ink and see what blooms. Pick a mood, or let the page choose.
+            Spill a little ink and see what blooms. Pick a mood, or let the page choose.
           </p>
         </header>
 
@@ -307,7 +307,7 @@ export function PoetryPage() {
           <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[auto_1fr] lg:gap-14 lg:p-14">
             <div className="flex flex-col items-center gap-4 lg:sticky lg:top-28 lg:self-start">
               <PoemInkSpinner
-                label="Drop the ink for another poem"
+                label="Spill the ink for another poem"
                 spinning={spinning}
                 target={seed}
                 onSpin={() => void roll()}
@@ -421,8 +421,12 @@ export function PoetryPage() {
                   busy={busy}
                   onClick={() => void roll()}
                   style={mono}
+                  leadingIcon={
+                    <Sparkles className="size-3.5 transition-transform duration-500 group-hover/gb:scale-110" aria-hidden />
+                  }
+                  icon={<ArrowRight className="size-3.5 transition-transform duration-500 group-hover/gb:translate-x-1" />}
                 >
-                  {busy ? 'Blooming…' : 'Another poem'}
+                  {busy ? 'Blooming…' : 'Spill the ink'}
                 </GlowButton>
                 <CopyButton
                   text={card ? `${card.poem.title}\n${card.poem.author}\n\n${card.poem.lines.join('\n')}` : ''}
