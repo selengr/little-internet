@@ -20,7 +20,8 @@ const mark = Syne({
   variable: '--font-py-mark',
 })
 
-const description = 'Drop a little ink and see what verse blooms: a poem of the day, plus poems by mood.'
+const description =
+  'Spill a little ink and see what verse blooms: a poem of the day, plus poems by mood.'
 
 export const metadata = {
   title: 'Poetry',
