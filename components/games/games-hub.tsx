@@ -62,7 +62,7 @@ export function GamesHub() {
             Pick a game
           </h1>
           <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
-            Tap a game and start playing.{' '}
+            Pick a corner — each table is one round with a clean scoreboard.{' '}
             <a href="/games-v2" className="underline underline-offset-2">
               New table
             </a>
