@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Dog as DogIcon } from 'lucide-react'
 import {
   DOG_BALLS,
   DOG_BALL_COUNT,
@@ -236,7 +236,7 @@ export function DogFactsPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--df-mute)] lg:ml-auto">
-            Throw the ball, fetch a fact. Every throw brings back something new about our best friends.
+            Launch the ball, fetch a fact. Every throw brings back something new about our best friends.
           </p>
         </header>
 
@@ -275,14 +275,14 @@ export function DogFactsPage() {
             {/* Toy first in the DOM on mobile, but on the right from lg up. */}
             <div className="flex flex-col items-center gap-4 lg:order-2">
               <DogBallSpinner
-                label="Throw the ball for another fact"
+                label="Launch the ball for another fact"
                 spinning={spinning}
                 target={target}
                 onSpin={() => void next()}
                 size={size}
               />
               <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--df-mute)]" style={mono}>
-                {busy ? 'Fetching…' : 'Throw the ball'}
+                {busy ? 'Fetching…' : 'Launch the ball'}
               </p>
             </div>
 
@@ -361,8 +361,12 @@ export function DogFactsPage() {
                 busy={busy}
                 onClick={() => void next()}
                 style={mono}
+                leadingIcon={
+                  <DogIcon className="size-3.5 transition-transform duration-500 group-hover/gb:rotate-[-8deg]" aria-hidden />
+                }
+                icon={<ArrowRight className="size-3.5 transition-transform duration-500 group-hover/gb:translate-x-1" />}
               >
-                {busy ? 'Fetching…' : 'Another fact'}
+                {busy ? 'Fetching…' : 'Launch the ball'}
               </GlowButton>
                 <CopyButton text={fact?.text ?? ''} disabled={busy} lineVar="var(--df-line)" style={mono} />
               </div>
