@@ -30,7 +30,7 @@ const OUTCOME_COPY: Record<RpsRound['outcome'], string> = {
 const CALLOUT_STEPS = ['Rock…', 'Paper…', 'Scissors…', 'Shoot!']
 const CALLOUT_STEP_MS = 320
 
-export function RpsGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
+export function RpsGame({ shareUrl = `${SITE_URL}/games?mode=rps` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [bestOf, setBestOf] = useState<number>(5)
   const [rounds, setRounds] = useState<RpsRound[]>([])
