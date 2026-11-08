@@ -1,8 +1,8 @@
 'use client'
 
 import type { CSSProperties } from 'react'
-import { useCallback, useState } from 'react'
-import { ArrowLeft, Check, Link2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { ArrowLeft, Check, Link2, Share2 } from 'lucide-react'
 import type { GameEntry } from '@/lib/games-catalog'
 
 export function GamePlayHeader({
@@ -17,6 +17,11 @@ export function GamePlayHeader({
 }) {
   const Icon = game.icon
   const [copied, setCopied] = useState(false)
+  const [canNativeShare, setCanNativeShare] = useState(false)
+
+  useEffect(() => {
+    setCanNativeShare(typeof navigator.share === 'function')
+  }, [])
 
   const copyLink = useCallback(async () => {
     try {
@@ -27,6 +32,15 @@ export function GamePlayHeader({
       setCopied(false)
     }
   }, [shareUrl])
+
+  const nativeShare = useCallback(async () => {
+    if (!navigator.share) return
+    try {
+      await navigator.share({ title: game.name, text: game.tag, url: shareUrl })
+    } catch {
+      /* dismissed */
+    }
+  }, [game.name, game.tag, shareUrl])
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -53,14 +67,26 @@ export function GamePlayHeader({
           {game.duration}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={() => void copyLink()}
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
-      >
-        {copied ? <Check className="size-3.5 text-emerald-600" /> : <Link2 className="size-3.5" />}
-        {copied ? 'Copied' : 'Copy link'}
-      </button>
+      <div className="flex shrink-0 items-center gap-1.5">
+        {canNativeShare && (
+          <button
+            type="button"
+            onClick={() => void nativeShare()}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+          >
+            <Share2 className="size-3.5" />
+            Share
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => void copyLink()}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+        >
+          {copied ? <Check className="size-3.5 text-emerald-600" /> : <Link2 className="size-3.5" />}
+          {copied ? 'Copied' : 'Copy link'}
+        </button>
+      </div>
     </div>
   )
 }
