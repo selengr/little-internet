@@ -21,6 +21,7 @@ export function GameCard({
   index = 0,
   pickerKey,
   isLastPlayed = false,
+  personalBest,
 }: {
   game: GameEntry
   onPlay: () => void
@@ -28,6 +29,7 @@ export function GameCard({
   /** Shown on the card and matched to keyboard digits 1–7. */
   pickerKey?: number
   isLastPlayed?: boolean
+  personalBest?: { label: string; value: number }
 }) {
   const Icon = game.icon
 
@@ -69,6 +71,11 @@ export function GameCard({
       <span className="relative">
         <span className="block text-[15px] font-extrabold leading-tight text-white sm:text-[17px]">{game.name}</span>
         <span className="mt-0.5 block text-[11.5px] font-medium text-white/80">{game.tag}</span>
+        {personalBest !== undefined && (
+          <span className="mt-1 block text-[10px] font-semibold text-white/90">
+            {personalBest.label}: {personalBest.value}
+          </span>
+        )}
         <span className="mt-1 flex flex-wrap gap-1">
           <span className="inline-block rounded-full bg-black/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/85">
             {game.duration}

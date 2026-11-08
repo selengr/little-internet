@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Gamepad2 } from 'lucide-react'
 import { GAME_COUNT, GAMES, gameShareUrl, isGameId, type GameId } from '@/lib/games-catalog'
-import { getLastPlayedGameId, setLastPlayedGameId } from '@/lib/game-scores'
+import { ARCADE_BEST_SCORE_KEYS, getBestScore, getLastPlayedGameId, setLastPlayedGameId } from '@/lib/game-scores'
 import { useGamesArcadeDocTitle } from '@/components/games/games-arcade-doc-title'
 import { useGamesArcadeShortcuts } from '@/components/games/games-arcade-shortcuts'
 import { GameCard } from '@/components/games/game-card'
@@ -32,10 +32,23 @@ export function GamesHub() {
   })
 
   const [lastPlayedId, setLastPlayedId] = useState<GameId | null>(null)
+  const [personalBests, setPersonalBests] = useState<Partial<Record<GameId, { label: string; value: number }>>>({})
+
+  const refreshPickerMeta = useCallback(() => {
+    setLastPlayedId(getLastPlayedGameId())
+    const bests: Partial<Record<GameId, { label: string; value: number }>> = {}
+    for (const entry of GAMES) {
+      const meta = ARCADE_BEST_SCORE_KEYS[entry.id]
+      if (!meta) continue
+      const value = getBestScore(meta.storageKey)
+      if (value !== null) bests[entry.id] = { label: meta.label, value }
+    }
+    setPersonalBests(bests)
+  }, [])
 
   useEffect(() => {
-    setLastPlayedId(getLastPlayedGameId())
-  }, [])
+    refreshPickerMeta()
+  }, [refreshPickerMeta])
 
   useEffect(() => {
     const raw = searchParams.get('mode')
@@ -64,11 +77,12 @@ export function GamesHub() {
 
   const backToGrid = useCallback(() => {
     setGameId(null)
+    refreshPickerMeta()
     const params = new URLSearchParams(searchParams.toString())
     params.delete('mode')
     const query = params.toString()
     router.replace(query ? `/games?${query}` : '/games', { scroll: false })
-  }, [router, searchParams])
+  }, [router, searchParams, refreshPickerMeta])
 
   const pickRandom = useCallback(() => {
     const pick = GAMES[Math.floor(Math.random() * GAMES.length)]!
@@ -140,6 +154,7 @@ export function GamesHub() {
                 index={index}
                 pickerKey={index + 1}
                 isLastPlayed={lastPlayedId === g.id}
+                personalBest={personalBests[g.id]}
                 onPlay={() => openGame(g.id)}
               />
             ))}
