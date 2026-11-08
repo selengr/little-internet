@@ -45,6 +45,15 @@ export function getBestScore(key: string): number | null {
 }
 
 /** Saves `value` as the new best if it beats the stored one, and returns whichever is now best. */
+/** Scoreboard keys on picker cards — only games that persist a best in localStorage. */
+export const ARCADE_BEST_SCORE_KEYS: Partial<
+  Record<GameId, { storageKey: string; higherIsBetter: boolean; label: string }>
+> = {
+  chess: { storageKey: 'chess', higherIsBetter: true, label: 'Best puzzles' },
+  rps: { storageKey: 'rps', higherIsBetter: true, label: 'Best streak' },
+  higherlower: { storageKey: 'higherlower', higherIsBetter: true, label: 'Best run' },
+}
+
 export function saveBestScore(key: string, value: number, higherIsBetter: boolean): number {
   const current = getBestScore(key)
   const best = current === null ? value : higherIsBetter ? Math.max(current, value) : Math.min(current, value)
