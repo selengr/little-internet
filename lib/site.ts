@@ -36,6 +36,7 @@ export const SITEMAP_ROUTES: {
   { path: '/location', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/jokes', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/games', changeFrequency: 'weekly', priority: 0.65 },
+  { path: '/games-v2', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/cat-facts', changeFrequency: 'weekly', priority: 0.55 },
   { path: '/dog-facts', changeFrequency: 'weekly', priority: 0.55 },
   { path: '/cat', changeFrequency: 'weekly', priority: 0.55 },
