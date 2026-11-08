@@ -30,7 +30,7 @@ async function fetchDeck(): Promise<GameCard[]> {
   return shuffle(json.cards as GameCard[])
 }
 
-export function HigherLowerGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
+export function HigherLowerGame({ shareUrl = `${SITE_URL}/games?mode=higherlower` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [deck, setDeck] = useState<GameCard[]>([])
   const [index, setIndex] = useState(0)
