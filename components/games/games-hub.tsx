@@ -3,13 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Gamepad2, Sparkles } from 'lucide-react'
-import { GAMES, gameShareUrl, isGameId, type GameId } from '@/lib/games-catalog'
+import { Gamepad2 } from 'lucide-react'
+import { GAME_COUNT, GAMES, gameShareUrl, isGameId, type GameId } from '@/lib/games-catalog'
 import { getLastPlayedGameId, setLastPlayedGameId } from '@/lib/game-scores'
 import { useGamesArcadeDocTitle } from '@/components/games/games-arcade-doc-title'
 import { useGamesArcadeShortcuts } from '@/components/games/games-arcade-shortcuts'
 import { GameCard } from '@/components/games/game-card'
 import { GamePlayHeader } from '@/components/games/game-play-header'
+import { GamesLiveRegion } from '@/components/games/games-live-region'
+import { GamesPickerToolbar } from '@/components/games/games-picker-toolbar'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
 import { RpsGame } from '@/components/games/rps-game'
@@ -29,19 +31,33 @@ export function GamesHub() {
     return isGameId(raw) ? raw : null
   })
 
+  const [lastPlayedId, setLastPlayedId] = useState<GameId | null>(null)
+
+  useEffect(() => {
+    setLastPlayedId(getLastPlayedGameId())
+  }, [])
+
   useEffect(() => {
     const raw = searchParams.get('mode')
     const next = isGameId(raw) ? raw : null
     setGameId(prev => (prev === next ? prev : next))
-  }, [searchParams])
+    if (raw && !isGameId(raw)) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('mode')
+      const query = params.toString()
+      router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+    }
+  }, [searchParams, router])
 
   const openGame = useCallback(
     (id: GameId) => {
       setLastPlayedGameId(id)
+      setLastPlayedId(id)
       setGameId(id)
       const params = new URLSearchParams(searchParams.toString())
       params.set('mode', id)
       router.replace(`/games?${params.toString()}`, { scroll: false })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     [router, searchParams],
   )
@@ -75,11 +91,25 @@ export function GamesHub() {
     [game],
   )
 
+  const openAtIndex = useCallback(
+    (index: number) => {
+      const entry = GAMES[index]
+      if (entry) openGame(entry.id)
+    },
+    [openGame],
+  )
+
   useGamesArcadeDocTitle(gameId)
-  useGamesArcadeShortcuts({ gameId, onRandom: pickRandom, onBackToGrid: backToGrid })
+  useGamesArcadeShortcuts({
+    gameId,
+    onRandom: pickRandom,
+    onBackToGrid: backToGrid,
+    onOpenAtIndex: openAtIndex,
+  })
 
   return (
     <div aria-label={sectionLabel}>
+      <GamesLiveRegion message={sectionLabel} />
       {/* The heading only makes sense on the picker grid — showing "Pick a
           game" above an in-progress game you already picked is confusing,
           so it lives here instead of the static page shell. */}
@@ -90,32 +120,9 @@ export function GamesHub() {
             Pick a game
           </h1>
           <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
-            {GAMES.length} quick tables — each one is a round with a clean scoreboard.{' '}
-            <a href="/games-v2" className="underline underline-offset-2">
-              New table
-            </a>
+            {GAME_COUNT} quick tables — each one is a round with a clean scoreboard.
           </p>
-          <div className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={pickRandom}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-[11px] font-medium text-foreground shadow-sm transition-colors hover:border-foreground/25 hover:bg-muted/60"
-            >
-              <Sparkles className="size-3.5 text-amber-500" aria-hidden />
-              Surprise me
-            </button>
-            <button
-              type="button"
-              onClick={resumeLast}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-transparent px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
-            >
-              Last table
-            </button>
-          </div>
-          <p className="mt-3 text-[10px] text-muted-foreground/80">
-            <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">R</kbd> random ·{' '}
-            <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">Esc</kbd> back to grid
-          </p>
+          <GamesPickerToolbar onRandom={pickRandom} onResumeLast={resumeLast} />
         </div>
       )}
       <AnimatePresence mode="wait">
@@ -127,7 +134,14 @@ export function GamesHub() {
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
           >
             {GAMES.map((g, index) => (
-              <GameCard key={g.id} game={g} index={index} onPlay={() => openGame(g.id)} />
+              <GameCard
+                key={g.id}
+                game={g}
+                index={index}
+                pickerKey={index + 1}
+                isLastPlayed={lastPlayedId === g.id}
+                onPlay={() => openGame(g.id)}
+              />
             ))}
           </motion.div>
         ) : (
