@@ -30,7 +30,7 @@ function formatTime(seconds: number): string {
   return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`
 }
 
-export function SudokuGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
+export function SudokuGame({ shareUrl = `${SITE_URL}/games?mode=sudoku` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [difficulty, setDifficulty] = useState<SudokuDifficulty>('easy')
   const [puzzle, setPuzzle] = useState<SudokuPuzzle | null>(null)
