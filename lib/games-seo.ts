@@ -1,3 +1,4 @@
+import { GAMES } from '@/lib/games-catalog'
 import { SITE_URL, absoluteUrl } from '@/lib/site'
 
 export const GAMES_PAGE_DESCRIPTION =
@@ -11,5 +12,21 @@ export function gamesPageJsonLd() {
     description: GAMES_PAGE_DESCRIPTION,
     url: absoluteUrl('/games'),
     isPartOf: { '@type': 'WebSite', name: 'Little Internet', url: SITE_URL },
+  }
+}
+
+export function gamesArcadeItemListJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Little Internet arcade tables',
+    numberOfItems: GAMES.length,
+    itemListElement: GAMES.map((game, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: game.name,
+      description: game.tag,
+      url: absoluteUrl(`/games?mode=${game.id}`),
+    })),
   }
 }
