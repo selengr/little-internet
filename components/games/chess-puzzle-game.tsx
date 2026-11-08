@@ -24,7 +24,7 @@ function squareLabel(uci: string): string {
   return `${uci.slice(0, 2)} → ${uci.slice(2, 4)}`
 }
 
-export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
+export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games?mode=chess` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [difficulty, setDifficulty] = useState<PuzzleDifficulty>('easiest')
   const [round, setRound] = useState(0)
