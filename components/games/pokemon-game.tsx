@@ -37,7 +37,7 @@ async function buildRound(gen: PokemonGeneration, usedIds: Set<number>): Promise
   return { pokemon, options }
 }
 
-export function PokemonGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
+export function PokemonGame({ shareUrl = `${SITE_URL}/games?mode=pokemon` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [gen, setGen] = useState<PokemonGeneration>('kanto')
   const [roundCount, setRoundCount] = useState<number>(10)
