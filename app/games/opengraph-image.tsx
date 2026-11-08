@@ -34,7 +34,7 @@ export default function GamesOgImage() {
           Games arcade
         </div>
         <div style={{ fontSize: 26, opacity: 0.88, maxWidth: 780, textAlign: 'center', lineHeight: 1.35 }}>
-          Seven quick tables — trivia, puzzles, guesses, duels — no install.
+          Seven quick tables — press 1–7 on the picker, or share a ?mode= link.
         </div>
       </div>
     ),
