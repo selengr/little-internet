@@ -42,7 +42,7 @@ async function fetchQuestions(
   }
 }
 
-export function TriviaGame({ shareUrl = `${SITE_URL}/games` }: { shareUrl?: string }) {
+export function TriviaGame({ shareUrl = `${SITE_URL}/games?mode=trivia` }: { shareUrl?: string }) {
   const [stage, setStage] = useState<Stage>('setup')
   const [categoryId, setCategoryId] = useState<number | null>(null)
   const [difficulty, setDifficulty] = useState<TriviaDifficulty | 'any'>('any')
