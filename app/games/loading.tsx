@@ -2,6 +2,7 @@ export default function GamesLoading() {
   return (
     <div className="mx-auto max-w-3xl px-5 pb-24 pt-28 md:px-8 md:pt-32 lg:max-w-[56rem]" aria-busy="true" aria-label="Loading games">
       <div className="mb-8 flex flex-col items-center gap-3 sm:mb-10">
+        <p className="text-sm font-medium text-muted-foreground motion-reduce:opacity-100">Shuffling the tables…</p>
         <div className="h-10 w-48 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" />
         <div className="h-4 w-72 max-w-full animate-pulse rounded bg-muted/70 motion-reduce:animate-none" />
       </div>
