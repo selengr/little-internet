@@ -240,6 +240,12 @@
   }
 }
 
+.game-card-last-played {
+  box-shadow:
+    0 10px 24px -12px rgba(0, 0, 0, 0.35),
+    0 0 0 3px rgba(255, 255, 255, 0.55);
+}
+
 /* Bento shimmer on hover */
 @keyframes shimmer {
   0% { transform: translateX(-100%) }
