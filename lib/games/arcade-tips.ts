@@ -86,6 +86,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0076', text: 'Share Rock Paper Scissors with ?mode=rps in the URL.', gameId: 'rps' },
   { id: 'tip-0077', text: 'After Portal Faces, hit Esc to compare scores on another table.', gameId: 'portal' },
   { id: 'tip-0078', text: 'Trivia rounds are tuned for short breaks — no account needed.', gameId: 'trivia' },
+  { id: 'tip-0079', text: 'R picks a random table when the grid is visible.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
