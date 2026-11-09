@@ -50,6 +50,7 @@ export function GamesPickerToolbar({
         <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">1</kbd>–
         <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">7</kbd> open ·{' '}
         <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">R</kbd> random ·{' '}
+        <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">/</kbd> search ·{' '}
         <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">?</kbd> help ·{' '}
         <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[9px]">Esc</kbd> back
       </p>
