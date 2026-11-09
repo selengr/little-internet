@@ -11,13 +11,16 @@ export function GamesPickerFilters({
   search,
   onSearchChange,
   resultCount,
+  onClearAll,
 }: {
   mood: GameMood | null
   onMoodChange: (mood: GameMood | null) => void
   search: string
   onSearchChange: (value: string) => void
   resultCount: number
+  onClearAll?: () => void
 }) {
+  const hasFilters = mood !== null || search.trim().length > 0
   return (
     <div className="mx-auto mt-5 flex w-full max-w-lg flex-col gap-3">
       <label className="sr-only" htmlFor="games-picker-search">
@@ -54,9 +57,21 @@ export function GamesPickerFilters({
           )
         })}
       </div>
-      <p className="text-center text-[10px] text-muted-foreground/80" aria-live="polite">
-        {resultCount === 0 ? 'No tables match — try another filter.' : `${resultCount} table${resultCount === 1 ? '' : 's'} showing`}
-      </p>
+      <h2 className="sr-only">Filter tables</h2>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <p className="text-[10px] text-muted-foreground/80" aria-live="polite">
+          {resultCount === 0 ? 'No tables match — try another filter.' : `${resultCount} table${resultCount === 1 ? '' : 's'} showing`}
+        </p>
+        {hasFilters && onClearAll && (
+          <button
+            type="button"
+            onClick={onClearAll}
+            className="text-[10px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
     </div>
   )
 }
