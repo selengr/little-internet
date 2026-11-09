@@ -104,6 +104,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0094', text: 'R picks a random table when the grid is visible.' },
   { id: 'tip-0095', text: 'Sudoku: tap a card or press 5 on the picker.', gameId: 'sudoku' },
   { id: 'tip-0096', text: 'Share Higher or Lower with ?mode=higherlower in the URL.', gameId: 'higherlower' },
+  { id: 'tip-0097', text: 'After Rock Paper Scissors, hit Esc to compare scores on another table.', gameId: 'rps' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
