@@ -5,6 +5,12 @@ export default function GamesLoading() {
         <p className="text-sm font-medium text-muted-foreground motion-reduce:opacity-100">Shuffling the tables…</p>
         <div className="h-10 w-48 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" />
         <div className="h-4 w-72 max-w-full animate-pulse rounded bg-muted/70 motion-reduce:animate-none" />
+        <div className="mt-2 h-10 w-full max-w-lg animate-pulse rounded-2xl bg-muted/60 motion-reduce:animate-none" />
+        <div className="flex gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-7 w-14 animate-pulse rounded-full bg-muted/50 motion-reduce:animate-none" />
+          ))}
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         {Array.from({ length: 7 }).map((_, i) => (
