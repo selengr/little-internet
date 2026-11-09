@@ -116,6 +116,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0106', text: 'Share Trivia with ?mode=trivia in the URL.', gameId: 'trivia' },
   { id: 'tip-0107', text: 'After Who\'s That Pokémon, hit Esc to compare scores on another table.', gameId: 'pokemon' },
   { id: 'tip-0108', text: 'Chess Puzzle rounds are tuned for short breaks — no account needed.', gameId: 'chess' },
+  { id: 'tip-0109', text: 'R picks a random table when the grid is visible.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
