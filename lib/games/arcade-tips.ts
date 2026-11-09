@@ -56,6 +56,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0046', text: 'Share Sudoku with ?mode=sudoku in the URL.', gameId: 'sudoku' },
   { id: 'tip-0047', text: 'After Higher or Lower, hit Esc to compare scores on another table.', gameId: 'higherlower' },
   { id: 'tip-0048', text: 'Rock Paper Scissors rounds are tuned for short breaks — no account needed.', gameId: 'rps' },
+  { id: 'tip-0049', text: 'R picks a random table when the grid is visible.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
