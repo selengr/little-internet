@@ -113,3 +113,9 @@ export function gameShareUrl(id: GameId) {
   const origin = SITE_URL.replace(/\/$/, '')
   return `${origin}/games?mode=${id}`
 }
+
+/** Open the cheatsheet from a marketing or docs link (`?help=1`). */
+export function gamesArcadeHelpUrl() {
+  const origin = SITE_URL.replace(/\/$/, '')
+  return `${origin}/games?help=1`
+}
