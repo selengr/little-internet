@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { HelpCircle, X } from 'lucide-react'
-import { ARCADE_TIPS, pickArcadeTip } from '@/lib/games/arcade-tips'
+import { pickArcadeTip } from '@/lib/games/arcade-tips'
+import { featuredArcadeTips } from '@/lib/games/featured-tips'
 import { GAME_COUNT } from '@/lib/games-catalog'
+
+const FEATURED = featuredArcadeTips()
 
 export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [tipIndex, setTipIndex] = useState(0)
-  const tip = useMemo(() => pickArcadeTip(tipIndex) ?? null, [tipIndex])
+  const tip = useMemo(() => pickArcadeTip(tipIndex) ?? FEATURED[0] ?? null, [tipIndex])
 
   useEffect(() => {
     if (!open) return
@@ -39,6 +42,7 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
               {GAME_COUNT} tables · keys <kbd className="rounded border px-1 font-mono text-[10px]">1</kbd>–
               <kbd className="rounded border px-1 font-mono text-[10px]">7</kbd>,{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">R</kbd> random,{' '}
+              <kbd className="rounded border px-1 font-mono text-[10px]">/</kbd> search,{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">?</kbd> help,{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">Esc</kbd> back
             </p>
@@ -55,20 +59,19 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
         {tip && (
           <p className="mt-4 rounded-2xl bg-muted/50 px-3 py-2.5 text-[13px] leading-snug text-foreground">{tip.text}</p>
         )}
-        {ARCADE_TIPS.length > 1 && (
+        {FEATURED.length > 1 && (
           <button
             type="button"
             onClick={() => setTipIndex(i => i + 1)}
             className="mt-3 text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
           >
-            Another tip ({ARCADE_TIPS.length} total)
+            Another tip
           </button>
         )}
-        <ul className="mt-4 max-h-40 space-y-1 overflow-y-auto text-[11px] text-muted-foreground">
-          {ARCADE_TIPS.slice(0, 12).map(t => (
+        <ul className="mt-4 max-h-48 space-y-1 overflow-y-auto text-[11px] text-muted-foreground">
+          {FEATURED.map(t => (
             <li key={t.id}>· {t.text}</li>
           ))}
-          {ARCADE_TIPS.length > 12 && <li>…and {ARCADE_TIPS.length - 12} more tips</li>}
         </ul>
       </div>
     </div>
