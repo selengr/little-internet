@@ -8,8 +8,9 @@ export function useGamesArcadeShortcuts(opts: {
   onRandom: () => void
   onBackToGrid: () => void
   onOpenAtIndex?: (index: number) => void
+  onToggleHelp?: () => void
 }) {
-  const { gameId, onRandom, onBackToGrid, onOpenAtIndex } = opts
+  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp } = opts
 
   useEffect(() => {
     if (gameId) return
@@ -27,11 +28,17 @@ export function useGamesArcadeShortcuts(opts: {
       if (onOpenAtIndex && e.key >= '1' && e.key <= '7') {
         e.preventDefault()
         onOpenAtIndex(Number(e.key) - 1)
+        return
+      }
+
+      if (onToggleHelp && e.key === '?') {
+        e.preventDefault()
+        onToggleHelp()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [gameId, onRandom, onOpenAtIndex])
+  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp])
 
   useEffect(() => {
     if (!gameId) return
