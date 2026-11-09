@@ -76,6 +76,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0066', text: 'Share Chess Puzzle with ?mode=chess in the URL.', gameId: 'chess' },
   { id: 'tip-0067', text: 'After Sudoku, hit Esc to compare scores on another table.', gameId: 'sudoku' },
   { id: 'tip-0068', text: 'Higher or Lower rounds are tuned for short breaks — no account needed.', gameId: 'higherlower' },
+  { id: 'tip-0069', text: 'Try Pricier duel on /games-v2 for a card-battle table.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
