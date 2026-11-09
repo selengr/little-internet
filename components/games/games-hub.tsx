@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Gamepad2 } from 'lucide-react'
-import { GAME_COUNT, GAMES, gameShareUrl, isGameId, type GameId } from '@/lib/games-catalog'
+import { GAME_COUNT, GAMES, gameShareUrl, isGameId, type GameId, type GameMood } from '@/lib/games-catalog'
+import { filterPickerGames, isGameMood } from '@/lib/games/filter-picker'
+import { gameAtPickerIndex } from '@/lib/games/find-game'
 import { ARCADE_BEST_SCORE_KEYS, getBestScore, getLastPlayedGameId, setLastPlayedGameId } from '@/lib/game-scores'
 import { useGamesArcadeDocTitle } from '@/components/games/games-arcade-doc-title'
 import { useGamesArcadeShortcuts } from '@/components/games/games-arcade-shortcuts'
@@ -12,6 +14,9 @@ import { GameCard } from '@/components/games/game-card'
 import { GamePlayHeader } from '@/components/games/game-play-header'
 import { GamesLiveRegion } from '@/components/games/games-live-region'
 import { GamesPickerToolbar } from '@/components/games/games-picker-toolbar'
+import { GamesPickerFilters } from '@/components/games/games-picker-filters'
+import { GamesArcadeHelp } from '@/components/games/games-arcade-help'
+import { GameStage } from '@/components/games/game-stage'
 import { TriviaGame } from '@/components/games/trivia-game'
 import { PokemonGame } from '@/components/games/pokemon-game'
 import { RpsGame } from '@/components/games/rps-game'
@@ -33,6 +38,12 @@ export function GamesHub() {
 
   const [lastPlayedId, setLastPlayedId] = useState<GameId | null>(null)
   const [personalBests, setPersonalBests] = useState<Partial<Record<GameId, { label: string; value: number }>>>({})
+  const [pickerMood, setPickerMood] = useState<GameMood | null>(() => {
+    const raw = searchParams.get('mood')
+    return isGameMood(raw) ? raw : null
+  })
+  const [pickerSearch, setPickerSearch] = useState('')
+  const [helpOpen, setHelpOpen] = useState(false)
 
   const refreshPickerMeta = useCallback(() => {
     setLastPlayedId(getLastPlayedGameId())
@@ -49,6 +60,12 @@ export function GamesHub() {
   useEffect(() => {
     refreshPickerMeta()
   }, [refreshPickerMeta])
+
+  useEffect(() => {
+    const moodRaw = searchParams.get('mood')
+    const nextMood = isGameMood(moodRaw) ? moodRaw : null
+    setPickerMood(prev => (prev === nextMood ? prev : nextMood))
+  }, [searchParams])
 
   useEffect(() => {
     const raw = searchParams.get('mode')
@@ -105,13 +122,32 @@ export function GamesHub() {
     [game],
   )
 
+  const filteredGames = useMemo(
+    () => filterPickerGames({ mood: pickerMood, search: pickerSearch }),
+    [pickerMood, pickerSearch],
+  )
+
+  const setMoodFilter = useCallback(
+    (mood: GameMood | null) => {
+      setPickerMood(mood)
+      const params = new URLSearchParams(searchParams.toString())
+      if (mood) params.set('mood', mood)
+      else params.delete('mood')
+      const query = params.toString()
+      router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+    },
+    [router, searchParams],
+  )
+
   const openAtIndex = useCallback(
     (index: number) => {
-      const entry = GAMES[index]
-      if (entry) openGame(entry.id)
+      const entry = gameAtPickerIndex(index)
+      if (entry && filteredGames.some(g => g.id === entry.id)) openGame(entry.id)
     },
-    [openGame],
+    [openGame, filteredGames],
   )
+
+  const toggleHelp = useCallback(() => setHelpOpen(v => !v), [])
 
   useGamesArcadeDocTitle(gameId)
   useGamesArcadeShortcuts({
@@ -119,6 +155,7 @@ export function GamesHub() {
     onRandom: pickRandom,
     onBackToGrid: backToGrid,
     onOpenAtIndex: openAtIndex,
+    onToggleHelp: toggleHelp,
   })
 
   return (
@@ -136,9 +173,17 @@ export function GamesHub() {
           <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
             {GAME_COUNT} quick tables — each one is a round with a clean scoreboard.
           </p>
-          <GamesPickerToolbar onRandom={pickRandom} onResumeLast={resumeLast} />
+          <GamesPickerToolbar onRandom={pickRandom} onResumeLast={resumeLast} onOpenHelp={() => setHelpOpen(true)} />
+          <GamesPickerFilters
+            mood={pickerMood}
+            onMoodChange={setMoodFilter}
+            search={pickerSearch}
+            onSearchChange={setPickerSearch}
+            resultCount={filteredGames.length}
+          />
         </div>
       )}
+      <GamesArcadeHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
       <AnimatePresence mode="wait">
         {!game ? (
           <motion.div
@@ -147,12 +192,12 @@ export function GamesHub() {
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
           >
-            {GAMES.map((g, index) => (
+            {filteredGames.map((g, index) => (
               <GameCard
                 key={g.id}
                 game={g}
                 index={index}
-                pickerKey={index + 1}
+                pickerKey={GAMES.findIndex(x => x.id === g.id) + 1}
                 isLastPlayed={lastPlayedId === g.id}
                 personalBest={personalBests[g.id]}
                 onPlay={() => openGame(g.id)}
@@ -168,13 +213,7 @@ export function GamesHub() {
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
           >
             <GamePlayHeader game={game} shareUrl={gameShareUrl(game.id)} onBack={backToGrid} />
-            <div
-              className="rounded-[28px] border bg-card/20 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-sm sm:p-7 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
-              style={{
-                borderColor: `${game.to}26`,
-                backgroundImage: `linear-gradient(180deg, ${game.to}0f, transparent 45%)`,
-              }}
-            >
+            <GameStage game={game}>
               {game.id === 'portal' && <RickMortyGame shareUrl={gameShareUrl('portal')} />}
               {game.id === 'trivia' && <TriviaGame shareUrl={gameShareUrl('trivia')} />}
               {game.id === 'pokemon' && <PokemonGame shareUrl={gameShareUrl('pokemon')} />}
@@ -182,7 +221,7 @@ export function GamesHub() {
               {game.id === 'sudoku' && <SudokuGame shareUrl={gameShareUrl('sudoku')} />}
               {game.id === 'higherlower' && <HigherLowerGame shareUrl={gameShareUrl('higherlower')} />}
               {game.id === 'rps' && <RpsGame shareUrl={gameShareUrl('rps')} />}
-            </div>
+            </GameStage>
           </motion.div>
         )}
       </AnimatePresence>
