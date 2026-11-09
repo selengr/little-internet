@@ -108,6 +108,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0098', text: 'Portal Faces rounds are tuned for short breaks — no account needed.', gameId: 'portal' },
   { id: 'tip-0099', text: 'Try Pricier duel on /games-v2 for a card-battle table.' },
   { id: 'tip-0100', text: 'Who\'s That Pokémon: tap a card or press 3 on the picker.', gameId: 'pokemon' },
+  { id: 'tip-0101', text: 'Share Chess Puzzle with ?mode=chess in the URL.', gameId: 'chess' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
