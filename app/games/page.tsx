@@ -27,6 +27,8 @@ export const metadata = {
     'chess puzzle',
     'Little Internet',
     'no install games',
+    'arcade',
+    'free online games',
   ],
   alternates: { canonical: '/games' },
   openGraph: {
@@ -62,13 +64,21 @@ export default function GamesPage() {
           <p className="font-pixel pointer-events-none absolute left-1/2 -translate-x-1/2 text-[10px] tracking-[0.32em] text-black/45 dark:text-white/45">
             GAMES
           </p>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-[11px] tracking-wide text-black/70 transition-all duration-200 hover:border-black/20 hover:bg-black/[0.03] hover:text-black dark:border-white/20 dark:text-white/70 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-white"
-          >
-            Back home
-            <ArrowRight className="size-3.5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/games-v2"
+              className="hidden rounded-xl border border-black/10 px-3 py-2 text-[11px] tracking-wide text-black/55 transition-all hover:border-black/20 hover:text-black dark:border-white/15 dark:text-white/55 dark:hover:text-white sm:inline-flex"
+            >
+              V2 table
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-[11px] tracking-wide text-black/70 transition-all duration-200 hover:border-black/20 hover:bg-black/[0.03] hover:text-black dark:border-white/20 dark:text-white/70 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-white"
+            >
+              Back home
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
         </div>
       </div>
 
