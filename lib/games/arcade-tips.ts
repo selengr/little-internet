@@ -7,7 +7,9 @@ export type ArcadeTip = {
 }
 
 /** Bite-sized hints for the arcade help sheet — one tip per git commit in the expansion batch. */
-export const ARCADE_TIPS: ArcadeTip[] = []
+export const ARCADE_TIPS: ArcadeTip[] = [
+  { id: 'tip-0001', text: 'Share Trivia with ?mode=trivia in the URL.', gameId: 'trivia' },
+]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
   if (!ARCADE_TIPS.length) return null
