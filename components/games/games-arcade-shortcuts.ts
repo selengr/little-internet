@@ -9,8 +9,9 @@ export function useGamesArcadeShortcuts(opts: {
   onBackToGrid: () => void
   onOpenAtIndex?: (index: number) => void
   onToggleHelp?: () => void
+  onFocusSearch?: () => void
 }) {
-  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp } = opts
+  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp, onFocusSearch } = opts
 
   useEffect(() => {
     if (gameId) return
@@ -34,11 +35,17 @@ export function useGamesArcadeShortcuts(opts: {
       if (onToggleHelp && e.key === '?') {
         e.preventDefault()
         onToggleHelp()
+        return
+      }
+
+      if (onFocusSearch && e.key === '/') {
+        e.preventDefault()
+        onFocusSearch()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp])
+  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp, onFocusSearch])
 
   useEffect(() => {
     if (!gameId) return
