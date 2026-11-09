@@ -149,6 +149,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0139', text: 'R picks a random table when the grid is visible.' },
   { id: 'tip-0140', text: 'Portal Faces: tap a card or press 1 on the picker.', gameId: 'portal' },
   { id: 'tip-0141', text: 'Share Trivia with ?mode=trivia in the URL.', gameId: 'trivia' },
+  { id: 'tip-0142', text: 'After Who\'s That Pokémon, hit Esc to compare scores on another table.', gameId: 'pokemon' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
