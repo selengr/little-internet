@@ -7,6 +7,8 @@ import { Gamepad2 } from 'lucide-react'
 import { GAME_COUNT, GAMES, gameShareUrl, isGameId, type GameId, type GameMood } from '@/lib/games-catalog'
 import { filterPickerGames, isGameMood } from '@/lib/games/filter-picker'
 import { gameAtPickerIndex } from '@/lib/games/find-game'
+import { shouldOpenArcadeHelp } from '@/lib/games/help-param'
+import { pickRandomGame } from '@/lib/games/random-picker'
 import { ARCADE_BEST_SCORE_KEYS, getBestScore, getLastPlayedGameId, setLastPlayedGameId } from '@/lib/game-scores'
 import { useGamesArcadeDocTitle } from '@/components/games/games-arcade-doc-title'
 import { useGamesArcadeShortcuts } from '@/components/games/games-arcade-shortcuts'
@@ -17,13 +19,8 @@ import { GamesPickerToolbar } from '@/components/games/games-picker-toolbar'
 import { GamesPickerFilters } from '@/components/games/games-picker-filters'
 import { GamesArcadeHelp } from '@/components/games/games-arcade-help'
 import { GameStage } from '@/components/games/game-stage'
-import { TriviaGame } from '@/components/games/trivia-game'
-import { PokemonGame } from '@/components/games/pokemon-game'
-import { RpsGame } from '@/components/games/rps-game'
-import { ChessPuzzleGame } from '@/components/games/chess-puzzle-game'
-import { SudokuGame } from '@/components/games/sudoku-game'
-import { HigherLowerGame } from '@/components/games/higher-lower-game'
-import { RickMortyGame } from '@/components/games/rick-morty-game'
+import { GamesActiveTable } from '@/components/games/games-active-table'
+import { GamesPickerEmpty } from '@/components/games/games-picker-empty'
 
 export function GamesHub() {
   const router = useRouter()
@@ -60,6 +57,10 @@ export function GamesHub() {
   useEffect(() => {
     refreshPickerMeta()
   }, [refreshPickerMeta])
+
+  useEffect(() => {
+    if (shouldOpenArcadeHelp(searchParams.get('help'))) setHelpOpen(true)
+  }, [searchParams])
 
   useEffect(() => {
     const moodRaw = searchParams.get('mood')
@@ -101,10 +102,16 @@ export function GamesHub() {
     router.replace(query ? `/games?${query}` : '/games', { scroll: false })
   }, [router, searchParams, refreshPickerMeta])
 
+  const filteredGames = useMemo(
+    () => filterPickerGames({ mood: pickerMood, search: pickerSearch }),
+    [pickerMood, pickerSearch],
+  )
+
   const pickRandom = useCallback(() => {
-    const pick = GAMES[Math.floor(Math.random() * GAMES.length)]!
-    openGame(pick.id)
-  }, [openGame])
+    const pool = filteredGames.length ? filteredGames : GAMES
+    const pick = pickRandomGame(pool)
+    if (pick) openGame(pick.id)
+  }, [openGame, filteredGames])
 
   const resumeLast = useCallback(() => {
     const last = getLastPlayedGameId()
@@ -112,19 +119,11 @@ export function GamesHub() {
     else pickRandom()
   }, [openGame, pickRandom])
 
-  // A direct link like /games?mode=chess opens straight into that game.
-  // Otherwise every visit starts on the picker grid — no "remembers what you
-  // last played" magic, so the page behaves the same way every time.
   const game = gameId ? GAMES.find(g => g.id === gameId) : null
 
   const sectionLabel = useMemo(
     () => (game ? `${game.name} — playing` : 'Game picker — choose a table'),
     [game],
-  )
-
-  const filteredGames = useMemo(
-    () => filterPickerGames({ mood: pickerMood, search: pickerSearch }),
-    [pickerMood, pickerSearch],
   )
 
   const setMoodFilter = useCallback(
@@ -149,6 +148,22 @@ export function GamesHub() {
 
   const toggleHelp = useCallback(() => setHelpOpen(v => !v), [])
 
+  const clearPickerFilters = useCallback(() => {
+    setPickerSearch('')
+    setMoodFilter(null)
+  }, [setMoodFilter])
+
+  const focusPickerSearch = useCallback(() => {
+    document.getElementById('games-picker-search')?.focus()
+  }, [])
+
+  const shuffleTable = useCallback(() => {
+    if (!gameId) return
+    const others = GAMES.filter(g => g.id !== gameId)
+    const pick = pickRandomGame(others)
+    if (pick) openGame(pick.id)
+  }, [gameId, openGame])
+
   useGamesArcadeDocTitle(gameId)
   useGamesArcadeShortcuts({
     gameId,
@@ -156,6 +171,7 @@ export function GamesHub() {
     onBackToGrid: backToGrid,
     onOpenAtIndex: openAtIndex,
     onToggleHelp: toggleHelp,
+    onFocusSearch: focusPickerSearch,
   })
 
   return (
@@ -180,6 +196,7 @@ export function GamesHub() {
             search={pickerSearch}
             onSearchChange={setPickerSearch}
             resultCount={filteredGames.length}
+            onClearAll={clearPickerFilters}
           />
         </div>
       )}
@@ -192,17 +209,21 @@ export function GamesHub() {
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
           >
-            {filteredGames.map((g, index) => (
-              <GameCard
-                key={g.id}
-                game={g}
-                index={index}
-                pickerKey={GAMES.findIndex(x => x.id === g.id) + 1}
-                isLastPlayed={lastPlayedId === g.id}
-                personalBest={personalBests[g.id]}
-                onPlay={() => openGame(g.id)}
-              />
-            ))}
+            {filteredGames.length === 0 ? (
+              <GamesPickerEmpty onReset={clearPickerFilters} />
+            ) : (
+              filteredGames.map((g, index) => (
+                <GameCard
+                  key={g.id}
+                  game={g}
+                  index={index}
+                  pickerKey={GAMES.findIndex(x => x.id === g.id) + 1}
+                  isLastPlayed={lastPlayedId === g.id}
+                  personalBest={personalBests[g.id]}
+                  onPlay={() => openGame(g.id)}
+                />
+              ))
+            )}
           </motion.div>
         ) : (
           <motion.div
@@ -212,15 +233,14 @@ export function GamesHub() {
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
           >
-            <GamePlayHeader game={game} shareUrl={gameShareUrl(game.id)} onBack={backToGrid} />
+            <GamePlayHeader
+              game={game}
+              shareUrl={gameShareUrl(game.id)}
+              onBack={backToGrid}
+              onShuffle={shuffleTable}
+            />
             <GameStage game={game}>
-              {game.id === 'portal' && <RickMortyGame shareUrl={gameShareUrl('portal')} />}
-              {game.id === 'trivia' && <TriviaGame shareUrl={gameShareUrl('trivia')} />}
-              {game.id === 'pokemon' && <PokemonGame shareUrl={gameShareUrl('pokemon')} />}
-              {game.id === 'chess' && <ChessPuzzleGame shareUrl={gameShareUrl('chess')} />}
-              {game.id === 'sudoku' && <SudokuGame shareUrl={gameShareUrl('sudoku')} />}
-              {game.id === 'higherlower' && <HigherLowerGame shareUrl={gameShareUrl('higherlower')} />}
-              {game.id === 'rps' && <RpsGame shareUrl={gameShareUrl('rps')} />}
+              <GamesActiveTable gameId={game.id} shareUrl={gameShareUrl(game.id)} />
             </GameStage>
           </motion.div>
         )}
