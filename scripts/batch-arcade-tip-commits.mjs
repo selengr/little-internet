@@ -69,12 +69,19 @@ function appendTip(tip) {
   let src = readFile()
   const gamePart = tip.gameId ? `, gameId: '${tip.gameId}'` : ''
   const entry = `  { id: '${tip.id}', text: '${escape(tip.text)}'${gamePart} },\n`
-  const re = /export const ARCADE_TIPS: ArcadeTip\[\] = \[\n([\s\S]*?)\]\n\nexport function pickArcadeTip/
-  const m = src.match(re)
-  if (!m) throw new Error('Unexpected arcade-tips.ts shape')
-  const body = m[1]
-  const next = `export const ARCADE_TIPS: ArcadeTip[] = [\n${body}${entry}]\n\nexport function pickArcadeTip`
-  src = src.replace(re, next)
+  if (src.includes('export const ARCADE_TIPS: ArcadeTip[] = []')) {
+    src = src.replace(
+      'export const ARCADE_TIPS: ArcadeTip[] = []',
+      `export const ARCADE_TIPS: ArcadeTip[] = [\n${entry}]`,
+    )
+  } else {
+    const re = /export const ARCADE_TIPS: ArcadeTip\[\] = \[\n([\s\S]*?)\]\n\nexport function pickArcadeTip/
+    const m = src.match(re)
+    if (!m) throw new Error('Unexpected arcade-tips.ts shape')
+    const body = m[1]
+    const next = `export const ARCADE_TIPS: ArcadeTip[] = [\n${body}${entry}]\n\nexport function pickArcadeTip`
+    src = src.replace(re, next)
+  }
   fs.writeFileSync(tipsPath, src)
 }
 
