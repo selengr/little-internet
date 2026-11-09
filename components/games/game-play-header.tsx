@@ -2,18 +2,21 @@
 
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Check, Link2, Share2 } from 'lucide-react'
+import { ArrowLeft, Check, Link2, Share2, Shuffle } from 'lucide-react'
 import type { GameEntry } from '@/lib/games-catalog'
 
 export function GamePlayHeader({
   game,
   shareUrl,
   onBack,
+  onShuffle,
 }: {
   game: GameEntry
   /** Deep link to this table (?mode=) — copied on tap. */
   shareUrl: string
   onBack: () => void
+  /** Jump to another random table. */
+  onShuffle?: () => void
 }) {
   const Icon = game.icon
   const [copied, setCopied] = useState(false)
@@ -68,6 +71,16 @@ export function GamePlayHeader({
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
+        {onShuffle && (
+          <button
+            type="button"
+            onClick={onShuffle}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+          >
+            <Shuffle className="size-3.5" />
+            Shuffle
+          </button>
+        )}
         {canNativeShare && (
           <button
             type="button"
