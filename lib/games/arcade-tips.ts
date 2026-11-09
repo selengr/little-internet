@@ -10,6 +10,7 @@ export type ArcadeTip = {
 export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0001', text: 'Share Trivia with ?mode=trivia in the URL.', gameId: 'trivia' },
   { id: 'tip-0002', text: 'After Who\'s That Pokémon, hit Esc to compare scores on another table.', gameId: 'pokemon' },
+  { id: 'tip-0003', text: 'Chess Puzzle rounds are tuned for short breaks — no account needed.', gameId: 'chess' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
