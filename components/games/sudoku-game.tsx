@@ -181,7 +181,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games?mode=sudoku` }: { sha
           {isNewBest ? ' · New best!' : allTimeBest !== null && allTimeBest < elapsed ? ` · Best: ${formatTime(allTimeBest)}` : ''}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#3b82f6" to="#6366f1" onClick={start} size="s">
+          <GlowButton from="#3b82f6" to="#6366f1" onClick={start} size="s" ariaLabel="Start a new Sudoku puzzle">
             <RotateCcw className="mr-2 size-3.5" />
             New puzzle
           </GlowButton>
