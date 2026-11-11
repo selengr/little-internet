@@ -27,6 +27,12 @@ export default function GamesError({
         >
           Back to picker
         </Link>
+        <Link
+          href="/games?help=1"
+          className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          Open help
+        </Link>
       </div>
     </div>
   )
