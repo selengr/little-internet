@@ -2,6 +2,7 @@
 
 import { GAME_MOOD_LABEL, type GameEntry } from '@/lib/games-catalog'
 import { cn } from '@/lib/utils'
+import { Pin } from 'lucide-react'
 
 /**
  * A big, bright, tappable card — the whole point is that a kid can look at
@@ -22,6 +23,8 @@ export function GameCard({
   pickerKey,
   isLastPlayed = false,
   personalBest,
+  isPinned = false,
+  onTogglePin,
 }: {
   game: GameEntry
   onPlay: () => void
@@ -30,6 +33,8 @@ export function GameCard({
   pickerKey?: number
   isLastPlayed?: boolean
   personalBest?: { label: string; value: number }
+  isPinned?: boolean
+  onTogglePin?: () => void
 }) {
   const Icon = game.icon
 
@@ -49,8 +54,29 @@ export function GameCard({
       }}
     >
       {/* A couple of soft decorative circles — playful, not busy. */}
-      {isLastPlayed && (
+      {onTogglePin && (
+        <button
+          type="button"
+          onClick={e => {
+            e.stopPropagation()
+            onTogglePin()
+          }}
+          className={cn(
+            'absolute left-3 top-3 z-10 flex size-7 items-center justify-center rounded-full border border-white/20 bg-black/20 backdrop-blur-sm transition-colors hover:bg-black/35',
+            isPinned && 'bg-white/90 text-amber-600',
+          )}
+        >
+          <Pin className="size-3.5" aria-hidden />
+          <span className="sr-only">{isPinned ? 'Unpin table' : 'Pin table'}</span>
+        </button>
+      )}
+      {isLastPlayed && !onTogglePin && (
         <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black/80">
+          Last
+        </span>
+      )}
+      {isLastPlayed && onTogglePin && (
+        <span className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-white/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black/80">
           Last
         </span>
       )}
