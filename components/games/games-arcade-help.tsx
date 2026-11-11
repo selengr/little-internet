@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { HelpCircle, X } from 'lucide-react'
 import { pickArcadeTip } from '@/lib/games/arcade-tips'
 import { featuredArcadeTips } from '@/lib/games/featured-tips'
@@ -11,6 +11,7 @@ const FEATURED = featuredArcadeTips()
 export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [tipIndex, setTipIndex] = useState(0)
   const tip = useMemo(() => pickArcadeTip(tipIndex) ?? FEATURED[0] ?? null, [tipIndex])
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -20,6 +21,16 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -44,10 +55,13 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
               <kbd className="rounded border px-1 font-mono text-[10px]">R</kbd> random,{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">/</kbd> search,{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">?</kbd> help,{' '}
+              <kbd className="rounded border px-1 font-mono text-[10px]">[</kbd>{' '}
+              <kbd className="rounded border px-1 font-mono text-[10px]">]</kbd> prev/next table ·{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">Esc</kbd> back
             </p>
           </div>
           <button
+            ref={closeRef}
             type="button"
             onClick={onClose}
             className="rounded-full border border-border p-2 text-muted-foreground hover:text-foreground"
