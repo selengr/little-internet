@@ -152,7 +152,7 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games?mode=higherlower
           {!isNewBest && allTimeBest !== null && allTimeBest > best && ` Best: ${allTimeBest}.`}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#f43f5e" to="#fb923c" onClick={start} size="s">
+          <GlowButton from="#f43f5e" to="#fb923c" onClick={start} size="s" ariaLabel="Play Higher or Lower again">
             <RotateCcw className="mr-2 size-3.5" />
             Play again
           </GlowButton>
