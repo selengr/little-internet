@@ -115,7 +115,7 @@ export function RickMortyGame({ shareUrl = `${SITE_URL}/games?mode=portal` }: { 
         <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
           A silhouette drops in. Pick the name before the portal closes.
         </p>
-        <GlowButton from="#a3e635" to="#65a30d" onClick={start} className="mt-8 !text-[#12210a]">
+        <GlowButton from="#a3e635" to="#65a30d" onClick={start} className="mt-8 !text-[#12210a]" ariaLabel="Start Portal Faces round">
           <Sparkles className="mr-2 size-4" />
           Open the portal
         </GlowButton>
