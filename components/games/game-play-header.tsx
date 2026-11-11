@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Check, Link2, Share2, Shuffle } from 'lucide-react'
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, Link2, Share2, Shuffle } from 'lucide-react'
 import type { GameEntry } from '@/lib/games-catalog'
 
 export function GamePlayHeader({
@@ -10,6 +10,8 @@ export function GamePlayHeader({
   shareUrl,
   onBack,
   onShuffle,
+  tablePosition,
+  onAdjacent,
 }: {
   game: GameEntry
   /** Deep link to this table (?mode=) — copied on tap. */
@@ -17,6 +19,8 @@ export function GamePlayHeader({
   onBack: () => void
   /** Jump to another random table. */
   onShuffle?: () => void
+  tablePosition?: { index: number; total: number }
+  onAdjacent?: (direction: 'prev' | 'next') => void
 }) {
   const Icon = game.icon
   const [copied, setCopied] = useState(false)
@@ -68,9 +72,35 @@ export function GamePlayHeader({
           {game.tag}
           <span className="opacity-50"> · </span>
           {game.duration}
+          {tablePosition && (
+            <>
+              <span className="opacity-50"> · </span>
+              Table {tablePosition.index} of {tablePosition.total}
+            </>
+          )}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
+        {onAdjacent && (
+          <>
+            <button
+              type="button"
+              onClick={() => onAdjacent('prev')}
+              className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-card/80 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Previous table"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onAdjacent('next')}
+              className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-card/80 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Next table"
+            >
+              <ChevronRight className="size-4" />
+            </button>
+          </>
+        )}
         {onShuffle && (
           <button
             type="button"
