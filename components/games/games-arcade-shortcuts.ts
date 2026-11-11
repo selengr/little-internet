@@ -10,8 +10,9 @@ export function useGamesArcadeShortcuts(opts: {
   onOpenAtIndex?: (index: number) => void
   onToggleHelp?: () => void
   onFocusSearch?: () => void
+  onAdjacentTable?: (direction: 'prev' | 'next') => void
 }) {
-  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp, onFocusSearch } = opts
+  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp, onFocusSearch, onAdjacentTable } = opts
 
   useEffect(() => {
     if (gameId) return
@@ -50,13 +51,26 @@ export function useGamesArcadeShortcuts(opts: {
   useEffect(() => {
     if (!gameId) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
       const t = e.target as HTMLElement
       if (t.closest('input, textarea, [contenteditable="true"]')) return
-      e.preventDefault()
-      onBackToGrid()
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onBackToGrid()
+        return
+      }
+
+      if (!onAdjacentTable) return
+      if (e.key === '[') {
+        e.preventDefault()
+        onAdjacentTable('prev')
+      } else if (e.key === ']') {
+        e.preventDefault()
+        onAdjacentTable('next')
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [gameId, onBackToGrid])
+  }, [gameId, onBackToGrid, onAdjacentTable])
 }
