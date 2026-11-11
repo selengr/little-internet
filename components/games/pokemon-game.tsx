@@ -207,7 +207,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games?mode=pokemon` }: { s
           {pct >= 80 ? 'A true Pokémon master.' : pct >= 50 ? 'Solid catch rate.' : 'Back to training — go again.'}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#f59e0b" to="#ef4444" onClick={start} size="s">
+          <GlowButton from="#f59e0b" to="#ef4444" onClick={start} size="s" ariaLabel="Play Pokémon round again">
             <RotateCcw className="mr-2 size-3.5" />
             Play again
           </GlowButton>
