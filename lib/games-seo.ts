@@ -15,6 +15,17 @@ export function gamesPageJsonLd() {
   }
 }
 
+export function gamesBreadcrumbJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: absoluteUrl('/') },
+      { '@type': 'ListItem', position: 2, name: 'Games', item: absoluteUrl('/games') },
+    ],
+  }
+}
+
 export function gamesArcadeItemListJsonLd() {
   return {
     '@context': 'https://schema.org',
