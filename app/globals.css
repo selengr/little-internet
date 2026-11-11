@@ -240,6 +240,11 @@
   }
 }
 
+#games-picker-search:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--foreground) 35%, transparent);
+  outline-offset: 2px;
+}
+
 .game-card-last-played {
   box-shadow:
     0 10px 24px -12px rgba(0, 0, 0, 0.35),
