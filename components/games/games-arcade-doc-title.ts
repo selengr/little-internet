@@ -4,10 +4,12 @@ import { useEffect } from 'react'
 import { GAMES, type GameId } from '@/lib/games-catalog'
 
 /** Browser tab title while a table is open — returns on unmount. */
-export function useGamesArcadeDocTitle(gameId: GameId | null) {
+export function useGamesArcadeDocTitle(gameId: GameId | null, pickerSuffix?: string | null) {
   useEffect(() => {
     if (!gameId) {
-      document.title = 'Games — Little Internet'
+      document.title = pickerSuffix
+        ? `Games (${pickerSuffix}) — Little Internet`
+        : 'Games — Little Internet'
       return
     }
     const g = GAMES.find(x => x.id === gameId)
@@ -15,5 +17,5 @@ export function useGamesArcadeDocTitle(gameId: GameId | null) {
     return () => {
       document.title = 'Games — Little Internet'
     }
-  }, [gameId])
+  }, [gameId, pickerSuffix])
 }
