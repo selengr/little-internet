@@ -149,7 +149,7 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games?mode=chess` }: {
                 : 'Tricky ones — go again.'}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#1e293b" to="#475569" onClick={start} size="s">
+          <GlowButton from="#1e293b" to="#475569" onClick={start} size="s" ariaLabel="Play chess puzzles again">
             <RotateCcw className="mr-2 size-3.5" />
             Play again
           </GlowButton>
