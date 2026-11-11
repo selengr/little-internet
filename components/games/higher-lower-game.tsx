@@ -119,7 +119,7 @@ export function HigherLowerGame({ shareUrl = `${SITE_URL}/games?mode=higherlower
           Guess if the next game is rated higher or lower. Keep the streak going!
         </p>
         {!!allTimeBest && <p className="mt-2 text-[13px] font-medium text-rose-600 dark:text-rose-400">Your best streak: {allTimeBest}</p>}
-        <GlowButton from="#f43f5e" to="#fb923c" onClick={start} className="mt-6">
+        <GlowButton from="#f43f5e" to="#fb923c" onClick={start} className="mt-6" ariaLabel="Start Higher or Lower round">
           <Sparkles className="mr-2 size-4" />
           Start guessing
         </GlowButton>
