@@ -13,8 +13,11 @@ import {
   type GameMood,
 } from '@/lib/games-catalog'
 import { adjacentGameId } from '@/lib/games/adjacent-table'
+import { buildGamesPickerPath } from '@/lib/games/build-picker-url'
 import { gamePickerIndex } from '@/lib/games/picker-index'
-import { normalizeSearchQueryParam, searchQueryToParam } from '@/lib/games/search-query'
+import { getPinnedTableIds, togglePinnedTableId } from '@/lib/games/pinned-tables'
+import { getRecentTableIds, pushRecentTableId } from '@/lib/games/recent-tables'
+import { normalizeSearchQueryParam } from '@/lib/games/search-query'
 import { filterPickerGames, isGameMood } from '@/lib/games/filter-picker'
 import { gameAtPickerIndex } from '@/lib/games/find-game'
 import { shouldOpenArcadeHelp } from '@/lib/games/help-param'
@@ -32,6 +35,7 @@ import { GameStage } from '@/components/games/game-stage'
 import { GamesActiveTable } from '@/components/games/games-active-table'
 import { GamesPickerEmpty } from '@/components/games/games-picker-empty'
 import { GamesPickerGrid } from '@/components/games/games-picker-grid'
+import { GamesRecentStrip } from '@/components/games/games-recent-strip'
 
 export function GamesHub() {
   const router = useRouter()
@@ -52,8 +56,13 @@ export function GamesHub() {
   })
   const [pickerSearch, setPickerSearch] = useState(() => normalizeSearchQueryParam(searchParams.get('q')))
   const [helpOpen, setHelpOpen] = useState(false)
+  const [recentIds, setRecentIds] = useState<GameId[]>([])
+  const [pinnedIds, setPinnedIds] = useState<GameId[]>([])
+  const [pinnedOnly, setPinnedOnly] = useState(false)
 
   const refreshPickerMeta = useCallback(() => {
+    setRecentIds(getRecentTableIds())
+    setPinnedIds(getPinnedTableIds())
     setLastPlayedId(getLastPlayedGameId())
     const bests: Partial<Record<GameId, { label: string; value: number }>> = {}
     for (const entry of GAMES) {
@@ -77,7 +86,13 @@ export function GamesHub() {
     const moodRaw = searchParams.get('mood')
     const nextMood = isGameMood(moodRaw) ? moodRaw : null
     setPickerMood(prev => (prev === nextMood ? prev : nextMood))
-  }, [searchParams])
+    if (moodRaw && !isGameMood(moodRaw)) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('mood')
+      const query = params.toString()
+      router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+    }
+  }, [searchParams, router])
 
   useEffect(() => {
     const q = normalizeSearchQueryParam(searchParams.get('q'))
@@ -100,27 +115,32 @@ export function GamesHub() {
     (id: GameId) => {
       setLastPlayedGameId(id)
       setLastPlayedId(id)
+      setRecentIds(pushRecentTableId(id))
       setGameId(id)
-      const params = new URLSearchParams(searchParams.toString())
-      params.set('mode', id)
-      router.replace(`/games?${params.toString()}`, { scroll: false })
+      router.replace(
+        buildGamesPickerPath({ mode: id, mood: pickerMood, q: pickerSearch }),
+        { scroll: false },
+      )
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    [router, searchParams],
+    [router, pickerMood, pickerSearch],
   )
 
   const backToGrid = useCallback(() => {
     setGameId(null)
     refreshPickerMeta()
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete('mode')
-    const query = params.toString()
-    router.replace(query ? `/games?${query}` : '/games', { scroll: false })
-  }, [router, searchParams, refreshPickerMeta])
+    router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch }), { scroll: false })
+  }, [router, refreshPickerMeta, pickerMood, pickerSearch])
 
   const filteredGames = useMemo(
-    () => filterPickerGames({ mood: pickerMood, search: pickerSearch }),
-    [pickerMood, pickerSearch],
+    () =>
+      filterPickerGames({
+        mood: pickerMood,
+        search: pickerSearch,
+        pinnedOnly,
+        pinnedIds,
+      }),
+    [pickerMood, pickerSearch, pinnedOnly, pinnedIds],
   )
 
   const game = gameId ? GAMES.find(g => g.id === gameId) : null
@@ -148,13 +168,9 @@ export function GamesHub() {
   const setMoodFilter = useCallback(
     (mood: GameMood | null) => {
       setPickerMood(mood)
-      const params = new URLSearchParams(searchParams.toString())
-      if (mood) params.set('mood', mood)
-      else params.delete('mood')
-      const query = params.toString()
-      router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+      router.replace(buildGamesPickerPath({ mood, q: pickerSearch }), { scroll: false })
     },
-    [router, searchParams],
+    [router, pickerSearch],
   )
 
   const openAtIndex = useCallback(
@@ -165,19 +181,29 @@ export function GamesHub() {
     [openGame, filteredGames],
   )
 
-  const toggleHelp = useCallback(() => setHelpOpen(v => !v), [])
+  const closeHelp = useCallback(() => {
+    setHelpOpen(false)
+    if (searchParams.get('help')) {
+      router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch }), { scroll: false })
+    }
+  }, [router, searchParams, pickerMood, pickerSearch])
+
+  const openHelp = useCallback(() => {
+    setHelpOpen(true)
+    router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch, help: true }), { scroll: false })
+  }, [router, pickerMood, pickerSearch])
+
+  const toggleHelp = useCallback(() => {
+    if (helpOpen) closeHelp()
+    else openHelp()
+  }, [helpOpen, closeHelp, openHelp])
 
   const setPickerSearchWithUrl = useCallback(
     (value: string) => {
       setPickerSearch(value)
-      const params = new URLSearchParams(searchParams.toString())
-      const param = searchQueryToParam(value)
-      if (param) params.set('q', param)
-      else params.delete('q')
-      const query = params.toString()
-      router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+      router.replace(buildGamesPickerPath({ mood: pickerMood, q: value }), { scroll: false })
     },
-    [router, searchParams],
+    [router, pickerMood],
   )
 
   const clearPickerFilters = useCallback(() => {
@@ -204,7 +230,23 @@ export function GamesHub() {
     [gameId, openGame],
   )
 
-  useGamesArcadeDocTitle(gameId)
+  const pickerTitleSuffix = useMemo(() => {
+    if (gameId) return null
+    if (pinnedOnly) return 'pinned'
+    if (filteredGames.length !== GAME_COUNT) return `${filteredGames.length} shown`
+    return null
+  }, [gameId, pinnedOnly, filteredGames.length])
+
+  const togglePin = useCallback((id: GameId) => {
+    setPinnedIds(togglePinnedTableId(id))
+  }, [])
+
+  const openFirstFiltered = useCallback(() => {
+    const first = filteredGames[0]
+    if (first) openGame(first.id)
+  }, [filteredGames, openGame])
+
+  useGamesArcadeDocTitle(gameId, pickerTitleSuffix)
   useGamesArcadeShortcuts({
     gameId,
     onRandom: pickRandom,
@@ -230,7 +272,8 @@ export function GamesHub() {
           <p className="mx-auto mt-2.5 max-w-xs text-[14.5px] text-muted-foreground sm:max-w-sm">
             {GAME_COUNT} quick tables — each one is a round with a clean scoreboard.
           </p>
-          <GamesPickerToolbar onRandom={pickRandom} onResumeLast={resumeLast} onOpenHelp={() => setHelpOpen(true)} />
+          <GamesPickerToolbar onRandom={pickRandom} onResumeLast={resumeLast} onOpenHelp={openHelp} />
+          <GamesRecentStrip recentIds={recentIds} onOpen={openGame} />
           <GamesPickerFilters
             mood={pickerMood}
             onMoodChange={setMoodFilter}
@@ -238,10 +281,13 @@ export function GamesHub() {
             onSearchChange={setPickerSearchWithUrl}
             resultCount={filteredGames.length}
             onClearAll={clearPickerFilters}
+            pinnedOnly={pinnedOnly}
+            onPinnedOnlyChange={setPinnedOnly}
+            onSearchSubmit={openFirstFiltered}
           />
         </div>
       )}
-      <GamesArcadeHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <GamesArcadeHelp open={helpOpen} onClose={closeHelp} />
       <AnimatePresence mode="wait">
         {!game ? (
           <motion.div
@@ -261,6 +307,8 @@ export function GamesHub() {
                     pickerKey={gamePickerIndex(g.id)}
                     isLastPlayed={lastPlayedId === g.id}
                     personalBest={personalBests[g.id]}
+                    isPinned={pinnedIds.includes(g.id)}
+                    onTogglePin={() => togglePin(g.id)}
                     onPlay={() => openGame(g.id)}
                   />
                 ))
