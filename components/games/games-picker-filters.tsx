@@ -13,6 +13,9 @@ export function GamesPickerFilters({
   onSearchChange,
   resultCount,
   onClearAll,
+  pinnedOnly = false,
+  onPinnedOnlyChange,
+  onSearchSubmit,
 }: {
   mood: GameMood | null
   onMoodChange: (mood: GameMood | null) => void
@@ -20,6 +23,9 @@ export function GamesPickerFilters({
   onSearchChange: (value: string) => void
   resultCount: number
   onClearAll?: () => void
+  pinnedOnly?: boolean
+  onPinnedOnlyChange?: (value: boolean) => void
+  onSearchSubmit?: () => void
 }) {
   const hasFilters = mood !== null || search.trim().length > 0
   const moodCounts = moodTableCounts()
@@ -34,7 +40,10 @@ export function GamesPickerFilters({
         type="search"
         value={search}
         onChange={e => onSearchChange(e.target.value)}
-        placeholder="Search by name or vibe…"
+        onKeyDown={e => {
+          if (e.key === 'Enter') onSearchSubmit?.()
+        }}
+        placeholder="Search by name, vibe, or 1–7…"
         autoComplete="off"
         className="w-full rounded-2xl border border-border bg-card/80 px-4 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-foreground/25 focus-visible:ring-2 focus-visible:ring-foreground/10"
       />
@@ -60,6 +69,17 @@ export function GamesPickerFilters({
           )
         })}
       </div>
+      {onPinnedOnlyChange && (
+        <label className="flex cursor-pointer items-center justify-center gap-2 text-[11px] text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={pinnedOnly}
+            onChange={e => onPinnedOnlyChange(e.target.checked)}
+            className="size-3.5 rounded border-border"
+          />
+          Pinned only
+        </label>
+      )}
       <h2 className="sr-only">Filter tables</h2>
       <div className="flex flex-wrap items-center justify-center gap-2">
         <p className="text-[10px] text-muted-foreground/80" aria-live="polite">
