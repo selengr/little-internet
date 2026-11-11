@@ -2,7 +2,7 @@ import { GAMES } from '@/lib/games-catalog'
 import { SITE_URL, absoluteUrl } from '@/lib/site'
 
 export const GAMES_PAGE_DESCRIPTION =
-  'Seven quick tables: Portal Faces, trivia, chess puzzles, Sudoku, Pokémon, Higher or Lower and Rock–Paper–Scissors — filter by mood, search the grid, press ? for help, no account.'
+  'Seven quick tables: Portal Faces, trivia, chess puzzles, Sudoku, Pokémon, Higher or Lower and Rock–Paper–Scissors — pin favorites, filter by mood, search with ?q=, press ? for help, no account.'
 
 export function gamesPageJsonLd() {
   return {
