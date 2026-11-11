@@ -222,7 +222,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games?mode=trivia` }: { sha
             ))}
           </div>
 
-          <GlowButton from="#6366f1" to="#a855f7" onClick={start} className="mt-8">
+          <GlowButton from="#6366f1" to="#a855f7" onClick={start} className="mt-8" ariaLabel="Start trivia quiz">
             <Sparkles className="mr-2 size-4" />
             Start quiz
           </GlowButton>
