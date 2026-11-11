@@ -177,7 +177,7 @@ export function PokemonGame({ shareUrl = `${SITE_URL}/games?mode=pokemon` }: { s
             ))}
           </div>
 
-          <GlowButton from="#f59e0b" to="#ef4444" onClick={start} className="mt-8">
+          <GlowButton from="#f59e0b" to="#ef4444" onClick={start} className="mt-8" ariaLabel="Start Pokémon guessing round">
             <Sparkles className="mr-2 size-4" />
             Who&apos;s that Pokémon?
           </GlowButton>
