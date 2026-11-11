@@ -144,7 +144,7 @@ export function RickMortyGame({ shareUrl = `${SITE_URL}/games?mode=portal` }: { 
           {pct >= 80 ? 'Wubba lubba dub dub.' : pct >= 50 ? 'You get around the multiverse.' : 'Morty would still be lost.'}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#a3e635" to="#65a30d" onClick={start} size="s" className="!text-[#12210a]">
+          <GlowButton from="#a3e635" to="#65a30d" onClick={start} size="s" className="!text-[#12210a]" ariaLabel="Play Portal Faces again">
             <RotateCcw className="mr-2 size-3.5" />
             Play again
           </GlowButton>
