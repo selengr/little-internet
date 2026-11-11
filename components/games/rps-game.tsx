@@ -198,7 +198,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games?mode=rps` }: { shareUrl?
               : 'Computer takes this one — go again.'}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#10b981" to="#14b8a6" onClick={start} size="s">
+          <GlowButton from="#10b981" to="#14b8a6" onClick={start} size="s" ariaLabel="Play Rock Paper Scissors again">
             <RotateCcw className="mr-2 size-3.5" />
             Play again
           </GlowButton>
