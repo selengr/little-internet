@@ -49,6 +49,7 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
               <HelpCircle className="size-5 text-indigo-500" aria-hidden />
               Arcade cheatsheet
             </h2>
+            <p className="mt-1 text-[11px] text-muted-foreground">Pin tables from the card corner; filter with Pinned only.</p>
             <p className="mt-1 text-[12px] text-muted-foreground">
               {GAME_COUNT} tables · keys <kbd className="rounded border px-1 font-mono text-[10px]">1</kbd>–
               <kbd className="rounded border px-1 font-mono text-[10px]">7</kbd>,{' '}
