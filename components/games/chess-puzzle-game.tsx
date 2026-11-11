@@ -115,7 +115,7 @@ export function ChessPuzzleGame({ shareUrl = `${SITE_URL}/games?mode=chess` }: {
           <p className="mt-2 text-[13px] font-medium text-slate-600 dark:text-slate-300">Your best: {allTimeBest} / {ROUND_COUNT}</p>
         )}
 
-        <GlowButton from="#1e293b" to="#475569" onClick={start} className="mt-6">
+        <GlowButton from="#1e293b" to="#475569" onClick={start} className="mt-6" ariaLabel="Start chess puzzle round">
           <Sparkles className="mr-2 size-4" />
           Find the move
         </GlowButton>
