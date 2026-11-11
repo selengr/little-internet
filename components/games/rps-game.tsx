@@ -174,7 +174,7 @@ export function RpsGame({ shareUrl = `${SITE_URL}/games?mode=rps` }: { shareUrl?
           <p className="mt-2 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">Your best win streak: {allTimeBest}</p>
         )}
 
-        <GlowButton from="#10b981" to="#14b8a6" onClick={start} className="mt-8">
+        <GlowButton from="#10b981" to="#14b8a6" onClick={start} className="mt-8" ariaLabel="Start Rock Paper Scissors match">
           <Sparkles className="mr-2 size-4" />
           Throw down
         </GlowButton>
