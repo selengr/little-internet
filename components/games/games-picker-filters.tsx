@@ -1,6 +1,7 @@
 'use client'
 
-import { GAME_MOOD_LABEL, type GameMood } from '@/lib/games-catalog'
+import { GAME_COUNT, GAME_MOOD_LABEL, type GameMood } from '@/lib/games-catalog'
+import { moodTableCounts } from '@/lib/games/mood-counts'
 import { cn } from '@/lib/utils'
 
 const MOODS: (GameMood | null)[] = [null, 'quick', 'think', 'guess']
@@ -21,6 +22,8 @@ export function GamesPickerFilters({
   onClearAll?: () => void
 }) {
   const hasFilters = mood !== null || search.trim().length > 0
+  const moodCounts = moodTableCounts()
+
   return (
     <div className="mx-auto mt-5 flex w-full max-w-lg flex-col gap-3">
       <label className="sr-only" htmlFor="games-picker-search">
@@ -38,10 +41,10 @@ export function GamesPickerFilters({
       <div className="flex flex-wrap items-center justify-center gap-1.5" role="group" aria-label="Filter by mood">
         {MOODS.map(m => {
           const active = mood === m
-          const label = m === null ? 'All' : GAME_MOOD_LABEL[m]
+          const label = m === null ? `All (${GAME_COUNT})` : `${GAME_MOOD_LABEL[m]} (${moodCounts[m]})`
           return (
             <button
-              key={label}
+              key={m ?? 'all'}
               type="button"
               aria-pressed={active}
               onClick={() => onMoodChange(m)}
