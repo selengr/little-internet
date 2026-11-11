@@ -64,6 +64,7 @@ export function GlowButton({
   leadingIcon,
   /** Replaces the trailing arrow. */
   icon,
+  ariaLabel,
 }: {
   size?: 'md' | 's'
   leadingIcon?: React.ReactNode
@@ -76,6 +77,7 @@ export function GlowButton({
   children: React.ReactNode
   className?: string
   style?: React.CSSProperties
+  ariaLabel?: string
 }) {
   const ref = useRef<HTMLButtonElement>(null)
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([])
@@ -86,6 +88,7 @@ export function GlowButton({
       ref={ref}
       type="button"
       disabled={busy}
+      aria-label={ariaLabel}
       data-busy={busy ? 'true' : 'false'}
       onClick={e => {
         const r = e.currentTarget.getBoundingClientRect()
