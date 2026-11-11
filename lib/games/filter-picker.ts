@@ -16,6 +16,7 @@ export function filterPickerGames(opts: {
   return GAMES.filter(entry => {
     if (opts.mood && entry.mood !== opts.mood) return false
     if (!q) return true
+    if (entry.id.includes(q)) return true
     const haystack = `${entry.name} ${entry.tag} ${entry.duration} ${GAME_MOOD_LABEL[entry.mood]}`.toLowerCase()
     return haystack.includes(q)
   })
