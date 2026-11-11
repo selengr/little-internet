@@ -5,7 +5,12 @@ import { GamesHub } from '@/components/games/games-hub'
 import GamesLoading from '@/app/games/loading'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
-import { GAMES_PAGE_DESCRIPTION, gamesArcadeItemListJsonLd, gamesPageJsonLd } from '@/lib/games-seo'
+import {
+  GAMES_PAGE_DESCRIPTION,
+  gamesArcadeItemListJsonLd,
+  gamesBreadcrumbJsonLd,
+  gamesPageJsonLd,
+} from '@/lib/games-seo'
 
 const description = GAMES_PAGE_DESCRIPTION
 
@@ -16,6 +21,7 @@ export const dynamic = 'force-dynamic'
 
 const jsonLd = gamesPageJsonLd()
 const arcadeListJsonLd = gamesArcadeItemListJsonLd()
+const breadcrumbJsonLd = gamesBreadcrumbJsonLd()
 
 export const metadata = {
   title: 'Games',
@@ -51,6 +57,7 @@ export default function GamesPage() {
       </a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(arcadeListJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-5%,oklch(0.7_0.04_280_/0.1),transparent_55%)] dark:bg-[radial-gradient(ellipse_70%_50%_at_50%_-5%,oklch(0.4_0.04_280_/0.18),transparent_55%)]" />
       </div>
