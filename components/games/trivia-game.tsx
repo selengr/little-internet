@@ -257,7 +257,7 @@ export function TriviaGame({ shareUrl = `${SITE_URL}/games?mode=trivia` }: { sha
           {bestStreak >= 3 && ` Best streak: ${bestStreak} in a row.`}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <GlowButton from="#6366f1" to="#a855f7" onClick={start} size="s">
+          <GlowButton from="#6366f1" to="#a855f7" onClick={start} size="s" ariaLabel="Play trivia again">
             <RotateCcw className="mr-2 size-3.5" />
             Play again
           </GlowButton>
