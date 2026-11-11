@@ -153,7 +153,7 @@ export function SudokuGame({ shareUrl = `${SITE_URL}/games?mode=sudoku` }: { sha
           <p className="mt-2 text-[13px] font-medium text-blue-600 dark:text-blue-400">Your best ({difficulty}): {formatTime(allTimeBest)}</p>
         )}
 
-        <GlowButton from="#3b82f6" to="#6366f1" onClick={start} className="mt-8">
+        <GlowButton from="#3b82f6" to="#6366f1" onClick={start} className="mt-8" ariaLabel="Start Sudoku puzzle">
           <Sparkles className="mr-2 size-4" />
           New puzzle
         </GlowButton>
