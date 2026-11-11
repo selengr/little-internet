@@ -11,6 +11,11 @@ export default function GamesLoading() {
             <div key={i} className="h-7 w-14 animate-pulse rounded-full bg-muted/50 motion-reduce:animate-none" />
           ))}
         </div>
+        <div className="mt-2 flex gap-1.5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-6 w-16 animate-pulse rounded-full bg-muted/40 motion-reduce:animate-none" />
+          ))}
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         {Array.from({ length: 7 }).map((_, i) => (
