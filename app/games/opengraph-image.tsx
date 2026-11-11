@@ -34,7 +34,7 @@ export default function GamesOgImage() {
           Games arcade
         </div>
         <div style={{ fontSize: 26, opacity: 0.88, maxWidth: 780, textAlign: 'center', lineHeight: 1.35 }}>
-          Search with ?q= · [ ] hop tables · mood filters · no install.
+          Pin tables · recent strip · ?q= search · [ ] hop · no install.
         </div>
       </div>
     ),
