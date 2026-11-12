@@ -16,7 +16,6 @@ import { MobileNav } from "@/components/mobile-nav";
 import { DevExSection } from "@/components/devex-section";
 import { ToolsMarquee } from "@/components/tools-marquee";
 import Banner from "@/components/views/banner/banner";
-import { BLOG_AUTHOR_IMAGE } from "@/lib/blog-author";
 import { MarketsBanner } from "@/components/markets-banner";
 import { MarketsBentoCards } from "@/components/markets-bento-cards";
 import { EnglishSuiteSection } from "@/components/english-suite";
@@ -157,20 +156,11 @@ export default function AgenticPage() {
 
       <section className="relative min-h-screen overflow-hidden">
         <Banner
-          banner="/images/banners/fikeus-west-2.avif"
-          user={BLOG_AUTHOR_IMAGE}
-          blog
-          title="Writing"
+          banner="/images/banners/https___west.avif"
+          user={'/LOGO/rk-light-logo.png'}
+          home
           videoReady={videoReady}
-        >
-          <p
-            className="text-center text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em]"
-            dir="ltr"
-          >
-            Hi, I write here about what I&apos;m building, what I&apos;m learning,
-            and the ideas I want to keep.
-          </p>
-        </Banner>
+        />
 
         {/* Progressive blur + light gradient rising from bottom */}
         <div
