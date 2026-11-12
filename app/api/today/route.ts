@@ -1,40 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchApod } from '@/lib/apod'
+import { pickLocalNumberFact, pickLocalQuote, type DayNumber, type DayQuote } from '@/lib/today-fallbacks'
 
 export const dynamic = 'force-dynamic'
 
 const UA = 'LittleInternet/1.0 (+https://rezakarbakhsh.ir)'
 
-type Quote = { content: string; author: string }
-type NumberFact = { number: number; text: string }
-
-async function fetchQuote(): Promise<Quote | null> {
+async function fetchQuoteFromPoetryDb(): Promise<DayQuote | null> {
   try {
-    const res = await fetch('https://api.quotable.io/random', {
+    const res = await fetch('https://poetrydb.org/random/1/author,title,lines', {
       headers: { Accept: 'application/json', 'User-Agent': UA },
       signal: AbortSignal.timeout(8000),
       next: { revalidate: 600 },
     })
     if (!res.ok) return null
-    const j = (await res.json()) as { content?: string; author?: string }
-    if (!j.content) return null
-    return { content: j.content, author: j.author ?? 'Unknown' }
-  } catch {
-    return null
-  }
-}
-
-async function fetchNumberFact(): Promise<NumberFact | null> {
-  try {
-    const res = await fetch('https://numbersapi.com/random/trivia?json', {
-      headers: { Accept: 'application/json', 'User-Agent': UA },
-      signal: AbortSignal.timeout(8000),
-      next: { revalidate: 600 },
-    })
-    if (!res.ok) return null
-    const j = (await res.json()) as { number?: number; text?: string }
-    if (!j.text) return null
-    return { number: j.number ?? 0, text: j.text }
+    const rows = (await res.json()) as { author?: string; title?: string; lines?: string[] }[]
+    const poem = rows?.[0]
+    const line = poem?.lines?.find(l => l.trim().length > 8) ?? poem?.lines?.[0]
+    if (!line) return null
+    const author = poem?.author ?? 'Unknown'
+    const title = poem?.title ? ` · ${poem.title}` : ''
+    return { content: line.trim(), author: `${author}${title}` }
   } catch {
     return null
   }
@@ -60,31 +46,24 @@ async function fetchNextHolidays(countryCode: string): Promise<Holiday[]> {
 
 export async function GET(request: NextRequest) {
   const countryCode = request.nextUrl.searchParams.get('country')?.trim() || 'US'
+  const seed = Date.now()
 
-  const [apod, quote, number, holidays] = await Promise.all([
+  const [apod, quoteFromDb, holidays] = await Promise.all([
     fetchApod(),
-    fetchQuote(),
-    fetchNumberFact(),
+    fetchQuoteFromPoetryDb(),
     fetchNextHolidays(countryCode),
   ])
 
-  const fallbackQuote: Quote = {
-    content: 'The sky is the daily bread of the eyes.',
-    author: 'Ralph Waldo Emerson',
-  }
-
-  const fallbackNumber: NumberFact = {
-    number: new Date().getDate(),
-    text: `Day ${new Date().getDate()} of the month — still counting.`,
-  }
+  const quote: DayQuote = quoteFromDb ?? pickLocalQuote(seed)
+  const number: DayNumber = pickLocalNumberFact(seed)
 
   return NextResponse.json(
     {
       date: new Date().toISOString(),
       countryCode: countryCode.toUpperCase().slice(0, 2),
       apod,
-      quote: quote ?? fallbackQuote,
-      number: number ?? fallbackNumber,
+      quote,
+      number,
       holidays,
     },
     { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=900' } },
