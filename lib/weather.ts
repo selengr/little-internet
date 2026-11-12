@@ -86,11 +86,12 @@ export async function fetchOpenMeteo(lat: number, lon: number): Promise<WeatherB
   const daily = data.daily ?? {}
 
   const now = cur.time ?? new Date().toISOString()
+  const nowMs = new Date(now).getTime()
   const times = hourly.time ?? []
   const temps = hourly.temperature_2m ?? []
   const codes = hourly.weather_code ?? []
 
-  let start = times.findIndex(t => t >= now.slice(0, 13))
+  let start = times.findIndex(t => new Date(t).getTime() >= nowMs - 3_600_000)
   if (start < 0) start = 0
 
   return {
