@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { getBlogConfigStatus, listPublishedPosts } from '@/lib/blog'
-import { BLOG_AUTHOR_IMAGE } from '@/lib/blog-author'
 import Banner from '@/components/views/banner/banner'
 import { BlogCard } from '@/components/blog/blog-card'
 import { BlogGridSkeleton } from '@/components/blog/blog-card-skeleton'
@@ -112,20 +111,11 @@ export default function BlogPage() {
 
       <section className="relative">
         <Banner
-          banner="/images/banners/fikeus-west-2.avif"
-          user={BLOG_AUTHOR_IMAGE}
-          blog
-          title="Writing"
+          banner="/images/banners/https___west.avif"
+          user="/LOGO/rk-light-logo.png"
+          home
           videoReady
-        >
-          <p
-            className="text-center text-[17px] sm:text-[19px] leading-[1.5] text-muted-foreground tracking-[-0.01em]"
-            dir="ltr"
-          >
-            Hi, I write here about what I&apos;m building, what I&apos;m learning,
-            and the ideas I want to keep.
-          </p>
-        </Banner>
+        />
       </section>
 
       <section className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 pt-10 sm:pt-14 pb-28">
