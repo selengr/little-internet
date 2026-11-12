@@ -13,20 +13,20 @@ type RoomNavProps = {
 
 export function RoomNav({ badge, nextHref, nextLabel }: RoomNavProps) {
   return (
-    <div className="fixed top-4 inset-x-0 z-[80] flex justify-center px-4 pointer-events-none">
+    <div className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
       <div
-        className={`pointer-events-auto w-full max-w-3xl flex items-center justify-between px-4 py-2.5 rounded-2xl border border-white/10 ${NAV_GLASS_CLASS}`}
+        className={`pointer-events-auto w-full max-w-3xl flex items-center justify-between px-4 py-2.5 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] ${NAV_GLASS_CLASS}`}
         style={NAV_GLASS}
       >
         <ThemeToggle />
-        <span className="font-pixel text-[10px] tracking-[0.22em] text-white/55 hidden sm:inline">
+        <span className="font-pixel text-[10px] tracking-[0.22em] text-black/50 dark:text-white/50 hidden sm:inline">
           {badge}
         </span>
         <div className="flex items-center gap-2">
           {nextHref && nextLabel ? (
             <Link
               href={nextHref}
-              className="inline-flex items-center gap-2 text-[11px] px-3 py-2 rounded-xl border border-white/15 text-white/75 hover:text-white hover:border-white/30 hover:bg-white/[0.06] transition-all duration-200 tracking-wide"
+              className="inline-flex items-center gap-2 text-[11px] px-3 py-2 rounded-xl border border-black/10 dark:border-white/20 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:border-black/20 dark:hover:border-white/30 hover:bg-black/[0.03] dark:hover:bg-white/[0.08] transition-all duration-200 tracking-wide"
               style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
             >
               {nextLabel}
@@ -35,7 +35,7 @@ export function RoomNav({ badge, nextHref, nextLabel }: RoomNavProps) {
           ) : null}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[11px] px-3 py-2 rounded-xl border border-white/15 text-white/75 hover:text-white hover:border-white/30 hover:bg-white/[0.06] transition-all duration-200 tracking-wide"
+            className="inline-flex items-center gap-2 text-[11px] px-3 py-2 rounded-xl border border-black/10 dark:border-white/20 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:border-black/20 dark:hover:border-white/30 hover:bg-black/[0.03] dark:hover:bg-white/[0.08] transition-all duration-200 tracking-wide"
             style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
           >
             Home
