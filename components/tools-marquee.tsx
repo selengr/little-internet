@@ -8,6 +8,7 @@ import {
   ArrowRightLeft,
   ArrowUpRight,
   Bitcoin,
+  Coins,
   BookA,
   Camera,
   Cat,
@@ -44,6 +45,7 @@ const ROW_ONE: Item[] = [
   { label: 'Games', sub: 'Seven quick tables', href: '/games', icon: Gamepad2, badge: 'new' },
   { label: 'Live Markets', sub: 'Charts and candles', href: '/charts', icon: ChartCandlestick, badge: 'live' },
   { label: 'Crypto Prices', sub: 'The top coins', href: '/crypto', icon: Bitcoin, badge: 'live' },
+  { label: 'Gold Desk', sub: 'Spot, bid/ask, karat', href: '/gold', icon: Coins, badge: 'live' },
   { label: 'Photo Discovery', sub: 'Fresh from Unsplash', href: '/photos', icon: Camera },
 ]
 
