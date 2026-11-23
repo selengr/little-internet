@@ -343,6 +343,11 @@ html {
 
 
 
+/* Fixed top nav — anchor jumps (e.g. #markets on the homepage) land below the bar. */
+html {
+  scroll-padding-top: 5.5rem;
+}
+
 /* Embedded mode: a page shown inside the tools modal drops its own chrome. */
 html[data-embedded] div.fixed:has(.nav-glass),
 html[data-embedded] [data-embed-hide] {
