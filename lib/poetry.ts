@@ -1,5 +1,6 @@
 import type { PoetInfo, PoetryMood, PoetryPoem } from '@/types/poetry'
 
+/** Public-domain verse API — search uses /author/{name} and /title/{title}. */
 export const POETRYDB = 'https://poetrydb.org'
 
 export const MOODS: { id: PoetryMood; label: string; query: string }[] = [
