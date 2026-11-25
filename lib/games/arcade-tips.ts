@@ -213,6 +213,11 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0203', text: 'Portal Faces rounds are tuned for short breaks — no account needed.', gameId: 'portal' },
   { id: 'tip-0204', text: 'Try Pricier duel on /games-v2 for a card-battle table.' },
   { id: 'tip-0205', text: 'Who\'s That Pokémon: tap a card or press 3 on the picker.', gameId: 'pokemon' },
+  { id: 'tip-0206', text: 'Share my bests copies every saved streak and Sudoku time from this browser.' },
+  { id: 'tip-0207', text: 'Press L on the picker to reopen your last table.' },
+  { id: 'tip-0208', text: 'Homepage Play jumps to #play — arcade entry beside the tools marquee.' },
+  { id: 'tip-0209', text: 'Poetry page: press / to focus author or title search.' },
+  { id: 'tip-0210', text: 'Cheatsheet lists in-table keys — open with ? or the Help button.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
