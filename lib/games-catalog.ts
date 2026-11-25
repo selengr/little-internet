@@ -119,3 +119,8 @@ export function gamesArcadeHelpUrl() {
   const origin = SITE_URL.replace(/\/$/, '')
   return `${origin}/games?help=1`
 }
+
+export function gamesArcadeHomeUrl() {
+  const origin = SITE_URL.replace(/\/$/, '')
+  return `${origin}/games`
+}
