@@ -7,11 +7,13 @@ import { ThemeToggle } from "./theme-toggle"
 import { NAV_GLASS, NAV_GLASS_CLASS } from "@/lib/nav-glass"
 
 const NAV_LINKS = [
-  { label: "Markets",      href: "#markets" },
-  { label: "Photos",       href: "#photos" },
-  { label: "English",      href: "#english" },
-  { label: "Tools",        href: "#tools" },
-  { label: "World",        href: "#countries" },
+  { label: "Markets", href: "#markets" },
+  { label: "Play", href: "#play" },
+  { label: "Photos", href: "#photos" },
+  { label: "Poetry", href: "/poetry" },
+  { label: "English", href: "#english" },
+  { label: "Tools", href: "#tools" },
+  { label: "World", href: "#countries" },
 ]
 
 export function MobileNav() {
