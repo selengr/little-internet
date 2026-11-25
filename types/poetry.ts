@@ -18,3 +18,9 @@ export interface PoetInfo {
   era: string
   themes: string[]
 }
+
+export type PoetrySearchHit = {
+  query: string
+  field: 'author' | 'title'
+  poems: PoetryPoem[]
+}
