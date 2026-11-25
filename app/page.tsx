@@ -14,6 +14,7 @@ import { RevealText } from "@/components/reveal-text";
 import { PhotoShowcaseStack } from "@/components/photo-showcase-stack";
 import { MobileNav } from "@/components/mobile-nav";
 import { DevExSection } from "@/components/devex-section";
+import { HomePlayRibbon } from "@/components/home-play-ribbon";
 import { ToolsMarquee } from "@/components/tools-marquee";
 import Banner from "@/components/views/banner/banner";
 import { MarketsBanner } from "@/components/markets-banner";
@@ -458,6 +459,8 @@ export default function AgenticPage() {
 
       <DevExSection />
 
+      <HomePlayRibbon />
+
       <ToolsMarquee />
 
       {/* <section
@@ -577,10 +580,11 @@ export default function AgenticPage() {
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
             {[
               { label: "Markets", href: "#markets" },
+              { label: "Play", href: "#play" },
               { label: "Photos", href: "#photos" },
+              { label: "Poetry", href: "/poetry" },
               { label: "English", href: "#english" },
               { label: "Tools", href: "#tools" },
-              { label: "Live", href: "#live" },
               { label: "World", href: "#countries" },
             ].map((l) => (
               <a
