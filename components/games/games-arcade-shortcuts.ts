@@ -11,8 +11,10 @@ export function useGamesArcadeShortcuts(opts: {
   onToggleHelp?: () => void
   onFocusSearch?: () => void
   onAdjacentTable?: (direction: 'prev' | 'next') => void
+  onResumeLast?: () => void
 }) {
-  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp, onFocusSearch, onAdjacentTable } = opts
+  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp, onFocusSearch, onAdjacentTable, onResumeLast } =
+    opts
 
   useEffect(() => {
     if (gameId) return
@@ -42,11 +44,17 @@ export function useGamesArcadeShortcuts(opts: {
       if (onFocusSearch && e.key === '/') {
         e.preventDefault()
         onFocusSearch()
+        return
+      }
+
+      if (onResumeLast && (e.key === 'l' || e.key === 'L')) {
+        e.preventDefault()
+        onResumeLast()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp, onFocusSearch])
+  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp, onFocusSearch, onResumeLast])
 
   useEffect(() => {
     if (!gameId) return
