@@ -9,6 +9,12 @@ import {
   pickRandomFallback,
   fallbackByMood,
 } from '@/lib/poetry'
+import {
+  isPoetrySearchQueryValid,
+  normalizePoetrySearchQuery,
+  poetryDbSearchPath,
+  type PoetrySearchField,
+} from '@/lib/poetry-search'
 import type { PoetryMood, PoetryPoem } from '@/types/poetry'
 
 export const dynamic = 'force-dynamic'
@@ -148,6 +154,38 @@ export async function GET(request: NextRequest) {
         trending: random.slice(0, 6),
         poets: FEATURED_POETS,
       })
+    }
+
+    if (action === 'search') {
+      const q = normalizePoetrySearchQuery(searchParams.get('q') ?? '')
+      const field = (searchParams.get('field') === 'title' ? 'title' : 'author') as PoetrySearchField
+      if (!isPoetrySearchQueryValid(q)) {
+        return NextResponse.json({ error: 'Query too short' }, { status: 400 })
+      }
+      try {
+        const path = poetryDbSearchPath(field, q)
+        const poems = asPoems(await poetryFetch(path))
+        return NextResponse.json({
+          query: q,
+          field,
+          poems: poems.slice(0, 12),
+          count: poems.length,
+          source: 'poetrydb',
+        })
+      } catch {
+        const local = fallbackByMood().filter(p =>
+          field === 'author'
+            ? p.author.toLowerCase().includes(q.toLowerCase())
+            : p.title.toLowerCase().includes(q.toLowerCase()),
+        )
+        return NextResponse.json({
+          query: q,
+          field,
+          poems: local.slice(0, 8),
+          count: local.length,
+          source: 'fallback',
+        })
+      }
     }
 
     if (action === 'author') {
