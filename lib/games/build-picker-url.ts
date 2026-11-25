@@ -1,6 +1,7 @@
 import type { GameId, GameMood } from '@/lib/games-catalog'
 import { searchQueryToParam } from '@/lib/games/search-query'
 
+/** Build `/games` with optional table mode, mood filter, search, and help sheet. */
 export function buildGamesPickerPath(opts: {
   mode?: GameId | null
   mood?: GameMood | null
