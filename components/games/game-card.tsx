@@ -43,7 +43,9 @@ export function GameCard({
       type="button"
       onClick={onPlay}
       title={`${game.name} — ${game.tag} (${game.duration})`}
-      aria-label={`Open ${game.name}: ${game.tag}. Mood ${GAME_MOOD_LABEL[game.mood]}. Typical round ${game.duration}.`}
+      aria-label={`Open ${game.name}: ${game.tag}. Mood ${GAME_MOOD_LABEL[game.mood]}. Typical round ${game.duration}.${
+        pickerKey !== undefined ? ` Press ${pickerKey} on the picker.` : ''
+      }`}
       className={cn(
         'game-card-pop-in group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-[28px] p-4 text-left shadow-[0_10px_24px_-12px_rgba(0,0,0,0.35)] outline-none transition-transform duration-150 ease-out hover:-translate-y-1 focus-visible:ring-4 focus-visible:ring-white/60 active:scale-[0.96] active:translate-y-0 sm:rounded-[32px] sm:p-5',
         isLastPlayed && 'game-card-last-played',
