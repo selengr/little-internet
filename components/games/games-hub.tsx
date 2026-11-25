@@ -255,6 +255,7 @@ export function GamesHub() {
     onToggleHelp: toggleHelp,
     onFocusSearch: focusPickerSearch,
     onAdjacentTable: goAdjacentTable,
+    onResumeLast: resumeLast,
   })
 
   return (
