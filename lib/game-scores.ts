@@ -7,6 +7,7 @@ import { isGameId, type GameId } from '@/lib/games-catalog'
 // metric makes sense (accuracy %, time, streak) and whether a higher or
 // lower number is the win.
 
+/** localStorage prefix for arcade personal bests (see arcade-bests-share). */
 const PREFIX = 'li-games-best:'
 
 /** Last opened arcade table on /games — used by Surprise me / Last table. */
