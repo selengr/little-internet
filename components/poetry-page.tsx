@@ -8,6 +8,7 @@ import { PoemInkSpinner, SPIN_MS } from '@/components/diversion-spinners'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { NAV_GLASS, NAV_GLASS_CLASS } from '@/lib/nav-glass'
 import { MOODS, normalizePoem, pickFallbackPoem, pickRandomFallback } from '@/lib/poetry'
+import { PoetrySearchPanel } from '@/components/poetry/poetry-search-panel'
 import { GlowFrame } from '@/components/glow-frame'
 import { CopyButton, CopyIconButton } from '@/components/copy-button'
 import { GlowButton } from '@/components/glow-button'
@@ -92,7 +93,7 @@ const CSS = `
   }
 `
 
-const RIBBON = ['VERSE', 'STANZA', 'RHYME', 'INK', 'METRE', 'SONNET', 'MUSE', 'LINE BREAK']
+const RIBBON = ['VERSE', 'SEARCH', 'STANZA', 'RHYME', 'INK', 'METRE', 'SONNET', 'MUSE', 'LINE BREAK']
 
 export function PoetryPage() {
   const [card, setCard] = useState<Card | null>(null)
@@ -122,6 +123,15 @@ export function PoetryPage() {
     setExpanded(false)
     setHistory(h => [entry, ...h].slice(0, 12))
   }, [])
+
+  const showFromSearch = useCallback(
+    (poem: PoetryPoem) => {
+      const normalized = normalizePoem(poem)
+      show(normalized, filter)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    [filter, show],
+  )
 
   // Poem of the day on arrival.
   useEffect(() => {
@@ -234,7 +244,7 @@ export function PoetryPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--py-mute)]">
-            Spill a little ink and see what blooms. Pick a mood, or let the page choose.
+            Spill a little ink, search PoetryDB by author or title, or let the mood spinner choose.
           </p>
         </header>
 
@@ -255,6 +265,8 @@ export function PoetryPage() {
             ))}
           </div>
         </div>
+
+        <PoetrySearchPanel disabled={busy} onPickPoem={showFromSearch} />
 
         {/* Mood picker */}
         <div
