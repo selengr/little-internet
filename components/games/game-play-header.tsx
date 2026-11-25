@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, Link2, Share2, Shuffle } from 'lucide-react'
 import type { GameEntry } from '@/lib/games-catalog'
 
@@ -129,6 +130,12 @@ export function GamePlayHeader({
           {copied ? <Check className="size-3.5 text-emerald-600" /> : <Link2 className="size-3.5" />}
           {copied ? 'Copied' : 'Copy link'}
         </button>
+        <Link
+          href="/"
+          className="inline-flex items-center rounded-full border border-border bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+        >
+          Home
+        </Link>
       </div>
     </div>
   )
