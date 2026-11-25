@@ -43,7 +43,7 @@ export function GamesPickerFilters({
         onKeyDown={e => {
           if (e.key === 'Enter') onSearchSubmit?.()
         }}
-        placeholder="Search by name, vibe, or 1–7…"
+        placeholder="Search tables · Enter opens first match"
         autoComplete="off"
         className="w-full rounded-2xl border border-border bg-card/80 px-4 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-foreground/25 focus-visible:ring-2 focus-visible:ring-foreground/10"
       />
