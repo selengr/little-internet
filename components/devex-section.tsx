@@ -327,10 +327,19 @@ export function DevExSection() {
           <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border text-[10px] tracking-widest text-muted-foreground uppercase">
             Diversions
           </div>
-          <h2 className="mt-5 text-4xl md:text-5xl font-light tracking-tight leading-[1.05] text-foreground">
-            Facts, jokes &amp; verse.<br />
-            <span className="text-muted-foreground">Take a breath.</span>
-          </h2>
+          <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-4xl md:text-5xl font-light tracking-tight leading-[1.05] text-foreground">
+              Facts, jokes &amp; verse.<br />
+              <span className="text-muted-foreground">Take a breath.</span>
+            </h2>
+            <Link
+              href="/games"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border px-4 py-2 text-[11px] tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Seven arcade tables
+              <ArrowUpRight className="size-3.5" />
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 items-start">
