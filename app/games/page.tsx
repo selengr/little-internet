@@ -35,6 +35,8 @@ export const metadata = {
     'no install games',
     'arcade',
     'free online games',
+    'keyboard shortcuts',
+    'share score',
   ],
   alternates: { canonical: '/games' },
   openGraph: {
