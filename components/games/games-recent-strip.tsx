@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { GAMES, type GameId } from '@/lib/games-catalog'
 
 export function GamesRecentStrip({
@@ -28,6 +29,12 @@ export function GamesRecentStrip({
           </button>
         )
       })}
+      <Link
+        href="/games?help=1"
+        className="rounded-full border border-dashed border-border px-2.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+      >
+        Shortcuts
+      </Link>
     </div>
   )
 }
