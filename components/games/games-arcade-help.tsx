@@ -5,6 +5,7 @@ import { HelpCircle, X } from 'lucide-react'
 import { pickArcadeTip } from '@/lib/games/arcade-tips'
 import { featuredArcadeTips } from '@/lib/games/featured-tips'
 import { GAME_COUNT } from '@/lib/games-catalog'
+import { PER_TABLE_SHORTCUTS } from '@/lib/games/per-table-shortcuts'
 
 const FEATURED = featuredArcadeTips()
 
@@ -58,6 +59,7 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
               <kbd className="rounded border px-1 font-mono text-[10px]">?</kbd> help,{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">[</kbd>{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">]</kbd> prev/next table ·{' '}
+              <kbd className="rounded border px-1 font-mono text-[10px]">L</kbd> last table ·{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">Esc</kbd> back
             </p>
           </div>
@@ -83,9 +85,17 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
             Another tip
           </button>
         )}
-        <ul className="mt-4 max-h-48 space-y-1 overflow-y-auto text-[11px] text-muted-foreground">
+        <ul className="mt-4 max-h-32 space-y-1 overflow-y-auto text-[11px] text-muted-foreground">
           {FEATURED.map(t => (
             <li key={t.id}>· {t.text}</li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Inside each table</p>
+        <ul className="mt-2 max-h-40 space-y-1.5 overflow-y-auto text-[11px] text-muted-foreground">
+          {PER_TABLE_SHORTCUTS.map(row => (
+            <li key={row.gameId}>
+              <span className="text-foreground/80">{row.name}</span> — {row.keys}
+            </li>
           ))}
         </ul>
       </div>
