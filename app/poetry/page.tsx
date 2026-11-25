@@ -21,7 +21,7 @@ const mark = Syne({
 })
 
 const description =
-  'Spill a little ink and see what verse blooms: a poem of the day, plus poems by mood.'
+  'Spill a little ink: poem of the day, mood spinner, and PoetryDB search by author or title.'
 
 export const metadata = {
   title: 'Poetry',
