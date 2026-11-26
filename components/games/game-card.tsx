@@ -49,6 +49,7 @@ export function GameCard({
       className={cn(
         'game-card-pop-in group relative flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-[28px] p-4 text-left shadow-[0_10px_24px_-12px_rgba(0,0,0,0.35)] outline-none transition-transform duration-150 ease-out hover:-translate-y-1 focus-visible:ring-4 focus-visible:ring-white/60 active:scale-[0.96] active:translate-y-0 sm:rounded-[32px] sm:p-5',
         isLastPlayed && 'game-card-last-played',
+        isPinned && 'ring-2 ring-amber-300/80 ring-offset-2 ring-offset-transparent',
       )}
       style={{
         backgroundImage: `linear-gradient(145deg, ${game.from}, ${game.to})`,
