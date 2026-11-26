@@ -240,6 +240,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0230', text: 'Document title shows which table you are playing.' },
   { id: 'tip-0231', text: 'Mood Quick tables favor short reflex rounds.', gameId: 'rps' },
   { id: 'tip-0232', text: 'Mood Think includes Sudoku and chess.', gameId: 'sudoku' },
+  { id: 'tip-0233', text: 'Mood Guess is for silhouettes and shapes.', gameId: 'portal' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
