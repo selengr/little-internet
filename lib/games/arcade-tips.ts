@@ -243,6 +243,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0233', text: 'Mood Guess is for silhouettes and shapes.', gameId: 'portal' },
   { id: 'tip-0234', text: 'Open /games bare for the full seven-table grid.' },
   { id: 'tip-0235', text: 'Back to grid keeps mood, search, and pins in the URL.' },
+  { id: 'tip-0236', text: 'Recent strip replays tables without digging through cards.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
