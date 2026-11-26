@@ -36,6 +36,8 @@ import { GamesActiveTable } from '@/components/games/games-active-table'
 import { GamesPickerEmpty } from '@/components/games/games-picker-empty'
 import { GamesPickerGrid } from '@/components/games/games-picker-grid'
 import { GamesRecentStrip } from '@/components/games/games-recent-strip'
+import { GamesPinnedStrip } from '@/components/games/games-pinned-strip'
+import { pinsOnlyFromSearchParam } from '@/lib/games/pins-param'
 
 export function GamesHub() {
   const router = useRouter()
@@ -58,7 +60,9 @@ export function GamesHub() {
   const [helpOpen, setHelpOpen] = useState(false)
   const [recentIds, setRecentIds] = useState<GameId[]>([])
   const [pinnedIds, setPinnedIds] = useState<GameId[]>([])
-  const [pinnedOnly, setPinnedOnly] = useState(false)
+  const [pinnedOnly, setPinnedOnly] = useState(() =>
+    pinsOnlyFromSearchParam(searchParams.get('pins')),
+  )
 
   const refreshPickerMeta = useCallback(() => {
     setRecentIds(getRecentTableIds())
@@ -100,6 +104,17 @@ export function GamesHub() {
   }, [searchParams])
 
   useEffect(() => {
+    const nextPins = pinsOnlyFromSearchParam(searchParams.get('pins'))
+    setPinnedOnly(prev => (prev === nextPins ? prev : nextPins))
+    if (searchParams.get('pins') && !nextPins) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('pins')
+      const query = params.toString()
+      router.replace(query ? `/games?${query}` : '/games', { scroll: false })
+    }
+  }, [searchParams, router])
+
+  useEffect(() => {
     const raw = searchParams.get('mode')
     const next = isGameId(raw) ? raw : null
     setGameId(prev => (prev === next ? prev : next))
@@ -118,19 +133,21 @@ export function GamesHub() {
       setRecentIds(pushRecentTableId(id))
       setGameId(id)
       router.replace(
-        buildGamesPickerPath({ mode: id, mood: pickerMood, q: pickerSearch }),
+        buildGamesPickerPath({ mode: id, mood: pickerMood, q: pickerSearch, pins: pinnedOnly }),
         { scroll: false },
       )
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    [router, pickerMood, pickerSearch],
+    [router, pickerMood, pickerSearch, pinnedOnly],
   )
 
   const backToGrid = useCallback(() => {
     setGameId(null)
     refreshPickerMeta()
-    router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch }), { scroll: false })
-  }, [router, refreshPickerMeta, pickerMood, pickerSearch])
+    router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch, pins: pinnedOnly }), {
+      scroll: false,
+    })
+  }, [router, refreshPickerMeta, pickerMood, pickerSearch, pinnedOnly])
 
   const filteredGames = useMemo(
     () =>
@@ -168,9 +185,9 @@ export function GamesHub() {
   const setMoodFilter = useCallback(
     (mood: GameMood | null) => {
       setPickerMood(mood)
-      router.replace(buildGamesPickerPath({ mood, q: pickerSearch }), { scroll: false })
+      router.replace(buildGamesPickerPath({ mood, q: pickerSearch, pins: pinnedOnly }), { scroll: false })
     },
-    [router, pickerSearch],
+    [router, pickerSearch, pinnedOnly],
   )
 
   const openAtIndex = useCallback(
@@ -184,14 +201,19 @@ export function GamesHub() {
   const closeHelp = useCallback(() => {
     setHelpOpen(false)
     if (searchParams.get('help')) {
-      router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch }), { scroll: false })
+      router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch, pins: pinnedOnly }), {
+        scroll: false,
+      })
     }
-  }, [router, searchParams, pickerMood, pickerSearch])
+  }, [router, searchParams, pickerMood, pickerSearch, pinnedOnly])
 
   const openHelp = useCallback(() => {
     setHelpOpen(true)
-    router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch, help: true }), { scroll: false })
-  }, [router, pickerMood, pickerSearch])
+    router.replace(
+      buildGamesPickerPath({ mood: pickerMood, q: pickerSearch, pins: pinnedOnly, help: true }),
+      { scroll: false },
+    )
+  }, [router, pickerMood, pickerSearch, pinnedOnly])
 
   const toggleHelp = useCallback(() => {
     if (helpOpen) closeHelp()
@@ -201,15 +223,28 @@ export function GamesHub() {
   const setPickerSearchWithUrl = useCallback(
     (value: string) => {
       setPickerSearch(value)
-      router.replace(buildGamesPickerPath({ mood: pickerMood, q: value }), { scroll: false })
+      router.replace(buildGamesPickerPath({ mood: pickerMood, q: value, pins: pinnedOnly }), {
+        scroll: false,
+      })
     },
-    [router, pickerMood],
+    [router, pickerMood, pinnedOnly],
+  )
+
+  const setPinnedOnlyWithUrl = useCallback(
+    (value: boolean) => {
+      setPinnedOnly(value)
+      router.replace(buildGamesPickerPath({ mood: pickerMood, q: pickerSearch, pins: value }), {
+        scroll: false,
+      })
+    },
+    [router, pickerMood, pickerSearch],
   )
 
   const clearPickerFilters = useCallback(() => {
     setPickerSearchWithUrl('')
     setMoodFilter(null)
-  }, [setMoodFilter, setPickerSearchWithUrl])
+    setPinnedOnlyWithUrl(false)
+  }, [setMoodFilter, setPickerSearchWithUrl, setPinnedOnlyWithUrl])
 
   const focusPickerSearch = useCallback(() => {
     document.getElementById('games-picker-search')?.focus()
@@ -256,6 +291,7 @@ export function GamesHub() {
     onFocusSearch: focusPickerSearch,
     onAdjacentTable: goAdjacentTable,
     onResumeLast: resumeLast,
+    onTogglePinnedOnly: () => setPinnedOnlyWithUrl(!pinnedOnly),
   })
 
   return (
@@ -275,6 +311,12 @@ export function GamesHub() {
           </p>
           <GamesPickerToolbar onRandom={pickRandom} onResumeLast={resumeLast} onOpenHelp={openHelp} />
           <GamesRecentStrip recentIds={recentIds} onOpen={openGame} />
+          <GamesPinnedStrip
+            pinnedIds={pinnedIds}
+            onOpen={openGame}
+            pinsOnly={pinnedOnly}
+            onClearPinsView={() => setPinnedOnlyWithUrl(false)}
+          />
           <GamesPickerFilters
             mood={pickerMood}
             onMoodChange={setMoodFilter}
@@ -283,7 +325,8 @@ export function GamesHub() {
             resultCount={filteredGames.length}
             onClearAll={clearPickerFilters}
             pinnedOnly={pinnedOnly}
-            onPinnedOnlyChange={setPinnedOnly}
+            pinnedCount={pinnedIds.length}
+            onPinnedOnlyChange={setPinnedOnlyWithUrl}
             onSearchSubmit={openFirstFiltered}
           />
         </div>
@@ -298,7 +341,7 @@ export function GamesHub() {
           >
             <GamesPickerGrid>
               {filteredGames.length === 0 ? (
-                <GamesPickerEmpty onReset={clearPickerFilters} />
+                <GamesPickerEmpty onReset={clearPickerFilters} pinnedOnly={pinnedOnly} />
               ) : (
                 filteredGames.map((g, index) => (
                   <GameCard
