@@ -230,6 +230,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0220', text: 'Enter in the search box opens the first visible table.' },
   { id: 'tip-0221', text: 'Sudoku saves your best completion time per puzzle size.', gameId: 'sudoku' },
   { id: 'tip-0222', text: 'Trivia streaks count consecutive correct answers.', gameId: 'trivia' },
+  { id: 'tip-0223', text: 'Portal Faces: wrong guesses still reveal silhouette hints.', gameId: 'portal' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
