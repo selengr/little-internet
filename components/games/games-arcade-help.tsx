@@ -60,6 +60,7 @@ export function GamesArcadeHelp({ open, onClose }: { open: boolean; onClose: () 
               <kbd className="rounded border px-1 font-mono text-[10px]">[</kbd>{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">]</kbd> prev/next table ·{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">L</kbd> last table ·{' '}
+              <kbd className="rounded border px-1 font-mono text-[10px]">P</kbd> pinned only ·{' '}
               <kbd className="rounded border px-1 font-mono text-[10px]">Esc</kbd> back
             </p>
           </div>
