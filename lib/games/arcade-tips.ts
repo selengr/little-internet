@@ -228,6 +228,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0218', text: 'Games nav Help opens the cheatsheet at ?help=1.' },
   { id: 'tip-0219', text: 'Share my bests copies Sudoku times and streaks from this device.' },
   { id: 'tip-0220', text: 'Enter in the search box opens the first visible table.' },
+  { id: 'tip-0221', text: 'Sudoku saves your best completion time per puzzle size.', gameId: 'sudoku' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
