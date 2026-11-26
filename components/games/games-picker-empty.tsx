@@ -3,12 +3,22 @@
 import Link from 'next/link'
 import { FilterX } from 'lucide-react'
 
-export function GamesPickerEmpty({ onReset }: { onReset: () => void }) {
+export function GamesPickerEmpty({
+  onReset,
+  pinnedOnly,
+}: {
+  onReset: () => void
+  pinnedOnly?: boolean
+}) {
   return (
     <div className="col-span-2 flex flex-col items-center justify-center rounded-[28px] border border-dashed border-border bg-muted/30 px-6 py-14 text-center sm:col-span-3">
       <FilterX className="size-8 text-muted-foreground/70" aria-hidden />
       <p className="mt-3 text-sm font-semibold text-foreground">No tables match</p>
-      <p className="mt-1 max-w-xs text-[12px] text-muted-foreground">Try another mood or clear your search.</p>
+      <p className="mt-1 max-w-xs text-[12px] text-muted-foreground">
+        {pinnedOnly
+          ? 'Pin tables from the corner icon on any card, then try again.'
+          : 'Try another mood, turn off pinned-only, or clear your search.'}
+      </p>
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         <button
           type="button"
