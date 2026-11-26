@@ -14,6 +14,7 @@ export function GamesPickerFilters({
   resultCount,
   onClearAll,
   pinnedOnly = false,
+  pinnedCount = 0,
   onPinnedOnlyChange,
   onSearchSubmit,
 }: {
@@ -24,10 +25,11 @@ export function GamesPickerFilters({
   resultCount: number
   onClearAll?: () => void
   pinnedOnly?: boolean
+  pinnedCount?: number
   onPinnedOnlyChange?: (value: boolean) => void
   onSearchSubmit?: () => void
 }) {
-  const hasFilters = mood !== null || search.trim().length > 0
+  const hasFilters = mood !== null || search.trim().length > 0 || pinnedOnly
   const moodCounts = moodTableCounts()
 
   return (
@@ -78,6 +80,7 @@ export function GamesPickerFilters({
             className="size-3.5 rounded border-border"
           />
           Pinned only
+          {pinnedCount > 0 ? ` (${pinnedCount})` : ''}
         </label>
       )}
       <h2 className="sr-only">Filter tables</h2>
