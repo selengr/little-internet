@@ -75,6 +75,12 @@ export default function GamesPage() {
           </p>
           <div className="flex items-center gap-2">
             <Link
+              href="/games?help=1"
+              className="hidden rounded-xl border border-black/10 px-3 py-2 text-[11px] tracking-wide text-black/55 transition-all hover:border-black/20 hover:text-black dark:border-white/15 dark:text-white/55 dark:hover:text-white sm:inline-flex"
+            >
+              Help
+            </Link>
+            <Link
               href="/games-v2"
               className="hidden rounded-xl border border-black/10 px-3 py-2 text-[11px] tracking-wide text-black/55 transition-all hover:border-black/20 hover:text-black dark:border-white/15 dark:text-white/55 dark:hover:text-white sm:inline-flex"
             >
