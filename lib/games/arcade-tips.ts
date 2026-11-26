@@ -220,6 +220,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0210', text: 'Cheatsheet lists in-table keys — open with ? or the Help button.' },
   { id: 'tip-0211', text: 'Press P on the picker to toggle pinned-only view.' },
   { id: 'tip-0212', text: 'Pinned filter syncs to ?pins=1 in the address bar.' },
+  { id: 'tip-0213', text: 'Pinned chips jump you straight to a saved table.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
