@@ -218,6 +218,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0208', text: 'Homepage Play jumps to #play — arcade entry beside the tools marquee.' },
   { id: 'tip-0209', text: 'Poetry page: press / to focus author or title search.' },
   { id: 'tip-0210', text: 'Cheatsheet lists in-table keys — open with ? or the Help button.' },
+  { id: 'tip-0211', text: 'Press P on the picker to toggle pinned-only view.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
