@@ -13,7 +13,10 @@ export function GamesRecentStrip({
   if (!recentIds.length) return null
 
   return (
-    <div className="mx-auto mt-4 flex max-w-lg flex-wrap items-center justify-center gap-1.5">
+    <div
+      className="mx-auto mt-4 flex max-w-lg flex-wrap items-center justify-center gap-1.5"
+      aria-label="Recently opened tables"
+    >
       <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">Recent</span>
       {recentIds.map(id => {
         const game = GAMES.find(g => g.id === id)
