@@ -226,6 +226,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0216', text: 'Golden ring on a card means it is pinned.' },
   { id: 'tip-0217', text: 'Empty pinned view? Tap the pin icon on any card first.' },
   { id: 'tip-0218', text: 'Games nav Help opens the cheatsheet at ?help=1.' },
+  { id: 'tip-0219', text: 'Share my bests copies Sudoku times and streaks from this device.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
