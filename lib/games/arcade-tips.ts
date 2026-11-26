@@ -224,6 +224,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0214', text: 'Search “pin” or “pinned” to find tables you starred.' },
   { id: 'tip-0215', text: 'Clear all resets mood, search, and the pinned filter.' },
   { id: 'tip-0216', text: 'Golden ring on a card means it is pinned.' },
+  { id: 'tip-0217', text: 'Empty pinned view? Tap the pin icon on any card first.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
