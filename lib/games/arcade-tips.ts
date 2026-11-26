@@ -238,6 +238,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0228', text: 'Shuffle on the play header jumps to another random table.' },
   { id: 'tip-0229', text: 'Chevron buttons walk table order without leaving the game.' },
   { id: 'tip-0230', text: 'Document title shows which table you are playing.' },
+  { id: 'tip-0231', text: 'Mood Quick tables favor short reflex rounds.', gameId: 'rps' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
