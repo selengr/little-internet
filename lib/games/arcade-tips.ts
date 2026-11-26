@@ -236,6 +236,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0226', text: 'Rock Paper Scissors tracks win streak in this browser.', gameId: 'rps' },
   { id: 'tip-0227', text: 'Who\'s That Pokémon: silhouette tightens when you guess.', gameId: 'pokemon' },
   { id: 'tip-0228', text: 'Shuffle on the play header jumps to another random table.' },
+  { id: 'tip-0229', text: 'Chevron buttons walk table order without leaving the game.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
