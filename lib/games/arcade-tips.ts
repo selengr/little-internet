@@ -232,6 +232,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0222', text: 'Trivia streaks count consecutive correct answers.', gameId: 'trivia' },
   { id: 'tip-0223', text: 'Portal Faces: wrong guesses still reveal silhouette hints.', gameId: 'portal' },
   { id: 'tip-0224', text: 'Chess Puzzle: one best move — take your time.', gameId: 'chess' },
+  { id: 'tip-0225', text: 'Higher or Lower uses live trivia popularity scores.', gameId: 'higherlower' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
