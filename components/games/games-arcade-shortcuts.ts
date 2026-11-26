@@ -12,9 +12,19 @@ export function useGamesArcadeShortcuts(opts: {
   onFocusSearch?: () => void
   onAdjacentTable?: (direction: 'prev' | 'next') => void
   onResumeLast?: () => void
+  onTogglePinnedOnly?: () => void
 }) {
-  const { gameId, onRandom, onBackToGrid, onOpenAtIndex, onToggleHelp, onFocusSearch, onAdjacentTable, onResumeLast } =
-    opts
+  const {
+    gameId,
+    onRandom,
+    onBackToGrid,
+    onOpenAtIndex,
+    onToggleHelp,
+    onFocusSearch,
+    onAdjacentTable,
+    onResumeLast,
+    onTogglePinnedOnly,
+  } = opts
 
   useEffect(() => {
     if (gameId) return
@@ -50,11 +60,17 @@ export function useGamesArcadeShortcuts(opts: {
       if (onResumeLast && (e.key === 'l' || e.key === 'L')) {
         e.preventDefault()
         onResumeLast()
+        return
+      }
+
+      if (onTogglePinnedOnly && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault()
+        onTogglePinnedOnly()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp, onFocusSearch, onResumeLast])
+  }, [gameId, onRandom, onOpenAtIndex, onToggleHelp, onFocusSearch, onResumeLast, onTogglePinnedOnly])
 
   useEffect(() => {
     if (!gameId) return
