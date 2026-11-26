@@ -245,6 +245,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0235', text: 'Back to grid keeps mood, search, and pins in the URL.' },
   { id: 'tip-0236', text: 'Recent strip replays tables without digging through cards.' },
   { id: 'tip-0237', text: 'Pinned storage lives in localStorage — clearing site data resets pins.' },
+  { id: 'tip-0238', text: 'Invalid ?pins= values are stripped from the URL automatically.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
