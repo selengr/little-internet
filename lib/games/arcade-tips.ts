@@ -247,6 +247,7 @@ export const ARCADE_TIPS: ArcadeTip[] = [
   { id: 'tip-0237', text: 'Pinned storage lives in localStorage — clearing site data resets pins.' },
   { id: 'tip-0238', text: 'Invalid ?pins= values are stripped from the URL automatically.' },
   { id: 'tip-0239', text: 'Another table shuffles to a different game, not a rematch.' },
+  { id: 'tip-0240', text: 'Arcade is free — scores never leave your browser unless you share.' },
 ]
 
 export function pickArcadeTip(seed?: number): ArcadeTip | null {
