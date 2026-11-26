@@ -19,6 +19,15 @@ export function isPinnedTableId(id: GameId): boolean {
   return getPinnedTableIds().includes(id)
 }
 
+export function clearPinnedTableIds(): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.removeItem(KEY)
+  } catch {
+    /* private mode */
+  }
+}
+
 export function togglePinnedTableId(id: GameId): GameId[] {
   const set = new Set(getPinnedTableIds())
   if (set.has(id)) set.delete(id)
