@@ -21,6 +21,7 @@ export function filterPickerGames(opts: {
     if (opts.mood && entry.mood !== opts.mood) return false
     if (!q) return true
     if (entry.id.includes(q)) return true
+    if (q === 'pin' || q === 'pinned') return pinned.includes(entry.id)
     if (/^[1-7]$/.test(q)) {
       const index = GAMES.findIndex(g => g.id === entry.id)
       return index + 1 === Number(q)
